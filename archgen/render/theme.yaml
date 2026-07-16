@@ -1,0 +1,103 @@
+# archgen design tokens. Change this file -> every diagram restyles.
+# All sizes in points unless noted (1 inch = 72 pt = 914400 EMU).
+
+font_family: "Segoe UI"
+
+slide:
+  # 16:9 widescreen
+  width_in: 13.333
+  height_in: 7.5
+  margin_in: 0.5
+  title_font_pt: 26
+  bottom_legend_reserve_in: 0.65
+
+grid_unit_pt: 8          # everything snaps to multiples of this
+
+node:
+  label_font_pt: 11.5
+  label_max_width_in: 1.4   # cap so long labels wrap instead of stretching (see linter MAX_LABEL_LEN)
+  label_pad_pt: 2
+  icon_slot_in: 0.64        # icon is uniform-scaled to fit this square, centered (upper part of the card)
+  box_fill: "FFFFFF"        # neutral node background; blends with raster icon canvases
+  box_line: "C6CDD6"
+  box_line_pt: 1.0
+  label_color: "1F2933"
+
+group:
+  title_font_pt: 13
+  title_color: "3E4C59"
+  line_pt: 1.25
+  corner_radius_in: 0.12
+  pad_in: 0.18              # breathing room inside container boxes
+
+edge:
+  line_pt: 1.8
+  color: "7B8794"
+  label_font_pt: 9.5
+  label_color: "52606D"
+  arrow_len_pt: 9
+
+# Semantic connections used by network diagrams. The spec declares meaning;
+# these tokens own the visual mapping and the derived connection legend.
+connections:
+  traffic: {color: "2563EB", display: "Request / data flow"}
+  https: {color: "7C3AED", display: "Authentication / RBAC"}
+  diagnostics: {color: "78909C", display: "Diagnostics"}
+  dns: {color: "70AD47", display: "DNS traffic"}
+  private_connection: {color: "46B3E6", display: "Private connection"}
+  virtual_network_link: {color: "F5A623", display: "Virtual network link"}
+
+network:
+  # Architecture-board profile used by semantic cloud-network diagrams.
+  slide_width_in: 13.75
+  slide_height_in: 11.25
+  layout_margin_pt: 0
+  workload_fill: "0078D4"
+  workload_line: "005A9E"
+  workload_text: "FFFFFF"
+  panel_fill: "F5F7F9"
+  panel_line: "3F4A55"
+  cloud_line: "111827"
+  vnet_line: "0078D4"
+  title_font_pt: 10
+  label_font_pt: 9
+  connection_line_pt: 1.15
+
+legend:
+  font_pt: 9.5
+  title_font_pt: 10.5
+  swatch_in: 0.16
+  row_gap_pt: 4
+  pad_in: 0.14
+  box_fill: "FFFFFF"
+  box_line: "D2D9E0"
+
+# Per-provider palette. `fill`/`line` theme node accents; `tint` is the
+# translucent container background; `hex` is the brand color for legend swatches
+# and (only) recolorable icons.
+providers:
+  azure:
+    hex: "0078D4"
+    tint: "E8F1FB"
+    line: "0078D4"
+    display: "Microsoft Azure"
+  aws:
+    hex: "FF9900"
+    tint: "FFF3E0"
+    line: "FF9900"
+    display: "Amazon Web Services"
+  gcp:
+    hex: "4285F4"
+    tint: "E9F0FE"
+    line: "4285F4"
+    display: "Google Cloud"
+  tech:
+    hex: "5A5A5A"
+    tint: "F0F0F0"
+    line: "9AA5B1"
+    display: "Tech / OSS"
+  generic:
+    hex: "5B6470"
+    tint: "F0F2F5"
+    line: "9AA5B1"
+    display: "Generic"

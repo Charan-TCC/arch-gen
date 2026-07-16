@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+.pytest_cache/
+assets/icons/*/
+.archgen_cache/
+*.egg-info/
+out/*
+!out/.gitkeep

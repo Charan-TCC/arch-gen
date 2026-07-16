@@ -1,0 +1,57 @@
+title: "AWS Multi-Account Architecture"
+kind: flow
+direction: LR
+
+abbreviations:
+  API: "Application Programming Interface"
+  AWS: "Amazon Web Services"
+  WAF: "Web Application Firewall"
+  IAM: "Identity and Access Management"
+  SNS: "Simple Notification Service"
+  S3: "Simple Storage Service"
+
+groups:
+  - {id: hub, label: "Hub account", provider: aws}
+  - {id: mgmt, label: "AWS Organizations Management account", provider: aws}
+  - {id: spoke_n, label: "Spoke account N", provider: aws}
+  - {id: spoke_1, label: "Spoke account 1", parent: spoke_n, provider: aws}
+
+nodes:
+  - {id: client, icon_key: generic.client, label: "Client"}
+  
+  # Hub Account
+  - {id: cf, icon_key: aws.cloudfront, label: "Amazon CloudFront", group: hub}
+  - {id: s3_web, icon_key: aws.s3, label: "S3 (web interface)", group: hub}
+  - {id: waf, icon_key: aws.waf, label: "AWS WAF", group: hub}
+  - {id: apigw, icon_key: aws.api-gateway, label: "Amazon API Gateway", group: hub}
+  - {id: cognito, icon_key: aws.cognito, label: "Amazon Cognito", group: hub}
+  - {id: lambda_1, icon_key: aws.lambda, label: "AWS Lambda", group: hub}
+  - {id: ddb, icon_key: aws.dynamodb, label: "Amazon DynamoDB", group: hub}
+  - {id: eb, icon_key: aws.eventbridge, label: "Amazon EventBridge", group: hub}
+  - {id: step, icon_key: aws.step-functions, label: "AWS Step Functions", group: hub}
+  - {id: lambda_2, icon_key: aws.lambda, label: "AWS Lambda", group: hub}
+
+  # Management Account
+  - {id: orgs, icon_key: aws.organizations, label: "AWS Organizations", group: mgmt}
+
+  # Spoke Account 1
+  - {id: pol_s3, icon_key: aws.s3, label: "S3 Bucket Policies", group: spoke_1}
+  - {id: pol_iam, icon_key: aws.identity-and-access-management, label: "IAM Policies", group: spoke_1}
+  - {id: pol_sns, icon_key: aws.simple-notification-service, label: "SNS Topic Policies", group: spoke_1}
+  - {id: pol_nth, icon_key: generic.service, label: "Service Nth", group: spoke_1}
+
+edges:
+  - {src: client, dst: cf, label: "1"}
+  - {src: cf, dst: s3_web, label: "2"}
+  - {src: client, dst: cognito, label: "3"}
+  - {src: client, dst: waf, label: "4"}
+  - {src: waf, dst: apigw, label: "5"}
+  - {src: apigw, dst: cognito, label: "6"}
+  - {src: apigw, dst: lambda_1, label: "7"}
+  - {src: lambda_1, dst: ddb, label: "8"}
+  - {src: lambda_1, dst: orgs, label: "9"}
+  - {src: apigw, dst: eb, label: "10"}
+  - {src: eb, dst: step, label: "11"}
+  - {src: step, dst: lambda_2, label: "12"}
+  - {src: lambda_2, dst: pol_iam, label: "13"}
+  - {src: lambda_2, dst: ddb, label: "14"}

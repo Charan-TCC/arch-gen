@@ -1,0 +1,32 @@
+# Generated the archgen way — a plain-English prompt turned into a spec by an agent;
+# the renderer owns layout, colors, elbow connectors, and legends.
+#
+#   Prompt: "An event-driven order pipeline: a web app publishes order events to
+#            Kafka; a consumer processes them into a Postgres database and a Redis
+#            cache; failed events go to a dead-letter queue."
+#
+#   archgen render examples/event_driven_pipeline.yaml -o out.pptx
+
+title: "Event-Driven Order Pipeline"
+kind: flow
+direction: LR
+
+groups:
+  - {id: ingest,  label: "Ingest"}
+  - {id: process, label: "Processing"}
+  - {id: stores,  label: "Stores"}
+
+nodes:
+  - {id: app,    icon_key: tech.react,     label: "Web App",           group: ingest}
+  - {id: bus,    icon_key: tech.kafka,     label: "Kafka",             group: ingest}
+  - {id: worker, icon_key: aws.lambda,     label: "Consumer",          group: process}
+  - {id: dlq,    icon_key: generic.queue,  label: "Dead-Letter Queue", group: process}
+  - {id: db,     icon_key: tech.postgres,  label: "Postgres",          group: stores}
+  - {id: cache,  icon_key: tech.redis,     label: "Redis",             group: stores}
+
+edges:
+  - {src: app,    dst: bus}
+  - {src: bus,    dst: worker}
+  - {src: worker, dst: db}
+  - {src: worker, dst: cache, style: dotted}
+  - {src: worker, dst: dlq,   style: dashed}

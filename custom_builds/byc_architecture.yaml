@@ -1,0 +1,130 @@
+title: "BYC Multi-Tenant E-Commerce Platform"
+kind: network
+
+abbreviations:
+  ALB: "Application Load Balancer"
+  API: "Application Programming Interface"
+  AWS: "Amazon Web Services"
+  BYC: "Build Your Cart"
+  CDN: "Content Delivery Network"
+  DR: "Disaster Recovery"
+  EKS: "Elastic Kubernetes Service"
+  ELK: "Elasticsearch, Logstash, Kibana"
+  MSK: "Managed Streaming for Kafka"
+  OIDC: "OpenID Connect"
+  RBAC: "Role-Based Access Control"
+  RDS: "Relational Database Service"
+  S3: "Simple Storage Service"
+  SPA: "Single Page Application"
+  SQS: "Simple Queue Service"
+  WAF: "Web Application Firewall"
+  JWT: "JSON Web Token"
+
+groups:
+  - {id: p_region, label: "Primary Region (us-east-1)", provider: aws, kind: cloud, role: boundary}
+  
+  - {id: edge, label: "Edge & Gateway", parent: p_region, provider: aws, role: web}
+  - {id: data, label: "Data Layer (AWS managed)", parent: p_region, provider: aws, role: storage}
+  - {id: eks, label: "Amazon EKS / Istio mesh", parent: p_region, provider: aws, role: private_network}
+  - {id: obs, label: "Observability Stack", parent: p_region, provider: aws, role: cost}
+  - {id: s_region, label: "Secondary Region (eu-west-1) [DR]", provider: aws, role: deployment}
+  - {id: third_party, label: "Third-Party Services", provider: generic, role: integration}
+
+nodes:
+  # Clients (External role auto-places them outside on the left)
+  - {id: web, icon_key: generic.client, label: "Web SPA", role: external}
+  - {id: mobile, icon_key: generic.mobile, label: "Mobile Apps", role: external}
+  - {id: api_client, icon_key: generic.api, label: "Integrators", role: external}
+  
+  # Okta moved to external identity provider (left side) to avoid crossing lines
+  - {id: okta, icon_key: tech.okta, label: "Okta Identity", role: external}
+  
+  # Edge
+  - {id: cf, icon_key: aws.cloudfront, label: "CloudFront", group: edge, role: gateway}
+  - {id: waf, icon_key: aws.waf, label: "AWS WAF", group: edge, role: gateway}
+  - {id: kong, icon_key: tech.kong, label: "Kong Gateway", group: edge, role: gateway}
+  - {id: alb, icon_key: aws.elastic-load-balancing, label: "ALB", group: edge, role: gateway}
+  
+  # EKS Microservices (Ordered to align vertically with Data/Queue nodes directly above/below them)
+  - {id: svc_auth, icon_key: aws.cognito, label: "Auth Service", group: eks, role: workload}
+  - {id: svc_user, icon_key: generic.user, label: "User Service", group: eks, role: workload}
+  - {id: svc_catalog, icon_key: generic.database, label: "Catalog", group: eks, role: workload}
+  - {id: svc_search, icon_key: generic.search, label: "Search Service", group: eks, role: workload}
+  
+  - {id: svc_cart, icon_key: generic.workflow, label: "Cart & Order", group: eks, role: workload}
+  - {id: svc_pay, icon_key: generic.security, label: "Payment Service", group: eks, role: workload}
+  - {id: svc_inv, icon_key: generic.container, label: "Inventory Service", group: eks, role: workload}
+  - {id: svc_notif, icon_key: aws.simple-notification-service, label: "Notification", group: eks, role: workload}
+  
+  - {id: msk, icon_key: aws.managed-streaming-for-apache-kafka, label: "Amazon MSK", group: eks, role: workload}
+  - {id: sqs, icon_key: aws.simple-queue-service, label: "Amazon SQS", group: eks, role: workload}
+  - {id: worker, icon_key: generic.workflow, label: "Worker Pods", group: eks, role: workload}
+
+  # Data (Reordered to align columns with microservice columns in EKS)
+  - {id: rds, icon_key: aws.rds, label: "RDS (Postgres)", group: data, role: service}
+  - {id: ddb, icon_key: aws.dynamodb, label: "DynamoDB", group: data, role: service}
+  - {id: redis, icon_key: aws.elasticache, label: "ElastiCache", group: data, role: service}
+  - {id: os, icon_key: aws.opensearch-service, label: "OpenSearch", group: data, role: service}
+  - {id: s3, icon_key: aws.s3, label: "Amazon S3", group: data, role: service}
+  - {id: redshift, icon_key: aws.redshift, label: "Redshift", group: data, role: service}
+  
+  # Secondary Region (DR)
+  - {id: dr_standby, icon_key: aws.rds, label: "DR Standby Services", group: s_region, role: service}
+  
+  # Third Party
+  - {id: stripe, icon_key: tech.stripe, label: "Stripe", group: third_party, role: service}
+  - {id: sendgrid, icon_key: generic.service, label: "SendGrid/Twilio", group: third_party, role: service}
+  - {id: shipping, icon_key: generic.service, label: "Logistics API", group: third_party, role: service}
+  
+  # Observability (OTel on top-left to pull telemetry straight down)
+  - {id: otel, icon_key: generic.monitoring, label: "OpenTelemetry", group: obs, role: service}
+  - {id: prom, icon_key: tech.prometheus, label: "Prometheus", group: obs, role: service}
+  - {id: loki, icon_key: generic.monitoring, label: "Loki / ELK", group: obs, role: service}
+  - {id: grafana, icon_key: tech.grafana, label: "Grafana", group: obs, role: service}
+
+edges:
+  # Auth Flow
+  - {src: web, dst: okta, kind: https, style: dashed}
+  - {src: kong, dst: okta, kind: https, style: dashed, label: "JWT"}
+  
+  # Sync Flow
+  - {src: web, dst: cf, kind: traffic, style: solid}
+  - {src: mobile, dst: cf, kind: traffic, style: solid}
+  - {src: api_client, dst: cf, kind: traffic, style: solid}
+  
+  - {src: cf, dst: waf, kind: traffic, style: solid}
+  - {src: cf, dst: s3, kind: traffic, style: solid, label: "Static"}
+  - {src: waf, dst: kong, kind: traffic, style: solid}
+  - {src: kong, dst: alb, kind: traffic, style: solid}
+  
+  - {src: alb, dst: svc_auth, kind: traffic, style: solid}
+  - {src: alb, dst: svc_catalog, kind: traffic, style: solid}
+  - {src: alb, dst: svc_search, kind: traffic, style: solid}
+  - {src: alb, dst: svc_cart, kind: traffic, style: solid}
+  
+  - {src: svc_auth, dst: redis, kind: traffic, style: solid}
+  - {src: svc_user, dst: rds, kind: traffic, style: solid}
+  - {src: svc_catalog, dst: ddb, kind: traffic, style: solid}
+  - {src: svc_search, dst: os, kind: traffic, style: solid}
+  - {src: svc_cart, dst: rds, kind: traffic, style: solid}
+  - {src: svc_cart, dst: svc_pay, kind: traffic, style: solid}
+  - {src: svc_cart, dst: svc_inv, kind: traffic, style: solid}
+  - {src: svc_pay, dst: stripe, kind: traffic, style: solid}
+  - {src: svc_pay, dst: rds, kind: traffic, style: solid}
+  - {src: svc_inv, dst: rds, kind: traffic, style: solid}
+  
+  # Async Flow
+  - {src: svc_cart, dst: msk, kind: virtual_network_link, style: dotted}
+  - {src: svc_inv, dst: msk, kind: virtual_network_link, style: dotted}
+  - {src: svc_notif, dst: msk, kind: virtual_network_link, style: dotted}
+  - {src: msk, dst: worker, kind: virtual_network_link, style: dotted}
+  - {src: worker, dst: redshift, kind: virtual_network_link, style: dotted}
+  - {src: worker, dst: sqs, kind: virtual_network_link, style: dotted, label: "DLQ"}
+  - {src: worker, dst: svc_notif, kind: virtual_network_link, style: dotted}
+  - {src: svc_notif, dst: sendgrid, kind: virtual_network_link, style: dotted}
+  - {src: svc_cart, dst: shipping, kind: traffic, style: solid}
+  
+  # Observability Flow (Using svc_auth as a rep to pull telemetry straight down to OTel)
+  - {src: svc_auth, dst: otel, kind: diagnostics, style: dotted, label: "All services"}
+  - {src: otel, dst: prom, kind: diagnostics, style: dotted}
+  - {src: otel, dst: loki, kind: diagnostics, style: dotted}

@@ -1,0 +1,38 @@
+title: "New Architecture"
+kind: flow
+direction: LR
+
+abbreviations:
+  API: "Application Programming Interface"
+  VPC: "Virtual Private Cloud"
+  S3: "Simple Storage Service"
+
+groups:
+  - {id: vpc, label: "VPC Subnet", provider: aws}
+  - {id: main_server, label: "Main Server", parent: vpc, provider: aws}
+  - {id: compute_nodes, label: "Compute Nodes", parent: vpc, provider: aws}
+
+nodes:
+  - {id: api_gw, icon_key: aws.api-gateway, label: "API gateway"}
+  - {id: lambda, icon_key: aws.lambda, label: "Lambda"}
+  - {id: s3, icon_key: aws.s3, label: "S3"}
+  - {id: server, icon_key: aws.ec2, label: "Server", group: main_server}
+  - {id: data, icon_key: aws.rds, label: "Data", group: main_server}
+  - {id: queue, icon_key: aws.auto-scaling, label: "Queue", group: vpc}
+  - {id: worker1, icon_key: aws.ec2, label: "Worker1", group: compute_nodes}
+  - {id: worker2, icon_key: aws.ec2, label: "Worker2", group: compute_nodes}
+  - {id: worker3, icon_key: aws.ec2, label: "Worker3", group: compute_nodes}
+  - {id: analytics, icon_key: aws.redshift, label: "Analytics"}
+
+edges:
+  - {src: api_gw, dst: lambda}
+  - {src: lambda, dst: server}
+  - {src: server, dst: data}
+  - {src: server, dst: queue}
+  - {src: queue, dst: worker1}
+  - {src: queue, dst: worker2}
+  - {src: queue, dst: worker3}
+  - {src: data, dst: s3}
+  - {src: worker1, dst: analytics}
+  - {src: worker2, dst: analytics}
+  - {src: worker3, dst: analytics}

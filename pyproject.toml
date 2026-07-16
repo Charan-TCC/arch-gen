@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "archgen"
+version = "0.1.0"
+description = "Spec-driven generator for neat, editable PowerPoint cloud architecture diagrams"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "python-pptx>=1.0",
+    "pydantic>=2.5",
+    "pyyaml>=6.0",
+    "cairosvg>=2.7",
+    "requests>=2.31",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+archgen = "archgen.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["archgen*"]
+
+[tool.setuptools.package-data]
+archgen = ["registry/manifest.json", "render/theme.yaml"]

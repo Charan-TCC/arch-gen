@@ -1,0 +1,44 @@
+# Generated the archgen way — a plain-English prompt turned into a spec by an agent.
+# Shows color generic-concept icons (API, LLM, Vector DB, Monitoring) alongside
+# real tech logos, wired with native elbow connectors.
+#
+#   Prompt: "A RAG chatbot: users on a web client call an API; the API sends
+#            prompts to an LLM and retrieves context from a vector database; a
+#            Postgres store holds chat history, Redis caches responses, and the
+#            LLM calls are monitored."
+#
+#   archgen render examples/rag_chatbot.yaml -o out.pptx
+
+title: "RAG Chatbot"
+kind: flow
+direction: LR
+
+abbreviations:
+  RAG: "Retrieval-Augmented Generation"
+  API: "Application Programming Interface"
+  LLM: "Large Language Model"
+  DB: "Database"
+
+groups:
+  - {id: client,  label: "Client"}
+  - {id: backend, label: "Backend"}
+  - {id: data,    label: "Data"}
+
+nodes:
+  - {id: user,  icon_key: generic.user,        label: "User",         group: client}
+  - {id: web,   icon_key: tech.react,          label: "Web Client",   group: client}
+  - {id: api,   icon_key: generic.api,         label: "API",          group: backend}
+  - {id: llm,   icon_key: generic.function,    label: "LLM Service",  group: backend}
+  - {id: vec,   icon_key: generic.database,    label: "Vector DB",    group: data}
+  - {id: store, icon_key: tech.postgres,       label: "Chat History", group: data}
+  - {id: cache, icon_key: tech.redis,          label: "Redis Cache",  group: data}
+  - {id: mon,   icon_key: generic.monitoring,  label: "Monitoring",   group: data}
+
+edges:
+  - {src: user, dst: web}
+  - {src: web,  dst: api}
+  - {src: api,  dst: llm}
+  - {src: api,  dst: vec}
+  - {src: api,  dst: store}
+  - {src: api,  dst: cache, style: dotted}
+  - {src: llm,  dst: mon,   style: dotted}

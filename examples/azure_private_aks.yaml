@@ -1,0 +1,98 @@
+title: "Private AKS architecture"
+kind: network
+provider_default: azure
+direction: LR
+
+abbreviations:
+  AKS: "Azure Kubernetes Service"
+  DNS: "Domain Name System"
+  WAF: "Web Application Firewall"
+  VM: "Virtual Machine"
+
+groups:
+  - id: azure
+    label: "Azure subscription"
+    provider: azure
+    kind: cloud
+    role: boundary
+  - id: vnet
+    label: "Private virtual network"
+    parent: azure
+    provider: azure
+    kind: network
+  - id: ingress
+    label: "Application Gateway for Containers"
+    parent: vnet
+    provider: azure
+    kind: subnet
+    role: ingress
+  - id: aks
+    label: "Azure Kubernetes Service"
+    parent: vnet
+    provider: azure
+    kind: cluster
+    role: compute
+  - id: management
+    label: "Azure Bastion"
+    parent: vnet
+    provider: azure
+    kind: subnet
+    role: management
+  - id: private_access
+    label: "Private access subnet"
+    parent: vnet
+    provider: azure
+    kind: subnet
+    role: private_access
+
+nodes:
+  - {id: client, icon_key: azure.client-apps, label: "Client application", role: external}
+  - {id: browser, icon_key: azure.browser, label: "Internet browser", role: external}
+  - {id: internet, icon_key: generic.internet, label: "Internet", role: internet}
+
+  - {id: blob_dns, icon_key: azure.dns-zones, label: "Blob private DNS zone", group: azure, role: dns}
+  - {id: vault_dns, icon_key: azure.dns-zones, label: "Vault private DNS zone", group: azure, role: dns}
+  - {id: registry_dns, icon_key: azure.dns-zones, label: "Registry private DNS zone", group: azure, role: dns}
+  - {id: resolver, icon_key: azure.dns-private-resolver, label: "Azure recursive DNS", group: azure, role: dns}
+
+  - {id: vnet_link, icon_key: azure.virtual-networks, label: "Private VNet", group: vnet, role: network_anchor}
+  - {id: waf, icon_key: azure.web-application-firewall-policies-waf, label: "WAF policy", group: ingress, role: gateway}
+  - {id: app_gateway, icon_key: azure.application-gateway-containers, label: "App Gateway", group: ingress, role: gateway}
+  - {id: service_pods, icon_key: azure.aks, label: "Service pods", group: aks, role: workload}
+  - {id: controller, icon_key: azure.application-gateway-containers, label: "Load balancer controller", group: aks, role: workload}
+  - {id: bastion, icon_key: azure.bastions, label: "Azure Bastion", group: management, role: management}
+  - {id: vm, icon_key: azure.virtual-machine, label: "Management VM", group: private_access, role: management}
+  - {id: storage_pe, icon_key: azure.private-endpoints, label: "Storage endpoint", group: private_access, role: private_endpoint}
+  - {id: vault_pe, icon_key: azure.private-endpoints, label: "Vault endpoint", group: private_access, role: private_endpoint}
+  - {id: registry_pe, icon_key: azure.private-endpoints, label: "Registry endpoint", group: private_access, role: private_endpoint}
+
+  - {id: storage, icon_key: azure.storage-accounts, label: "Azure Storage account", group: azure, role: managed_service}
+  - {id: key_vault, icon_key: azure.key-vaults, label: "Azure Key Vault", group: azure, role: managed_service}
+  - {id: registry, icon_key: azure.container-registries, label: "Azure Container Registry", group: azure, role: managed_service}
+  - {id: logs, icon_key: azure.log-analytics-workspaces, label: "Log Analytics", group: azure, role: observability}
+
+edges:
+  - {src: client, dst: internet, kind: https}
+  - {src: browser, dst: internet, kind: https}
+  - {src: internet, dst: waf, kind: https}
+  - {src: waf, dst: app_gateway, kind: https}
+  - {src: app_gateway, dst: service_pods, kind: https}
+  - {src: service_pods, dst: resolver, kind: dns}
+  - {src: vm, dst: resolver, kind: dns}
+  - {src: resolver, dst: blob_dns, kind: dns}
+  - {src: resolver, dst: vault_dns, kind: dns}
+  - {src: resolver, dst: registry_dns, kind: dns}
+
+  - {src: vnet_link, dst: blob_dns, kind: virtual_network_link}
+  - {src: vnet_link, dst: vault_dns, kind: virtual_network_link}
+  - {src: vnet_link, dst: registry_dns, kind: virtual_network_link}
+
+  - {src: controller, dst: storage_pe, kind: private_connection}
+  - {src: controller, dst: vault_pe, kind: private_connection}
+  - {src: controller, dst: registry_pe, kind: private_connection}
+  - {src: storage_pe, dst: storage, kind: private_connection}
+  - {src: vault_pe, dst: key_vault, kind: private_connection}
+  - {src: registry_pe, dst: registry, kind: private_connection}
+
+  - {src: app_gateway, dst: logs, kind: diagnostics}
+  - {src: controller, dst: logs, kind: diagnostics}

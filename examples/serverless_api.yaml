@@ -1,0 +1,40 @@
+# Generated the archgen way — an agent turned a plain-English prompt into this spec,
+# and the deterministic renderer owns all the aesthetics.
+#
+#   Prompt: "A serverless API on AWS: users hit CloudFront, which serves a static
+#            S3 site and routes API calls to API Gateway; API Gateway authorizes
+#            with Cognito and invokes Lambda; Lambda reads and writes DynamoDB."
+#
+#   archgen prompt "<the description above>"   # -> paste into Claude/Codex -> spec.yaml
+#   archgen render examples/serverless_api.yaml -o out.pptx
+
+title: "Serverless API (AWS)"
+kind: flow
+direction: LR
+
+abbreviations:
+  API: "Application Programming Interface"
+  AWS: "Amazon Web Services"
+  DB: "Database"
+
+groups:
+  - {id: edge, label: "Edge", provider: aws}
+  - {id: app, label: "Application", provider: aws}
+  - {id: data, label: "Data", provider: aws}
+
+nodes:
+  - {id: user,  icon_key: generic.user,     label: "User",        group: edge}
+  - {id: cdn,   icon_key: aws.cloudfront,   label: "CloudFront",  group: edge}
+  - {id: site,  icon_key: aws.s3,           label: "Static Site", group: edge}
+  - {id: apigw, icon_key: aws.api-gateway,  label: "API Gateway", group: app}
+  - {id: auth,  icon_key: aws.cognito,      label: "Cognito",     group: app}
+  - {id: fn,    icon_key: aws.lambda,       label: "Lambda",      group: app}
+  - {id: db,    icon_key: aws.dynamodb,     label: "DynamoDB",    group: data}
+
+edges:
+  - {src: user,  dst: cdn}
+  - {src: cdn,   dst: site}
+  - {src: cdn,   dst: apigw}
+  - {src: apigw, dst: auth, style: dashed}
+  - {src: apigw, dst: fn}
+  - {src: fn,    dst: db}

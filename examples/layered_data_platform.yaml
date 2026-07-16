@@ -1,0 +1,93 @@
+# A layered architecture (Source -> Ingest -> Storage -> Process -> Serve ->
+# Business) expressed purely as a spec. `layered: true` tells the renderer to pack
+# the groups into clean parallel tier bands and size cards to fit the densest tier
+# (here the six-node Source rail) — no hand-placed coordinates.
+#
+#   archgen render examples/layered_data_platform.yaml -o out.pptx
+
+title: "Azure Modern Data Platform"
+kind: flow
+direction: LR
+layered: true
+provider_default: azure
+
+abbreviations:
+  OLTP: "Online Transaction Processing"
+  IoT: "Internet of Things"
+  DB: "Database"
+  BI: "Business Intelligence"
+  AI: "Artificial Intelligence"
+
+groups:
+  - {id: source,   label: "Source",   provider: generic}
+  - {id: ingest,   label: "Ingest",   provider: azure}
+  - {id: storage,  label: "Storage",  provider: azure}
+  - {id: process,  label: "Process & AI", provider: azure}
+  - {id: serve,    label: "Serve",    provider: azure}
+  - {id: business, label: "Business", provider: generic}
+
+nodes:
+  # Source
+  - {id: traffic, icon_key: generic.internet,     label: "Online Traffic",  group: source}
+  - {id: iot,     icon_key: azure.iot-hub,        label: "IoT Devices",     group: source}
+  - {id: mobile,  icon_key: generic.mobile,       label: "Mobile Apps",     group: source}
+  - {id: social,  icon_key: generic.organization, label: "Social Networks", group: source}
+  - {id: web,     icon_key: generic.service,      label: "Web Servers",     group: source}
+  - {id: oltp,    icon_key: generic.database,     label: "OLTP Databases",  group: source}
+
+  # Ingest
+  - {id: eventhub, icon_key: azure.event-hubs,    label: "Event Hub",    group: ingest}
+  - {id: adf,      icon_key: azure.data-factories, label: "Data Factory", group: ingest}
+
+  # Storage
+  - {id: lake,    icon_key: azure.data-lake-store-gen1, label: "Data Lake",         group: storage}
+  - {id: synapse, icon_key: azure.synapse-analytics,    label: "Synapse Analytics", group: storage}
+
+  # Process & AI
+  - {id: stream,     icon_key: azure.stream-analytics-jobs, label: "Stream Analytics",   group: process}
+  - {id: databricks, icon_key: azure.databricks,           label: "Databricks",         group: process}
+  - {id: cognitive,  icon_key: azure.cognitive-services,    label: "Cognitive Services", group: process}
+
+  # Serve
+  - {id: cosmos,  icon_key: azure.cosmos-db,        label: "Cosmos DB",           group: serve}
+  - {id: aas,     icon_key: azure.analysis-services, label: "Analysis Services",  group: serve}
+  - {id: pbi_rt,  icon_key: azure.power-bi-embedded, label: "Power BI Realtime",  group: serve}
+  - {id: pbi_bi,  icon_key: azure.power-bi-embedded, label: "Power BI Reporting", group: serve}
+
+  # Business
+  - {id: analytics, icon_key: generic.analytics, label: "Analytics",      group: business}
+  - {id: apps,      icon_key: generic.api,       label: "Applications",   group: business}
+  - {id: users,     icon_key: generic.user,      label: "Business Users", group: business}
+
+edges:
+  # Sources -> Ingest (streaming vs batch)
+  - {src: iot,     dst: eventhub}
+  - {src: traffic, dst: eventhub}
+  - {src: mobile,  dst: eventhub}
+  - {src: social,  dst: eventhub}
+  - {src: web,     dst: adf}
+  - {src: oltp,    dst: adf}
+
+  # Ingest -> Storage / Process
+  - {src: eventhub, dst: stream, label: "stream"}
+  - {src: adf,      dst: lake,   label: "batch"}
+
+  # Storage fan-out
+  - {src: lake, dst: synapse}
+  - {src: lake, dst: databricks}
+
+  # Process
+  - {src: databricks, dst: cognitive, label: "AI enrich", style: dashed}
+  - {src: databricks, dst: cosmos, label: "processed"}
+
+  # Serve paths
+  - {src: stream,  dst: pbi_rt, label: "live"}
+  - {src: synapse, dst: aas}
+  - {src: aas,     dst: pbi_bi}
+
+  # Serve -> Business
+  - {src: pbi_rt, dst: analytics}
+  - {src: pbi_bi, dst: analytics}
+  - {src: cosmos, dst: apps}
+  - {src: analytics, dst: users}
+  - {src: apps,      dst: users}

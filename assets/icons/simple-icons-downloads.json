@@ -1,0 +1,401 @@
+{
+  "version": 1,
+  "note": "Locally cached brand-logo downloads. Review brand guidelines and trademark rights before use.",
+  "icons": {
+    "tech.android": {
+      "file": "tech/android.svg",
+      "provider": "tech",
+      "display_name": "Android",
+      "category": "brand",
+      "recolorable": false,
+      "brand_hex": "#3DDC84",
+      "source": "logos",
+      "simple_icons_slug": "android",
+      "simple_icons_version": "16.26.0",
+      "source_url": "https://partnermarketinghub.withgoogle.com/brands/android/visual-identity/visual-identity/logo-lock-ups",
+      "guidelines_url": "https://developer.android.com/distribute/marketing-tools/brand-guidelines#brand-android",
+      "license": {
+        "type": "CC-BY-3.0",
+        "url": ""
+      },
+      "color_logo_name": "android-icon"
+    },
+    "tech.cloudflare": {
+      "file": "tech/cloudflare.svg",
+      "provider": "tech",
+      "display_name": "Cloudflare",
+      "category": "brand",
+      "recolorable": false,
+      "brand_hex": "#F38020",
+      "source": "logos",
+      "simple_icons_slug": "cloudflare",
+      "simple_icons_version": "16.26.0",
+      "source_url": "https://www.cloudflare.com/logo/",
+      "guidelines_url": "https://www.cloudflare.com/trademark/",
+      "license": {
+        "type": "",
+        "url": ""
+      },
+      "color_logo_name": "cloudflare-icon"
+    },
+    "tech.cloudflareworkers": {
+      "file": "tech/cloudflareworkers.svg",
+      "provider": "tech",
+      "display_name": "Cloudflare Workers",
+      "category": "brand",
+      "recolorable": false,
+      "brand_hex": "#F38020",
+      "source": "logos",
+      "simple_icons_slug": "cloudflareworkers",
+      "simple_icons_version": "16.26.0",
+      "source_url": "https://www.cloudflare.com/developer-platform/products/",
+      "guidelines_url": "https://www.cloudflare.com/trademark/",
+      "license": {
+        "type": "",
+        "url": ""
+      },
+      "color_logo_name": "cloudflare-workers-icon"
+    },
+    "tech.databricks": {
+      "file": "tech/databricks.svg",
+      "provider": "tech",
+      "display_name": "Databricks",
+      "category": "brand",
+      "recolorable": true,
+      "brand_hex": "#FF3621",
+      "source": "simple-icons",
+      "color_logo_name": "",
+      "simple_icons_slug": "databricks",
+      "simple_icons_version": "16.26.0",
+      "source_url": "https://www.databricks.com",
+      "guidelines_url": "https://brand.databricks.com/Styleguide/Guide/",
+      "license": {
+        "type": "",
+        "url": ""
+      }
+    },
+    "tech.docker": {
+      "file": "tech/docker.svg",
+      "provider": "tech",
+      "display_name": "Docker",
+      "category": "compute",
+      "recolorable": false,
+      "brand_hex": "#2496ED",
+      "source": "logos",
+      "simple_icons_slug": "docker",
+      "simple_icons_version": "16.26.0",
+      "source_url": "https://www.docker.com/company/newsroom/media-resources",
+      "guidelines_url": "",
+      "license": {
+        "type": "",
+        "url": ""
+      },
+      "color_logo_name": "docker-icon"
+    },
+    "tech.grafana": {
+      "file": "tech/grafana.svg",
+      "provider": "tech",
+      "display_name": "Grafana",
+      "category": "brand",
+      "recolorable": false,
+      "brand_hex": "#F46800",
+      "source": "logos",
+      "color_logo_name": "grafana",
+      "simple_icons_slug": "grafana",
+      "simple_icons_version": "16.26.0",
+      "source_url": "https://grafana.com",
+      "guidelines_url": "",
+      "license": {
+        "type": "",
+        "url": ""
+      }
+    },
+    "tech.hono": {
+      "file": "tech/hono.svg",
+      "provider": "tech",
+      "display_name": "Hono",
+      "category": "brand",
+      "recolorable": false,
+      "brand_hex": "#E36002",
+      "source": "logos",
+      "simple_icons_slug": "hono",
+      "simple_icons_version": "16.26.0",
+      "source_url": "https://github.com/honojs/hono/blob/76dbc74407329c46870af6aa4fab0c04036d8ae2/docs/images/hono-logo.svg",
+      "guidelines_url": "",
+      "license": {
+        "type": "",
+        "url": ""
+      },
+      "color_logo_name": "hono"
+    },
+    "tech.ios": {
+      "file": "tech/ios.svg",
+      "provider": "tech",
+      "display_name": "iOS",
+      "category": "brand",
+      "recolorable": false,
+      "brand_hex": "#000000",
+      "source": "logos",
+      "simple_icons_slug": "ios",
+      "simple_icons_version": "16.26.0",
+      "source_url": "https://en.wikipedia.org/wiki/IOS",
+      "guidelines_url": "",
+      "license": {
+        "type": "",
+        "url": ""
+      },
+      "color_logo_name": "ios"
+    },
+    "tech.istio": {
+      "file": "tech/istio.svg",
+      "provider": "tech",
+      "display_name": "Istio",
+      "category": "brand",
+      "recolorable": false,
+      "brand_hex": "#466BB0",
+      "source": "devicon",
+      "simple_icons_slug": "istio",
+      "simple_icons_version": "16.26.0",
+      "source_url": "https://github.com/istio/istio/blob/5a047251817eb2523af297607b7614120812e47a/logo/istio-bluelogo-whitebackground-unframed.svg",
+      "guidelines_url": "",
+      "license": {
+        "type": "",
+        "url": ""
+      },
+      "color_logo_name": "istio"
+    },
+    "tech.jaeger": {
+      "file": "tech/jaeger.svg",
+      "provider": "tech",
+      "display_name": "Jaeger",
+      "category": "brand",
+      "recolorable": true,
+      "brand_hex": "#66CFE3",
+      "source": "simple-icons",
+      "simple_icons_slug": "jaeger",
+      "simple_icons_version": "16.26.0",
+      "source_url": "https://github.com/cncf/artwork/blob/e7e09686c20db6ddac06e482cf3338b0c8b2e22d/projects/jaeger/icon/black/jaeger-icon-black.svg",
+      "guidelines_url": "https://github.com/cncf/artwork/blob/e7e09686c20db6ddac06e482cf3338b0c8b2e22d/projects/jaeger/jaeger-logo-guide.pdf",
+      "license": {
+        "type": "",
+        "url": ""
+      }
+    },
+    "tech.kafka": {
+      "file": "tech/kafka.svg",
+      "provider": "tech",
+      "display_name": "Apache Kafka",
+      "category": "messaging",
+      "recolorable": false,
+      "brand_hex": "#231F20",
+      "source": "devicon",
+      "simple_icons_slug": "apachekafka",
+      "simple_icons_version": "16.26.0",
+      "source_url": "https://apache.org/logos",
+      "guidelines_url": "https://www.apache.org/foundation/marks",
+      "license": {
+        "type": "Apache-2.0",
+        "url": ""
+      },
+      "color_logo_name": "apachekafka"
+    },
+    "tech.kong": {
+      "file": "tech/kong.svg",
+      "provider": "tech",
+      "display_name": "Kong",
+      "category": "brand",
+      "recolorable": false,
+      "brand_hex": "#003459",
+      "source": "logos",
+      "simple_icons_slug": "kong",
+      "simple_icons_version": "16.26.0",
+      "source_url": "https://konghq.com/brand-assets/",
+      "guidelines_url": "https://konghq.com/brand/",
+      "license": {
+        "type": "",
+        "url": ""
+      },
+      "color_logo_name": "kong-icon"
+    },
+    "tech.nextjs": {
+      "file": "tech/nextjs.svg",
+      "provider": "tech",
+      "display_name": "Next.js",
+      "category": "brand",
+      "recolorable": false,
+      "brand_hex": "#000000",
+      "source": "logos",
+      "simple_icons_slug": "nextdotjs",
+      "simple_icons_version": "16.26.0",
+      "source_url": "https://vercel.com/design/brands#next-js",
+      "guidelines_url": "https://vercel.com/design/brands#next-js",
+      "license": {
+        "type": "",
+        "url": ""
+      },
+      "color_logo_name": "nextjs-icon"
+    },
+    "tech.nginx": {
+      "file": "tech/nginx.svg",
+      "provider": "tech",
+      "display_name": "NGINX",
+      "category": "network",
+      "recolorable": false,
+      "brand_hex": "#009639",
+      "source": "logos",
+      "simple_icons_slug": "nginx",
+      "simple_icons_version": "16.26.0",
+      "source_url": "https://www.nginx.com/press/",
+      "guidelines_url": "https://www.nginx.com/press/",
+      "license": {
+        "type": "",
+        "url": ""
+      },
+      "color_logo_name": "nginx"
+    },
+    "tech.okta": {
+      "file": "tech/okta.svg",
+      "provider": "tech",
+      "display_name": "Okta",
+      "category": "brand",
+      "recolorable": false,
+      "brand_hex": "#007DC1",
+      "source": "logos",
+      "simple_icons_slug": "okta",
+      "simple_icons_version": "16.26.0",
+      "source_url": "https://www.okta.com/press-room/media-assets/",
+      "guidelines_url": "https://www.okta.com/terms-of-use-for-okta-content/",
+      "license": {
+        "type": "",
+        "url": ""
+      },
+      "color_logo_name": "okta-icon"
+    },
+    "tech.opentelemetry": {
+      "file": "tech/opentelemetry.svg",
+      "provider": "tech",
+      "display_name": "OpenTelemetry",
+      "category": "brand",
+      "recolorable": false,
+      "brand_hex": "#000000",
+      "source": "logos",
+      "simple_icons_slug": "opentelemetry",
+      "simple_icons_version": "16.26.0",
+      "source_url": "https://cncf-branding.netlify.app/projects/opentelemetry/",
+      "guidelines_url": "https://cncf-branding.netlify.app/projects/opentelemetry/",
+      "license": {
+        "type": "CC-BY-4.0",
+        "url": ""
+      },
+      "color_logo_name": "opentelemetry-icon"
+    },
+    "tech.postgres": {
+      "file": "tech/postgres.svg",
+      "provider": "tech",
+      "display_name": "PostgreSQL",
+      "category": "database",
+      "recolorable": false,
+      "brand_hex": "#4169E1",
+      "source": "logos",
+      "simple_icons_slug": "postgresql",
+      "simple_icons_version": "16.26.0",
+      "source_url": "https://wiki.postgresql.org/wiki/Logo",
+      "guidelines_url": "https://www.postgresql.org/about/policies/trademarks/",
+      "license": {
+        "type": "",
+        "url": ""
+      },
+      "color_logo_name": "postgresql"
+    },
+    "tech.prometheus": {
+      "file": "tech/prometheus.svg",
+      "provider": "tech",
+      "display_name": "Prometheus",
+      "category": "brand",
+      "recolorable": false,
+      "brand_hex": "#E6522C",
+      "source": "logos",
+      "simple_icons_slug": "prometheus",
+      "simple_icons_version": "16.26.0",
+      "source_url": "https://prometheus.io",
+      "guidelines_url": "",
+      "license": {
+        "type": "",
+        "url": ""
+      },
+      "color_logo_name": "prometheus"
+    },
+    "tech.react": {
+      "file": "tech/react.svg",
+      "provider": "tech",
+      "display_name": "React",
+      "category": "frontend",
+      "recolorable": false,
+      "brand_hex": "#61DAFB",
+      "source": "logos",
+      "simple_icons_slug": "react",
+      "simple_icons_version": "16.26.0",
+      "source_url": "https://github.com/facebook/create-react-app/blob/282c03f9525fdf8061ffa1ec50dce89296d916bd/test/fixtures/relative-paths/src/logo.svg",
+      "guidelines_url": "",
+      "license": {
+        "type": "",
+        "url": ""
+      },
+      "color_logo_name": "react"
+    },
+    "tech.redis": {
+      "file": "tech/redis.svg",
+      "provider": "tech",
+      "display_name": "Redis",
+      "category": "cache",
+      "recolorable": false,
+      "brand_hex": "#FF4438",
+      "source": "logos",
+      "simple_icons_slug": "redis",
+      "simple_icons_version": "16.26.0",
+      "source_url": "https://redis.io/brand-guidelines",
+      "guidelines_url": "https://redis.io/brand-guidelines",
+      "license": {
+        "type": "",
+        "url": ""
+      },
+      "color_logo_name": "redis"
+    },
+    "tech.stripe": {
+      "file": "tech/stripe.svg",
+      "provider": "tech",
+      "display_name": "Stripe",
+      "category": "brand",
+      "recolorable": false,
+      "brand_hex": "#635BFF",
+      "source": "logos",
+      "simple_icons_slug": "stripe",
+      "simple_icons_version": "16.26.0",
+      "source_url": "https://stripe.com/newsroom/information",
+      "guidelines_url": "",
+      "license": {
+        "type": "",
+        "url": ""
+      },
+      "color_logo_name": "stripe"
+    },
+    "tech.vault": {
+      "file": "tech/vault.svg",
+      "provider": "tech",
+      "display_name": "Vault",
+      "category": "brand",
+      "recolorable": false,
+      "brand_hex": "#FFEC6E",
+      "source": "logos",
+      "simple_icons_slug": "vault",
+      "simple_icons_version": "16.26.0",
+      "source_url": "https://www.hashicorp.com/brand",
+      "guidelines_url": "https://www.hashicorp.com/brand",
+      "license": {
+        "type": "",
+        "url": ""
+      },
+      "color_logo_name": "vault-icon"
+    }
+  }
+}

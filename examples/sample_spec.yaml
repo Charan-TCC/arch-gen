@@ -1,0 +1,66 @@
+title: "Multi-Cloud 3-Tier Web Application"
+provider_default: generic
+direction: LR
+
+abbreviations:
+  AKS: "Azure Kubernetes Service"
+  RDS: "Amazon Relational Database Service"
+  GKE: "Google Kubernetes Engine"
+  CDN: "Content Delivery Network"
+  API: "Application Programming Interface"
+  DB: "Database"
+
+groups:
+  - id: edge
+    label: "Edge / CDN Tier"
+    provider: generic
+  - id: azure_tier
+    label: "Compute Tier (Azure)"
+    provider: azure
+  - id: data_tier
+    label: "Data Tier"
+    provider: aws
+
+nodes:
+  - id: user
+    icon_key: generic.user
+    label: "User"
+    group: edge
+  - id: cdn
+    icon_key: tech.nginx
+    label: "CDN Edge"
+    group: edge
+  - id: web
+    icon_key: azure.appservice
+    label: "Web Frontend"
+    group: azure_tier
+  - id: api
+    icon_key: azure.aks
+    label: "API on AKS"
+    group: azure_tier
+  - id: queue
+    icon_key: tech.kafka
+    label: "Event Bus"
+    group: azure_tier
+  - id: workers
+    icon_key: gcp.gke
+    label: "Workers on GKE"
+    group: azure_tier
+  - id: db
+    icon_key: aws.rds
+    label: "Primary DB (RDS)"
+    group: data_tier
+  - id: cache
+    icon_key: tech.redis
+    label: "Cache"
+    group: data_tier
+
+edges:
+  - {src: user, dst: cdn}
+  - {src: cdn, dst: web}
+  - {src: web, dst: api}
+  - {src: api, dst: queue}
+  - {src: queue, dst: workers, style: dashed}
+  - {src: api, dst: db}
+  - {src: api, dst: cache, style: dotted}
+  - {src: workers, dst: db}

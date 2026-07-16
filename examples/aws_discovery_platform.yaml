@@ -1,0 +1,87 @@
+title: "AWS Discovery Platform"
+kind: network
+provider_default: aws
+direction: LR
+
+abbreviations:
+  API: "Application Programming Interface"
+  AWS: "Amazon Web Services"
+  CUR: "Cost and Usage Report"
+  ECS: "Elastic Container Service"
+  ECR: "Elastic Container Registry"
+  SDK: "Software Development Kit"
+  UI: "User Interface"
+  VPC: "Virtual Private Cloud"
+
+groups:
+  - {id: aws_cloud, label: "AWS Discovery Platform", provider: aws, kind: cloud, role: boundary}
+  - {id: web_ui, label: "Web UI", parent: aws_cloud, provider: aws, kind: subnet, role: web}
+  - {id: storage_management, label: "Storage management", parent: aws_cloud, provider: aws, kind: subnet, role: storage}
+  - {id: discovery_vpc, label: "Discovery VPC", parent: aws_cloud, provider: aws, kind: network}
+  - {id: private_subnet, label: "Private subnet", parent: discovery_vpc, provider: aws, kind: subnet, role: private_network}
+  - {id: data_component, label: "Data services", parent: private_subnet, provider: aws, kind: cluster, role: data}
+  - {id: discovery_component, label: "Discovery services", parent: private_subnet, provider: aws, kind: cluster, role: discovery}
+  - {id: cost_component, label: "Cost services", parent: aws_cloud, provider: aws, kind: subnet, role: cost}
+  - {id: image_deployment, label: "Image deployment", parent: aws_cloud, provider: aws, kind: subnet, role: deployment}
+  - {id: service_management, label: "Service management", parent: aws_cloud, provider: aws, kind: subnet, role: integration}
+
+nodes:
+  - {id: users, icon_key: generic.user, label: "Users", role: external}
+
+  - {id: cloudfront, icon_key: aws.cloudfront, label: "Amazon CloudFront", group: web_ui}
+  - {id: webui_bucket, icon_key: aws.s3, label: "Web UI bucket", group: web_ui}
+  - {id: api_gateway, icon_key: aws.api-gateway, label: "API Gateway", group: web_ui}
+  - {id: cognito, icon_key: aws.cognito, label: "Amazon Cognito", group: web_ui}
+  - {id: appsync, icon_key: aws.appsync, label: "AWS AppSync", group: web_ui}
+  - {id: settings_lambda, icon_key: aws.lambda, label: "Settings Lambda", group: web_ui}
+  - {id: settings_table, icon_key: aws.dynamodb, label: "Settings table", group: web_ui}
+
+  - {id: amplify, icon_key: aws.amplify, label: "AWS Amplify", group: storage_management}
+  - {id: amplify_bucket, icon_key: aws.s3, label: "Amplify storage bucket", group: storage_management}
+
+  - {id: gremlin_lambda, icon_key: aws.lambda, label: "Gremlin Lambda", group: data_component}
+  - {id: neptune, icon_key: aws.neptune, label: "Amazon Neptune", group: data_component}
+  - {id: search_lambda, icon_key: aws.lambda, label: "Search Lambda", group: data_component}
+  - {id: opensearch, icon_key: aws.opensearch-service, label: "Amazon OpenSearch", group: data_component}
+
+  - {id: ecs_cluster, icon_key: aws.elastic-container-service, label: "ECS cluster", group: discovery_component}
+  - {id: fargate, icon_key: aws.fargate, label: "AWS Fargate", group: discovery_component}
+  - {id: ecr, icon_key: aws.elastic-container-registry, label: "Amazon ECR", group: discovery_component}
+
+  - {id: cost_lambda, icon_key: aws.lambda, label: "Cost Lambda", group: cost_component}
+  - {id: athena, icon_key: aws.athena, label: "Amazon Athena", group: cost_component}
+  - {id: cur_bucket, icon_key: aws.s3, label: "CUR bucket", group: cost_component}
+  - {id: cost_report, icon_key: aws.cost-and-usage-report, label: "Cost and Usage Report", group: cost_component}
+  - {id: athena_results, icon_key: aws.s3, label: "Athena results bucket", group: cost_component}
+
+  - {id: discovery_bucket, icon_key: aws.s3, label: "Discovery bucket", group: image_deployment}
+  - {id: codepipeline, icon_key: aws.codepipeline, label: "AWS CodePipeline", group: image_deployment}
+  - {id: codebuild, icon_key: aws.codebuild, label: "AWS CodeBuild", group: image_deployment}
+  - {id: container_image, icon_key: tech.docker, label: "Container image", group: image_deployment}
+
+  - {id: service_api, icon_key: aws.api-gateway, label: "Service Gremlin API", group: service_management}
+  - {id: aws_sdk, icon_key: aws.tools-and-sdks, label: "AWS SDK", group: service_management}
+  - {id: aws_config, icon_key: aws.config, label: "AWS Config", group: service_management}
+
+edges:
+  - {src: users, dst: cloudfront, label: "1"}
+  - {src: cloudfront, dst: webui_bucket, label: "2"}
+  - {src: webui_bucket, dst: api_gateway}
+  - {src: api_gateway, dst: appsync, label: "4"}
+  - {src: api_gateway, dst: cognito, label: "5"}
+  - {src: settings_lambda, dst: settings_table, label: "6"}
+  - {src: api_gateway, dst: settings_lambda}
+  - {src: appsync, dst: gremlin_lambda}
+  - {src: gremlin_lambda, dst: neptune, label: "7"}
+  - {src: appsync, dst: search_lambda}
+  - {src: search_lambda, dst: opensearch, label: "8"}
+  - {src: cost_lambda, dst: athena, label: "9"}
+  - {src: athena, dst: cur_bucket, label: "10"}
+  - {src: cost_report, dst: cur_bucket, label: "11"}
+  - {src: cost_lambda, dst: cost_report, label: "12"}
+  - {src: codepipeline, dst: codebuild, label: "13"}
+  - {src: codebuild, dst: container_image}
+  - {src: container_image, dst: ecr, label: "14"}
+  - {src: ecs_cluster, dst: fargate, label: "15"}
+  - {src: aws_config, dst: ecs_cluster, label: "16"}
+  - {src: aws_sdk, dst: service_api, label: "17"}
