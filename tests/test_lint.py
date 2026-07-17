@@ -11,6 +11,7 @@ from archgen.spec.models import Diagram, Edge, Group, Node
 def _valid() -> Diagram:
     return Diagram(
         title="Test",
+        page="16:9",
         nodes=[
             Node(id="a", icon_key="azure.aks", label="API on AKS", group="g"),
             Node(id="b", icon_key="tech.kafka", label="Bus"),

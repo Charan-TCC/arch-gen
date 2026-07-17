@@ -119,3 +119,44 @@ def test_network_flattening_removes_inherited_shape_effects():
     Renderer()._remove_effects(shape)
     assert shape._element.find(qn("p:style")) is None
     assert shape._element.spPr.find(qn("a:effectLst")) is not None
+
+
+def test_legend_reserve_grows_with_abbreviations():
+    from archgen.render.legend import legends_reserve_height
+    from archgen.render.theme import load_theme
+    from archgen.spec.models import Diagram, Edge, Node
+
+    theme = load_theme()
+    base = dict(
+        title="t",
+        page="16:9",
+        nodes=[
+            Node(id="a", icon_key="generic.service", label="A"),
+            Node(id="b", icon_key="generic.service", label="B"),
+        ],
+        edges=[Edge(src="a", dst="b")],
+    )
+    small = Diagram(**base)
+    many = Diagram(
+        **{**base, "title": "CDN DNS VPC IAM ECS ECR"},
+        abbreviations={
+            k: k for k in ("CDN", "DNS", "VPC", "IAM", "ECS", "ECR")
+        },
+    )
+    assert legends_reserve_height(many, theme) > legends_reserve_height(small, theme)
+
+
+def test_two_column_abbrev_grid():
+    from archgen.render.legend import _abbrev_grid
+
+    assert _abbrev_grid(4) == (4, 1)
+    assert _abbrev_grid(10) == (5, 2)
+
+
+def test_cluster_title_wrap_for_dot():
+    from archgen.layout.graphviz_layout import _wrap_title
+
+    # Narrow cluster: two words wrap to two dot label lines.
+    assert _wrap_title("Backend Engine", 1.2) == "Backend\\nEngine"
+    # Wide cluster: single line.
+    assert _wrap_title("Backend Engine", 3.0) == "Backend Engine"

@@ -21,7 +21,12 @@ from archgen.layout.engine import compute_layout
 from archgen.layout.geometry import Rect, Transform
 from archgen.registry import emf
 from archgen.registry.resolver import IconResolver
-from archgen.render.legend import add_connection_legend, add_legends, connection_legend_height
+from archgen.render.legend import (
+    add_connection_legend,
+    add_legends,
+    connection_legend_height,
+    legends_reserve_height,
+)
 from archgen.render.theme import Theme, load_theme
 from archgen.spec.models import Diagram, DiagramKind, GroupKind, NodeRole, Provider
 
@@ -31,8 +36,18 @@ class Renderer:
         self.theme = theme or load_theme()
         self.resolver = resolver or IconResolver()
         self._layered = False
+        # Post-layout quality findings for the last render (flow only); lets
+        # callers iterate on a text report instead of rasterizing every attempt.
+        self.diagnostics: list = []
 
-    def render(self, diagram: Diagram, out_path: str | Path, engine: str = "auto") -> Path:
+    def render(
+        self,
+        diagram: Diagram,
+        out_path: str | Path,
+        engine: str = "auto",
+        auto_direction: bool = False,
+        expand_slide: bool | None = None,
+    ) -> Path:
         prs = Presentation()
         network = diagram.kind == DiagramKind.network
         # Layered mode packs groups into parallel bands with renderer-owned card
@@ -51,10 +66,17 @@ class Renderer:
 
         content_height = int(prs.slide_height)
         top_reserve = 0
+        legend_reserve = 0
         if not network:
-            # Reserve a true footer band for derived legends instead of letting
-            # those panels overlay a low container in vertically tall diagrams.
-            content_height -= Inches_val(self.theme["slide"]["bottom_legend_reserve_in"])
+            # Reserve a true footer band for the derived legends. The reserve is
+            # computed from the legends that will actually render (the
+            # abbreviation panel grows a row per entry) — a fixed band lets tall
+            # legends swallow the bottom-right of the diagram.
+            legend_reserve = max(
+                Inches_val(self.theme["slide"]["bottom_legend_reserve_in"]),
+                legends_reserve_height(diagram, self.theme, self.resolver),
+            )
+            content_height -= legend_reserve
             # Layered boards use tighter margins (and a title band) so the packed
             # tiers get the vertical room the airy default would eat.
             margin_emu = int(self.theme.margin) + (Emu(Pt(6)) if self._layered else Emu(Pt(28)))
@@ -68,24 +90,106 @@ class Renderer:
 
         # For layered diagrams the renderer picks the card size that fits the
         # densest tier into the available area, then hands it to the layout.
-        node_w = node_h = None
-        if self._layered:
+        # Card size depends on direction (columns vs rows), so it is recomputed
+        # per orientation candidate below.
+        def card_size_for(diag):
+            if not self._layered:
+                return None, None
             from archgen.layout.graphviz_layout import layered_card_size
 
             avail_w_in = (int(prs.slide_width) - 2 * margin_emu) / 914400
             avail_h_in = (content_height - 2 * margin_emu - top_reserve) / 914400
-            node_w, node_h = layered_card_size(diagram, avail_w_in, avail_h_in)
+            return layered_card_size(diag, avail_w_in, avail_h_in)
 
+        def make_tf(la):
+            return Transform(
+                la.graph_bb,
+                slide_w_emu=int(prs.slide_width),
+                slide_h_emu=content_height,
+                margin_emu=margin_emu,
+                top_reserve_emu=top_reserve,
+            )
+
+        node_w, node_h = card_size_for(diagram)
         layout, engine_used = compute_layout(diagram, engine=engine, node_w=node_w, node_h=node_h)
-        slide = prs.slides.add_slide(prs.slide_layouts[6])  # blank
+        tf = make_tf(layout)
 
-        tf = Transform(
-            layout.graph_bb,
-            slide_w_emu=int(prs.slide_width),
-            slide_h_emu=content_height,
-            margin_emu=margin_emu,
-            top_reserve_emu=top_reserve,
-        )
+        # Deterministic direction choice: lay out both orientations (dot runs in
+        # milliseconds) and keep the one with the better fit — a decision the
+        # tool can make so the agent never burns an iteration discovering it.
+        direction_flipped = False
+        auto_direction_tried = False
+        if auto_direction and not network and engine_used == "graphviz":
+            auto_direction_tried = True
+            flipped_dir = "LR" if diagram.direction == "TB" else "TB"
+            alt_diagram = diagram.model_copy(update={"direction": flipped_dir})
+            alt_w, alt_h = card_size_for(alt_diagram)
+            alt_layout, _ = compute_layout(alt_diagram, engine=engine, node_w=alt_w, node_h=alt_h)
+            alt_tf = make_tf(alt_layout)
+            if alt_tf.scale > tf.scale * 1.15:
+                diagram, layout, tf = alt_diagram, alt_layout, alt_tf
+                direction_flipped = True
+
+        # Readability floor: content that would shrink below MIN_READABLE_SCALE
+        # gets a BIGGER SLIDE instead of smaller text — labels have exactly one
+        # readable size, slides can be any size. Whether the slide MAY grow is
+        # the user's `page` choice: "free" grows, "16:9" locks the deck slide
+        # and the layout report demands reshaping instead. Growth is capped so
+        # a pathological spec still fails loudly rather than yielding a
+        # wall-sized slide. Layered mode self-sizes its cards and is exempt.
+        if expand_slide is None:
+            expand_slide = diagram.page == "free"
+        slide_expanded_from = None
+        if expand_slide and not network and not self._layered:
+            from archgen.layout.diagnostics import MIN_READABLE_SCALE
+            from archgen.layout.geometry import EMU_PER_POINT
+
+            if tf.scale < MIN_READABLE_SCALE:
+                slide_expanded_from = tf.scale
+                target = MIN_READABLE_SCALE * 1.02  # epsilon above the floor
+                x0, y0, x1, y1 = layout.graph_bb
+                need_w = int((x1 - x0) * EMU_PER_POINT * target) + 2 * margin_emu
+                need_h = (
+                    int((y1 - y0) * EMU_PER_POINT * target)
+                    + 2 * margin_emu
+                    + top_reserve
+                    + legend_reserve
+                )
+                cap_w, cap_h = 3 * int(self.theme.slide_w), 3 * int(self.theme.slide_h)
+                prs.slide_width = max(int(self.theme.slide_w), min(need_w, cap_w))
+                prs.slide_height = max(int(self.theme.slide_h), min(need_h, cap_h))
+                self._slide_w = int(prs.slide_width)
+                self._slide_h = int(prs.slide_height)
+                content_height = int(prs.slide_height) - legend_reserve
+                tf = make_tf(layout)
+
+        self.diagnostics = []
+        if not network:
+            from archgen.layout.diagnostics import diagnose
+
+            self.diagnostics = diagnose(
+                diagram,
+                layout,
+                scale=tf.scale,
+                avail_w_emu=int(prs.slide_width) - 2 * margin_emu,
+                avail_h_emu=content_height - 2 * margin_emu - top_reserve,
+                label_cap_in=self.theme["node"]["label_max_width_in"],
+                direction_flipped=direction_flipped,
+                auto_direction_tried=auto_direction_tried,
+            )
+            if slide_expanded_from is not None:
+                from archgen.layout.diagnostics import Finding
+
+                self.diagnostics.append(
+                    Finding(
+                        "info",
+                        f"page: \"free\" — slide expanded to {self._slide_w / 914400:.1f}\" × "
+                        f"{self._slide_h / 914400:.1f}\" to keep text readable (content "
+                        f"would have shrunk to {slide_expanded_from:.0%} on the 16:9 slide).",
+                    )
+                )
+
+        slide = prs.slides.add_slide(prs.slide_layouts[6])  # blank
 
         if not network:
             self._add_title(slide, diagram.title)
@@ -103,8 +207,8 @@ class Renderer:
             # keeping arrow shafts from visually cutting through node artwork.
             node_rects = self._node_rects(layout, tf)
             self._draw_edges(slide, diagram, node_rects)
-            self._draw_nodes(slide, diagram, node_rects)
-            add_legends(slide, diagram, self.theme)
+            self._draw_nodes(slide, diagram, node_rects, scale=tf.scale)
+            add_legends(slide, diagram, self.theme, slide_w=self._slide_w, slide_h=self._slide_h)
 
         Path(out_path).parent.mkdir(parents=True, exist_ok=True)
         prs.save(str(out_path))
@@ -142,8 +246,11 @@ class Renderer:
                 continue
             rect = tf.bbox_rect(*c.bb)
             group = group_by_id.get(c.id)
+            # Draw the spec's label, not dot's (build_dot pre-wraps the label
+            # with \n escapes so dot reserves title headroom).
+            label = group.label if group is not None else c.label
             if diagram.kind == DiagramKind.network and group is not None:
-                self._draw_network_container(slide, group, c.label, rect)
+                self._draw_network_container(slide, group, label, rect)
                 continue
             prov = provider_by_group.get(c.id, diagram.provider_default.value)
             pal = self.theme.provider(prov)
@@ -154,14 +261,25 @@ class Renderer:
             shape.line.width = Pt(gcfg["line_pt"])
             self._remove_effects(shape)
             self._set_corner_radius(shape, 0.08)
-            # Container title (top-left, inside).
-            title = slide.shapes.add_textbox(rect.left + Emu(Pt(6)), rect.top + Emu(Pt(3)), rect.width - Emu(Pt(12)), Emu(Pt(18)))
+            # Container title (top-left, inside). The box hugs its wrapped text:
+            # estimate lines at this width and size the height to match, instead
+            # of a fixed one-line box the text visibly overflows when it wraps.
+            # The font scales down with the layout (dot reserved headroom in
+            # graph space, so it shrank with the scale — a fixed-size title
+            # would overflow that band straight into the first node).
+            title_pt = max(9.0, gcfg["title_font_pt"] * min(tf.scale, 1.0))
+            avail_w = rect.width - Emu(Pt(12))
+            n_lines = _wrapped_line_count(label, avail_w, title_pt, bold=True)
+            title_h = Emu(Pt(int(n_lines * title_pt * 1.35) + 4))
+            title = slide.shapes.add_textbox(rect.left + Emu(Pt(6)), rect.top + Emu(Pt(3)), avail_w, title_h)
             ttf = title.text_frame
             ttf.word_wrap = True
+            ttf.auto_size = MSO_AUTO_SIZE.NONE
+            ttf.margin_top = ttf.margin_bottom = 0
             para = ttf.paragraphs[0]
-            para.text = c.label
+            para.text = label
             r = para.runs[0]
-            r.font.size = Pt(gcfg["title_font_pt"])
+            r.font.size = Pt(title_pt)
             r.font.bold = True
             r.font.name = self.theme.font
             r.font.color.rgb = Theme.rgb(pal["line"])
@@ -202,14 +320,14 @@ class Renderer:
         run.font.color.rgb = Theme.rgb(ncfg["vnet_line"] if group.kind == GroupKind.network else ncfg["panel_line"])
 
     # -- nodes -------------------------------------------------------------
-    def _draw_nodes(self, slide, diagram, rects: dict[str, Rect]) -> None:
+    def _draw_nodes(self, slide, diagram, rects: dict[str, Rect], scale: float = 1.0) -> None:
         ncfg = self.theme["node"]
         icon_by_node = {n.id: n for n in diagram.nodes}
         for nid, rect in rects.items():
             node = icon_by_node[nid]
             grp = slide.shapes.add_group_shape()
             self._place_icon(grp, node, rect)
-            self._place_label(grp, node.label, rect)
+            self._place_label(grp, node.label, rect, scale=scale)
 
     def _node_rects(self, layout, tf) -> dict[str, Rect]:
         return {
@@ -367,7 +485,7 @@ class Renderer:
         icon_top = rect.top + (int(rect.height * 0.07) if self._layered else Emu(Pt(8)))
         container.shapes.add_picture(str(pic_path), icon_left, icon_top, width=w, height=h)
 
-    def _place_label(self, container, text: str, rect: Rect) -> None:
+    def _place_label(self, container, text: str, rect: Rect, scale: float = 1.0) -> None:
         ncfg = self.theme["node"]
         if self._layered:
             # Renderer-sized cards: label hugs the card width and its font scales
@@ -391,8 +509,22 @@ class Renderer:
             # deliberately avoid SHAPE_TO_FIT_TEXT, which would grow the box past the
             # card border and collide with the container.
             height = max(rect.top + rect.height - top - Emu(Pt(3)), Emu(Pt(12)))
-            font_pt = ncfg["label_font_pt"]
-        box = container.shapes.add_textbox(left, top, max_w, height)
+            # The card was laid out in graph space and shrank with the uniform
+            # scale; a fixed-size label overflows it and breaks mid-word. Scale
+            # the font down too (readability floor 8pt — the layout report
+            # already flags anything this cramped).
+            font_pt = _clamp_pt(ncfg["label_font_pt"] * min(scale, 1.0), 8.0, ncfg["label_font_pt"])
+        # HUG the text (§7): the box is only as wide as its content needs, up to
+        # max_w (beyond which it wraps). A full-width box "works" visually but is
+        # what the user grabs in PowerPoint — an oversized box that misrepresents
+        # the label and collides with neighbours when moved.
+        needed_w = _text_width_emu(text, font_pt) + Emu(Pt(6))
+        box_w = min(max_w, max(needed_w, Emu(Pt(24))))
+        left = left + (max_w - box_w) // 2
+        # Height hugs the wrapped line count too, still clamped inside the card.
+        n_lines = _wrapped_line_count(text, box_w, font_pt)
+        height = min(height, max(Emu(Pt(int(n_lines * font_pt * 1.3) + 3)), Emu(Pt(12))))
+        box = container.shapes.add_textbox(left, top, box_w, height)
         tframe = box.text_frame
         tframe.word_wrap = True
         tframe.auto_size = MSO_AUTO_SIZE.NONE
@@ -412,6 +544,7 @@ class Renderer:
     # -- edges -------------------------------------------------------------
     def _draw_edges(self, slide, diagram, node_rects: dict[str, Rect]) -> None:
         ecfg = self.theme["edge"]
+        placed_labels: list[Rect] = []
         for e in diagram.edges:
             a = node_rects.get(e.src)
             b = node_rects.get(e.dst)
@@ -429,7 +562,76 @@ class Renderer:
             self._dash_and_arrow(conn, e.style.value)
             self._remove_effects(conn)
             if e.label:
-                self._edge_label(slide, e.label, (x1 + x2) // 2, (y1 + y2) // 2)
+                cx, cy = self._edge_label_spot(
+                    e.label, (x1, y1), (x2, y2), node_rects, placed_labels
+                )
+                placed_labels.append(self._edge_label_rect(e.label, cx, cy))
+                self._edge_label(slide, e.label, cx, cy)
+
+    def _edge_label_rect(self, text: str, cx: int, cy: int) -> Rect:
+        font_pt = self.theme["edge"]["label_font_pt"]
+        w = _text_width_emu(text, font_pt) + Emu(Pt(6))
+        h = Emu(Pt(font_pt + 5))
+        return Rect(left=cx - w // 2, top=cy - h // 2, width=w, height=h)
+
+    def _edge_label_spot(
+        self,
+        text: str,
+        p1: tuple[int, int],
+        p2: tuple[int, int],
+        node_rects: dict[str, Rect],
+        placed_labels: list[Rect],
+    ) -> tuple[int, int]:
+        """Pick a label spot ON the connector's route that collides with neither
+        node cards nor already-placed edge labels. PowerPoint's elbow runs
+        half-way along the dominant axis, so candidates walk that Z-path; the
+        endpoint midpoint is only the fallback."""
+        (x1, y1), (x2, y2) = p1, p2
+        mx, my = (x1 + x2) // 2, (y1 + y2) // 2
+        # A connector that runs straight through a node stack has NO clear
+        # on-path spot — the lateral nudges sit the label beside the line,
+        # which beats sitting it on a node.
+        nudge = Inches_val(0.42)
+        candidates = [
+            (mx, my),                       # middle of the elbow's cross segment
+            ((x1 + mx) // 2, y1),           # horizontal-dominant: leg leaving the source
+            ((mx + x2) // 2, y2),           # horizontal-dominant: leg entering the target
+            (x1, (y1 + my) // 2),           # vertical-dominant: leg leaving the source
+            (x2, (my + y2) // 2),           # vertical-dominant: leg entering the target
+            (mx + nudge, my), (mx - nudge, my),
+            (x1 + nudge, (y1 + my) // 2), (x1 - nudge, (y1 + my) // 2),
+        ]
+        def is_free(rect: Rect) -> bool:
+            # Inflate the probe: the width estimate is for the theme font, and
+            # preview rasterizers substitute wider ones — a near-miss on paper
+            # reads as a collision on screen.
+            probe = Rect(
+                left=rect.left - rect.width // 8,
+                top=rect.top - rect.height // 8,
+                width=rect.width + rect.width // 4,
+                height=rect.height + rect.height // 4,
+            )
+            return not any(_rects_intersect(probe, r) for r in node_rects.values()) and not any(
+                _rects_intersect(probe, r) for r in placed_labels
+            )
+
+        for cx, cy in candidates:
+            if is_free(self._edge_label_rect(text, cx, cy)):
+                return cx, cy
+        # Nothing on or near the path is clear (typical for a connector running
+        # straight through a node stack): shove the label sideways just past
+        # whatever card the midpoint hits.
+        mid_rect = self._edge_label_rect(text, mx, my)
+        hit = next((r for r in node_rects.values() if _rects_intersect(mid_rect, r)), None)
+        if hit is not None:
+            gap = Emu(Pt(4))
+            for cx in (
+                hit.left + hit.width + mid_rect.width // 2 + gap,
+                hit.left - mid_rect.width // 2 - gap,
+            ):
+                if is_free(self._edge_label_rect(text, cx, my)):
+                    return cx, my
+        return mx, my
 
     def _draw_network_edges(self, slide, diagram, node_rects: dict[str, Rect]) -> None:
         nodes = {node.id: node for node in diagram.nodes}
@@ -631,6 +833,38 @@ def Inches_val(inches: float) -> int:
     return int(Inches(inches))
 
 
+def _text_width_emu(text: str, font_pt: float, bold: bool = False) -> int:
+    """Generous single-line width estimate for the default theme font. Errs
+    wide on purpose: an over-wide box still hugs far better than a full-width
+    one, while an under-estimate causes surprise wrapping."""
+    per_char_pt = font_pt * (0.68 if bold else 0.62)
+    return int(Emu(Pt(len(text) * per_char_pt)))
+
+
+def _wrapped_line_count(text: str, width_emu: int, font_pt: float, bold: bool = False) -> int:
+    """How many lines `text` needs when word-wrapped into `width_emu`."""
+    if width_emu <= 0:
+        return 1
+    lines, cur = 1, ""
+    for word in text.split():
+        cand = f"{cur} {word}".strip()
+        if cur and _text_width_emu(cand, font_pt, bold) > width_emu:
+            lines += 1
+            cur = word
+        else:
+            cur = cand
+    return lines
+
+
+def _rects_intersect(a: Rect, b: Rect) -> bool:
+    return not (
+        a.left + a.width <= b.left
+        or b.left + b.width <= a.left
+        or a.top + a.height <= b.top
+        or b.top + b.height <= a.top
+    )
+
+
 def _clamp_pt(v: float, lo: float, hi: float) -> float:
     return max(lo, min(hi, v))
 
@@ -687,5 +921,13 @@ def _dedupe_points(points: list[tuple[int, int]]) -> list[tuple[int, int]]:
     return out
 
 
-def render_spec(diagram: Diagram, out_path: str | Path, engine: str = "auto") -> Path:
-    return Renderer().render(diagram, out_path, engine=engine)
+def render_spec(
+    diagram: Diagram,
+    out_path: str | Path,
+    engine: str = "auto",
+    auto_direction: bool = False,
+    expand_slide: bool = True,
+) -> Path:
+    return Renderer().render(
+        diagram, out_path, engine=engine, auto_direction=auto_direction, expand_slide=expand_slide
+    )

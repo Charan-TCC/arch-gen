@@ -1,0 +1,1215 @@
+aws.activate           AWS Activate
+aws.amplify            AWS Amplify
+aws.apache-mxnet-on-aws Apache MXNet on AWS
+aws.api-gateway        Amazon API Gateway
+aws.app-mesh           AWS App Mesh
+aws.app-runner         AWS App Runner
+aws.app-studio         AWS App Studio
+aws.appconfig          AWS AppConfig
+aws.appfabric          AWS AppFabric
+aws.appflow            Amazon AppFlow
+aws.application-auto-scaling AWS Application Auto Scaling
+aws.application-discovery-service AWS Application Discovery Service
+aws.application-migration-service AWS Application Migration Service
+aws.application-recovery-controller Amazon Application Recovery Controller
+aws.appsync            AWS AppSync
+aws.artifact           AWS Artifact
+aws.athena             Amazon Athena
+aws.audit-manager      AWS Audit Manager
+aws.augmented-ai-a2i   Amazon Augmented AI A2I
+aws.aurora             Amazon Aurora
+aws.auto-scaling       AWS Auto Scaling
+aws.b2b-data-interchange AWS B2B Data Interchange
+aws.backint-agent      AWS Backint Agent
+aws.backup             AWS Backup
+aws.batch              AWS Batch
+aws.bedrock            Amazon Bedrock
+aws.bedrock-agentcore  Amazon Bedrock AgentCore
+aws.billing-conductor  AWS Billing Conductor
+aws.bottlerocket       Bottlerocket
+aws.braket             Amazon Braket
+aws.budgets            AWS Budgets
+aws.certificate-manager AWS Certificate Manager
+aws.chatbot            AWS Chatbot
+aws.chime              Amazon Chime
+aws.chime-sdk          Amazon Chime SDK
+aws.clean-rooms        AWS Clean Rooms
+aws.client-vpn         AWS Client VPN
+aws.cloud-control-api  AWS Cloud Control API
+aws.cloud-development-kit AWS Cloud Development Kit
+aws.cloud-directory    Amazon Cloud Directory
+aws.cloud-map          AWS Cloud Map
+aws.cloud-wan          AWS Cloud WAN
+aws.cloud9             AWS Cloud9
+aws.cloudformation     AWS CloudFormation
+aws.cloudfront         Amazon CloudFront
+aws.cloudhsm           AWS CloudHSM
+aws.cloudsearch        Amazon CloudSearch
+aws.cloudshell         AWS CloudShell
+aws.cloudtrail         AWS CloudTrail
+aws.cloudwatch         Amazon CloudWatch
+aws.codeartifact       AWS CodeArtifact
+aws.codebuild          AWS CodeBuild
+aws.codecatalyst       Amazon CodeCatalyst
+aws.codecommit         AWS CodeCommit
+aws.codedeploy         AWS CodeDeploy
+aws.codeguru           Amazon CodeGuru
+aws.codepipeline       AWS CodePipeline
+aws.codewhisperer      Amazon CodeWhisperer
+aws.cognito            Amazon Cognito
+aws.command-line-interface AWS Command Line Interface
+aws.comprehend         Amazon Comprehend
+aws.comprehend-medical Amazon Comprehend Medical
+aws.compute-optimizer  AWS Compute Optimizer
+aws.config             AWS Config
+aws.connect            Amazon Connect
+aws.console-mobile-application AWS Console Mobile Application
+aws.control-tower      AWS Control Tower
+aws.corretto           Amazon Corretto
+aws.cost-and-usage-report AWS Cost and Usage Report
+aws.cost-explorer      AWS Cost Explorer
+aws.data-exchange      AWS Data Exchange
+aws.data-firehose      Amazon Data Firehose
+aws.data-transfer-terminal AWS Data Transfer Terminal
+aws.database-migration-service AWS Database Migration Service
+aws.datasync           AWS DataSync
+aws.datazone           Amazon DataZone
+aws.dcv                Amazon DCV
+aws.deadline-cloud     AWS Deadline Cloud
+aws.deep-learning-amis AWS Deep Learning AMIs
+aws.deep-learning-containers AWS Deep Learning Containers
+aws.deepracer          AWS DeepRacer
+aws.detective          Amazon Detective
+aws.device-farm        AWS Device Farm
+aws.devops-agent       AWS DevOps Agent
+aws.devops-guru        Amazon DevOps Guru
+aws.direct-connect     AWS Direct Connect
+aws.directory-service  AWS Directory Service
+aws.distro-for-opentelemetry AWS Distro for OpenTelemetry
+aws.documentdb         Amazon DocumentDB
+aws.dynamodb           Amazon DynamoDB
+aws.ec2                Amazon EC2
+aws.ec2-auto-scaling   Amazon EC2 Auto Scaling
+aws.ec2-image-builder  Amazon EC2 Image Builder
+aws.ecs-anywhere       Amazon ECS Anywhere
+aws.efs                Amazon EFS
+aws.eks-anywhere       Amazon EKS Anywhere
+aws.eks-distro         Amazon EKS Distro
+aws.elastic-beanstalk  AWS Elastic Beanstalk
+aws.elastic-block-store Amazon Elastic Block Store
+aws.elastic-container-registry Amazon Elastic Container Registry
+aws.elastic-container-service Amazon Elastic Container Service
+aws.elastic-disaster-recovery AWS Elastic Disaster Recovery
+aws.elastic-fabric-adapter Elastic Fabric Adapter
+aws.elastic-inference  Amazon Elastic Inference
+aws.elastic-kubernetes-service Amazon Elastic Kubernetes Service
+aws.elastic-load-balancing Elastic Load Balancing
+aws.elastic-vmware-service Amazon Elastic VMware Service
+aws.elasticache        Amazon ElastiCache
+aws.elemental-appliances-and-software AWS Elemental Appliances & Software
+aws.elemental-conductor AWS Elemental Conductor
+aws.elemental-delta    AWS Elemental Delta
+aws.elemental-inference AWS Elemental Inference
+aws.elemental-link     AWS Elemental Link
+aws.elemental-live     AWS Elemental Live
+aws.elemental-mediaconnect AWS Elemental MediaConnect
+aws.elemental-mediaconvert AWS Elemental MediaConvert
+aws.elemental-medialive AWS Elemental MediaLive
+aws.elemental-mediapackage AWS Elemental MediaPackage
+aws.elemental-mediastore AWS Elemental MediaStore
+aws.elemental-mediatailor AWS Elemental MediaTailor
+aws.elemental-server   AWS Elemental Server
+aws.emr                Amazon EMR
+aws.end-user-messaging AWS End User Messaging
+aws.entity-resolution  AWS Entity Resolution
+aws.eventbridge        Amazon EventBridge
+aws.express-workflows  AWS Express Workflows
+aws.fargate            AWS Fargate
+aws.fault-injection-service AWS Fault Injection Service
+aws.file-cache         Amazon File Cache
+aws.finspace           Amazon FinSpace
+aws.firewall-manager   AWS Firewall Manager
+aws.forecast           Amazon Forecast
+aws.fraud-detector     Amazon Fraud Detector
+aws.freertos           FreeRTOS
+aws.fsx                Amazon FSx
+aws.fsx-for-lustre     Amazon FSx for Lustre
+aws.fsx-for-netapp-ontap Amazon FSx for NetApp ONTAP
+aws.fsx-for-openzfs    Amazon FSx for OpenZFS
+aws.fsx-for-wfs        Amazon FSx for WFS
+aws.gamelift-servers   Amazon GameLift Servers
+aws.gamelift-streams   Amazon GameLift Streams
+aws.global-accelerator AWS Global Accelerator
+aws.glue               AWS Glue
+aws.glue-databrew      AWS Glue DataBrew
+aws.ground-station     AWS Ground Station
+aws.guardduty          Amazon GuardDuty
+aws.health-dashboard   AWS Health Dashboard
+aws.healthimaging      AWS HealthImaging
+aws.healthlake         AWS HealthLake
+aws.healthomics        AWS HealthOmics
+aws.healthscribe       AWS HealthScribe
+aws.iam-identity-center AWS IAM Identity Center
+aws.identity-and-access-management AWS Identity and Access Management
+aws.infrastructure-composer AWS Infrastructure Composer
+aws.inspector          Amazon Inspector
+aws.interactive-video-service Amazon Interactive Video Service
+aws.interconnect       AWS Interconnect
+aws.iot-core           AWS IoT Core
+aws.iot-device-defender AWS IoT Device Defender
+aws.iot-device-management AWS IoT Device Management
+aws.iot-events         AWS IoT Events
+aws.iot-expresslink    AWS IoT ExpressLink
+aws.iot-fleetwise      AWS IoT FleetWise
+aws.iot-greengrass     AWS IoT Greengrass
+aws.iot-sitewise       AWS IoT SiteWise
+aws.iot-twinmaker      AWS IoT TwinMaker
+aws.iq                 AWS IQ
+aws.kendra             Amazon Kendra
+aws.key-management-service AWS Key Management Service
+aws.keyspaces          Amazon Keyspaces
+aws.kinesis            Amazon Kinesis
+aws.kinesis-data-streams Amazon Kinesis Data Streams
+aws.kinesis-video-streams Amazon Kinesis Video Streams
+aws.lake-formation     AWS Lake Formation
+aws.lambda             AWS Lambda
+aws.launch-wizard      AWS Launch Wizard
+aws.lex                Amazon Lex
+aws.license-manager    AWS License Manager
+aws.lightsail          Amazon Lightsail
+aws.lightsail-for-research Amazon Lightsail for Research
+aws.local-zones        AWS Local Zones
+aws.location-service   Amazon Location Service
+aws.lookout-for-equipment Amazon Lookout for Equipment
+aws.lookout-for-vision Amazon Lookout for Vision
+aws.macie              Amazon Macie
+aws.mainframe-modernization AWS Mainframe Modernization
+aws.managed-blockchain Amazon Managed Blockchain
+aws.managed-grafana    Amazon Managed Grafana
+aws.managed-service-for-apache-flink Amazon Managed Service for Apache Flink
+aws.managed-service-for-prometheus Amazon Managed Service for Prometheus
+aws.managed-services   AWS Managed Services
+aws.managed-streaming-for-apache-kafka Amazon Managed Streaming for Apache Kafka
+aws.managed-workflows-for-apache-airflow Amazon Managed Workflows for Apache Airflow
+aws.management-console AWS Management Console
+aws.marketplace-dark   AWS Marketplace Dark
+aws.marketplace-light  AWS Marketplace Light
+aws.memorydb           Amazon MemoryDB
+aws.migration-evaluator AWS Migration Evaluator
+aws.migration-hub      AWS Migration Hub
+aws.monitron           Amazon Monitron
+aws.mq                 Amazon MQ
+aws.neptune            Amazon Neptune
+aws.network-firewall   AWS Network Firewall
+aws.neuron             AWS Neuron
+aws.nitro-enclaves     AWS Nitro Enclaves
+aws.nova               Amazon Nova
+aws.open-3d-engine     Open 3D Engine
+aws.opensearch-service Amazon OpenSearch Service
+aws.oracle-database-at-aws Oracle Database at AWS
+aws.organizations      AWS Organizations
+aws.outposts-family    AWS Outposts family
+aws.outposts-rack      AWS Outposts rack
+aws.outposts-servers   AWS Outposts servers
+aws.panorama           AWS Panorama
+aws.parallel-cluster   AWS Parallel Cluster
+aws.parallel-computing-service AWS Parallel Computing Service
+aws.partner-central    AWS Partner Central
+aws.payment-cryptography AWS Payment Cryptography
+aws.personalize        Amazon Personalize
+aws.pinpoint           Amazon Pinpoint
+aws.pinpoint-apis      Amazon Pinpoint APIs
+aws.polly              Amazon Polly
+aws.private-certificate-authority AWS Private Certificate Authority
+aws.privatelink        AWS PrivateLink
+aws.professional-services AWS Professional Services
+aws.proton             AWS Proton
+aws.pytorch-on-aws     PyTorch on AWS
+aws.q                  Amazon Q
+aws.quick              Amazon Quick
+aws.rds                Amazon RDS
+aws.red-hat-openshift-service-on-aws Red Hat OpenShift Service on AWS
+aws.redshift           Amazon Redshift
+aws.rekognition        Amazon Rekognition
+aws.repost             AWS rePost
+aws.repost-private     AWS rePost Private
+aws.reserved-instance-reporting Reserved Instance Reporting
+aws.resilience-hub     AWS Resilience Hub
+aws.resource-access-manager AWS Resource Access Manager
+aws.resource-explorer  AWS Resource Explorer
+aws.route-53           Amazon Route 53
+aws.rtb-fabric         AWS RTB Fabric
+aws.s3                 Amazon S3
+aws.s3-on-outposts     Amazon S3 on Outposts
+aws.sagemaker          Amazon SageMaker
+aws.sagemaker-ai       Amazon SageMaker AI
+aws.sagemaker-ground-truth Amazon SageMaker Ground Truth
+aws.sagemaker-studio-lab Amazon SageMaker Studio Lab
+aws.savings-plans      Savings Plans
+aws.secrets-manager    AWS Secrets Manager
+aws.security-agent     AWS Security Agent
+aws.security-hub       AWS Security Hub
+aws.security-incident-response AWS Security Incident Response
+aws.security-lake      Amazon Security Lake
+aws.serverless-application-repository AWS Serverless Application Repository
+aws.service-catalog    AWS Service Catalog
+aws.service-management-connector AWS Service Management Connector
+aws.shield             AWS Shield
+aws.signer             AWS Signer
+aws.simple-email-service Amazon Simple Email Service
+aws.simple-notification-service Amazon Simple Notification Service
+aws.simple-queue-service Amazon Simple Queue Service
+aws.simple-storage-service Amazon Simple Storage Service
+aws.simple-storage-service-glacier Amazon Simple Storage Service Glacier
+aws.simspace-weaver    AWS SimSpace Weaver
+aws.site-to-site-vpn   AWS Site to Site VPN
+aws.snowball           AWS Snowball
+aws.snowball-edge      AWS Snowball Edge
+aws.step-functions     AWS Step Functions
+aws.storage-gateway    AWS Storage Gateway
+aws.supply-chain       AWS Supply Chain
+aws.support            AWS Support
+aws.sustainability     AWS Sustainability
+aws.systems-manager    AWS Systems Manager
+aws.telco-network-builder AWS Telco Network Builder
+aws.tensorflow-on-aws  TensorFlow on AWS
+aws.textract           Amazon Textract
+aws.thinkbox-deadline  AWS Thinkbox Deadline
+aws.thinkbox-frost     AWS Thinkbox Frost
+aws.thinkbox-krakatoa  AWS Thinkbox Krakatoa
+aws.thinkbox-stoke     AWS Thinkbox Stoke
+aws.thinkbox-xmesh     AWS Thinkbox XMesh
+aws.timestream         Amazon Timestream
+aws.tools-and-sdks     AWS Tools and SDKs
+aws.training-certification AWS Training Certification
+aws.transcribe         Amazon Transcribe
+aws.transfer-family    AWS Transfer Family
+aws.transform          AWS Transform
+aws.transit-gateway    AWS Transit Gateway
+aws.translate          Amazon Translate
+aws.trusted-advisor    AWS Trusted Advisor
+aws.user-notifications AWS User Notifications
+aws.verified-access    AWS Verified Access
+aws.verified-permissions Amazon Verified Permissions
+aws.virtual-private-cloud Amazon Virtual Private Cloud
+aws.vpc-lattice        Amazon VPC Lattice
+aws.waf                AWS WAF
+aws.wavelength         AWS Wavelength
+aws.well-architected-tool AWS Well Architected Tool
+aws.wickr              AWS Wickr
+aws.workdocs           Amazon WorkDocs
+aws.workdocs-sdk       Amazon WorkDocs SDK
+aws.workmail           Amazon WorkMail
+aws.workspaces         Amazon WorkSpaces
+aws.x-ray              AWS X Ray
+azure.030777508-icon-service-service-group-relationships 030777508 icon service Service Group Relationships
+azure.a                Azure A
+azure.abs-member       ABS Member
+azure.access-point     Azure Access Point
+azure.active-directory-connect-health Active Directory Connect Health
+azure.activity-log     Activity Log
+azure.ad-b2c           Azure AD B2C
+azure.administrative-units Administrative Units
+azure.advisor          Advisor
+azure.agentic-web-apps Agentic Web Apps
+azure.ai-at-edge       AI at Edge
+azure.ai-foundry       AI Foundry
+azure.ai-foundry-iq    Azure AI Foundry IQ
+azure.ai-gateway       AI Gateway
+azure.ai-studio        AI Studio
+azure.aks              Azure Kubernetes Service
+azure.aks-automatic    AKS Automatic
+azure.aks-istio        AKS Istio
+azure.aks-network-policy AKS Network Policy
+azure.alerts           Alerts
+azure.all-resources    All Resources
+azure.analysis-services Analysis Services
+azure.anomaly-detector Anomaly Detector
+azure.api-center       API Center
+azure.api-connections  API Connections
+azure.api-for-fhir     Azure API for FHIR
+azure.api-management-services API Management Services
+azure.api-proxy        API Proxy
+azure.app-compliance-automation App Compliance Automation
+azure.app-configuration App Configuration
+azure.app-registrations App Registrations
+azure.app-service-certificates App Service Certificates
+azure.app-service-domains App Service Domains
+azure.app-service-environments App Service Environments
+azure.app-service-plans App Service Plans
+azure.app-services     App Services
+azure.app-space        App Space
+azure.app-space-component App Space Component
+azure.app-testing      Azure App Testing
+azure.applens          Applens
+azure.application-gateway-containers Application Gateway Containers
+azure.application-gateways Application Gateways
+azure.application-group Application Group
+azure.application-insights Application Insights
+azure.application-security-groups Application Security Groups
+azure.applied-ai-services Azure Applied AI Services
+azure.appservice       Azure App Service
+azure.aquila           Aquila
+azure.arc              Azure Arc
+azure.arc-data-services Arc Data services
+azure.arc-kubernetes   Arc Kubernetes
+azure.arc-machines     Arc Machines
+azure.arc-postgresql   Arc PostgreSQL
+azure.arc-sql-managed-instance Arc SQL Managed Instance
+azure.arc-sql-server   Arc SQL Server
+azure.atm-multistack   ATM Multistack
+azure.auto-scale       Auto Scale
+azure.automanaged-vm   Automanaged VM
+azure.automation-accounts Automation Accounts
+azure.availability-sets Availability Sets
+azure.avs-vm           AVS VM
+azure.azureattestation AzureAttestation
+azure.azurite          Azurite
+azure.backlog          Backlog
+azure.backup-center    Azure Backup Center
+azure.backup-vault     Backup Vault
+azure.bare-metal-infrastructure Bare Metal Infrastructure
+azure.bastions         Bastions
+azure.batch-accounts   Batch Accounts
+azure.batch-ai         Batch AI
+azure.biz-talk         Biz Talk
+azure.blob             Azure Blob Storage
+azure.blob-block       Blob Block
+azure.blob-page        Blob Page
+azure.blockchain-applications Blockchain Applications
+azure.blockchain-service Azure Blockchain Service
+azure.blueprints       Blueprints
+azure.bonsai           Bonsai
+azure.bot-services     Bot Services
+azure.branch           Branch
+azure.breeze           Breeze
+azure.browser          Browser
+azure.bug              Bug
+azure.builds           Builds
+azure.business-process-tracking Business Process Tracking
+azure.cache            Cache
+azure.cache-redis      Cache Redis
+azure.capacity-reservation-groups Capacity Reservation Groups
+azure.cdn-profiles     CDN Profiles
+azure.center-for-sap   Azure Center for SAP
+azure.central-service-instance-for-sap Central Service Instance For SAP
+azure.ceres            Ceres
+azure.change-analysis  Change Analysis
+azure.chaos-studio     Azure Chaos Studio
+azure.client-apps      Client Apps
+azure.cloud-services-classic Cloud Services (Classic)
+azure.cloud-services-extended-support Cloud Services (extended support)
+azure.cloud-shell      Azure Cloud Shell
+azure.cloudtest        CloudTest
+azure.code             Code
+azure.code-optimization Code Optimization
+azure.cognitive-search Cognitive Search
+azure.cognitive-services Cognitive Services
+azure.cognitive-services-decisions Cognitive Services Decisions
+azure.collaborative-service Collaborative Service
+azure.commit           Commit
+azure.communication-services Azure Communication Services
+azure.communications-gateway Azure Communications Gateway
+azure.community-images Community Images
+azure.compliance       Compliance
+azure.compliance-center Compliance Center
+azure.compute-fleet    Compute Fleet
+azure.compute-galleries Azure Compute Galleries
+azure.computer-vision  Computer Vision
+azure.conditional-access Conditional Access
+azure.confidential-ledgers Confidential Ledgers
+azure.connected-cache  Connected Cache
+azure.connected-vehicle-platform Connected Vehicle Platform
+azure.connections      Connections
+azure.consortium       Consortium
+azure.consumption-commitment Azure Consumption Commitment
+azure.container-apps-environments Container Apps Environments
+azure.container-instances Container Instances
+azure.container-registries Container Registries
+azure.container-services-deprecated Container Services (Deprecated)
+azure.container-storage Azure Container Storage
+azure.content-moderators Content Moderators
+azure.content-safety   Content Safety
+azure.controls         Controls
+azure.controls-horizontal Controls Horizontal
+azure.cosmos-db        Azure Cosmos DB
+azure.cost-alerts      Cost Alerts
+azure.cost-analysis    Cost Analysis
+azure.cost-budgets     Cost Budgets
+azure.cost-export      Cost Export
+azure.cost-management  Cost Management
+azure.cost-management-and-billing Cost Management and Billing
+azure.counter          Counter
+azure.cubes            Cubes
+azure.custom-ip-prefix Custom IP Prefix
+azure.custom-vision    Custom Vision
+azure.customer-lockbox-for-microsoft-azure Customer Lockbox for Microsoft Azure
+azure.dashboard        Dashboard
+azure.dashboard-hub    Dashboard Hub
+azure.data-box         Data Box
+azure.data-catalog     Azure Data Catalog
+azure.data-collection-rules Data Collection Rules
+azure.data-explorer-clusters Azure Data Explorer Clusters
+azure.data-factories   Data Factories
+azure.data-lake-analytics Data Lake Analytics
+azure.data-lake-storage-gen1 Data Lake Storage Gen1
+azure.data-lake-store-gen1 Data Lake Store Gen1
+azure.data-share-invitations Data Share Invitations
+azure.data-shares      Data Shares
+azure.data-sharing     Azure Data Sharing
+azure.data-transfer    Azure Data Transfer
+azure.data-virtualization Data Virtualization
+azure.database-instance-for-sap Database Instance For SAP
+azure.database-mariadb-server Azure Database MariaDB Server
+azure.database-migration-services Azure Database Migration Services
+azure.database-mysql-server Azure Database MySQL Server
+azure.database-postgresql-server Azure Database PostgreSQL Server
+azure.database-postgresql-server-group Azure Database PostgreSQL Server Group
+azure.databox-gateway  Azure Databox Gateway
+azure.databricks       Azure Databricks
+azure.ddos-custom-policy DDoS Custom Policy
+azure.ddos-protection-plans DDoS Protection Plans
+azure.dedicated-hsm    Dedicated HSM
+azure.defender-cm-local-manager Defender CM Local Manager
+azure.defender-dcs-controller Defender DCS Controller
+azure.defender-distributer-control-system Defender Distributer Control System
+azure.defender-engineering-station Defender Engineering Station
+azure.defender-external-management Defender External Management
+azure.defender-freezer-monitor Defender Freezer Monitor
+azure.defender-historian Defender Historian
+azure.defender-hmi     Defender HMI
+azure.defender-industrial-packaging-system Defender Industrial Packaging System
+azure.defender-industrial-printer Defender Industrial Printer
+azure.defender-industrial-robot Defender Industrial Robot
+azure.defender-industrial-scale-system Defender Industrial Scale System
+azure.defender-marquee Defender Marquee
+azure.defender-meter   Defender Meter
+azure.defender-plc     Defender PLC
+azure.defender-pneumatic-device Defender Pneumatic Device
+azure.defender-programable-board Defender Programable Board
+azure.defender-relay   Defender Relay
+azure.defender-robot-controller Defender Robot Controller
+azure.defender-rtu     Defender RTU
+azure.defender-sensor  Defender Sensor
+azure.defender-slot    Defender Slot
+azure.defender-web-guiding-system Defender Web Guiding System
+azure.deployment-environments Azure Deployment Environments
+azure.detonation       Detonation
+azure.dev-console      Dev Console
+azure.dev-tunnels      Azure Dev Tunnels
+azure.device-compliance Device Compliance
+azure.device-configuration Device Configuration
+azure.device-enrollment Device Enrollment
+azure.device-provisioning-services Device Provisioning Services
+azure.device-security-apple Device Security Apple
+azure.device-security-google Device Security Google
+azure.device-security-windows Device Security Windows
+azure.device-update-iot-hub Device Update IoT Hub
+azure.devices          Devices
+azure.devops           Azure DevOps
+azure.devops-starter   DevOps Starter
+azure.devtest-labs     DevTest Labs
+azure.diagnostics-settings Diagnostics Settings
+azure.digital-twins    Digital Twins
+azure.disconnected-operations Disconnected Operations
+azure.disk-encryption-sets Disk Encryption Sets
+azure.disk-pool        Disk Pool
+azure.disks            Disks
+azure.disks-classic    Disks (Classic)
+azure.disks-snapshots  Disks Snapshots
+azure.dns-multistack   DNS Multistack
+azure.dns-private-resolver DNS Private Resolver
+azure.dns-security-policy DNS Security Policy
+azure.dns-zones        DNS Zones
+azure.documentdb       Azure DocumentDB
+azure.download         Download
+azure.ebooks           eBooks
+azure.edge-actions     Edge Actions
+azure.edge-hardware-center Azure Edge Hardware Center
+azure.edge-management  Edge Management
+azure.edge-storage-accelerator Edge Storage Accelerator
+azure.education        Education
+azure.elastic-job-agents Elastic Job Agents
+azure.elastic-san      Elastic SAN
+azure.enclaves         Azure Enclaves
+azure.endpoint-analytics Endpoint Analytics
+azure.engage-center-connect Engage Center Connect
+azure.enterprise-applications Enterprise Applications
+azure.entra-connect    Entra Connect
+azure.entra-connect-health Entra Connect Health
+azure.entra-connect-sync Entra Connect Sync
+azure.entra-domain-services Entra Domain Services
+azure.entra-global-secure-access Entra Global Secure Access
+azure.entra-id-protection Entra ID Protection
+azure.entra-identity-custom-roles Entra Identity Custom Roles
+azure.entra-identity-licenses Entra Identity Licenses
+azure.entra-identity-risky-signins Entra Identity Risky Signins
+azure.entra-identity-risky-users Entra Identity Risky Users
+azure.entra-identity-roles-and-administrators Entra Identity Roles and Administrators
+azure.entra-internet-access Entra Internet Access
+azure.entra-managed-identities Entra Managed Identities
+azure.entra-private-access Entra Private Access
+azure.entra-privleged-identity-management Entra Privleged Identity Management
+azure.entra-verified-id Entra Verified ID
+azure.error            Error
+azure.event-grid-domains Event Grid Domains
+azure.event-grid-subscriptions Event Grid Subscriptions
+azure.event-grid-topics Event Grid Topics
+azure.event-hub-clusters Event Hub Clusters
+azure.event-hubs       Event Hubs
+azure.exchange-access  Exchange Access
+azure.exchange-on-premises-access Exchange On Premises Access
+azure.experimentation-studio Azure Experimentation Studio
+azure.express-route-traffic-collector Express Route Traffic Collector
+azure.expressroute-circuits ExpressRoute Circuits
+azure.expressroute-direct ExpressRoute Direct
+azure.extendedsecurityupdates ExtendedSecurityUpdates
+azure.extensions       Extensions
+azure.external-id      external id
+azure.external-id-modified external id modified
+azure.external-identities External Identities
+azure.face-apis        Face APIs
+azure.feature-previews Feature Previews
+azure.fhir-service     FHIR Service
+azure.fiji             Fiji
+azure.file             File
+azure.files            Files
+azure.fileshares       Azure Fileshares
+azure.firewall-manager Azure Firewall Manager
+azure.firewall-policy  Azure Firewall Policy
+azure.firewalls        Firewalls
+azure.folder-blank     Folder Blank
+azure.folder-website   Folder Website
+azure.form-recognizers Form Recognizers
+azure.foundry-agent-service Foundry Agent Service
+azure.foundry-application Foundry Application
+azure.foundry-control-plane Foundry Control Plane
+azure.foundry-labs     Foundry Labs
+azure.foundry-local    Foundry Local
+azure.foundry-models   Foundry Models
+azure.foundry-project  Foundry Project
+azure.frd-qa           FRD QA
+azure.free-services    Free Services
+azure.front-door-and-cdn-profiles Front Door and CDN Profiles
+azure.ftp              FTP
+azure.function-apps    Function Apps
+azure.gear             Gear
+azure.genomics         Genomics
+azure.genomics-accounts Genomics Accounts
+azure.globe-error      Globe Error
+azure.globe-success    Globe Success
+azure.globe-warning    Globe Warning
+azure.groups           Groups
+azure.guide            Guide
+azure.hcp-cache        Azure HCP Cache
+azure.hd-insight-clusters HD Insight Clusters
+azure.hdi-aks-cluster  HDI AKS Cluster
+azure.heart            Heart
+azure.help-and-support Help and Support
+azure.host-groups      Host Groups
+azure.host-pools       Host Pools
+azure.hosts            Hosts
+azure.hpc-workbenches  Azure HPC Workbenches
+azure.hybrid-center    Azure Hybrid Center
+azure.hybrid-connectivity-hub Hybrid Connectivity Hub
+azure.icm-troubleshooting IcM Troubleshooting
+azure.identity-governance Identity Governance
+azure.identity-secure-score Identity Secure Score
+azure.image            Image
+azure.image-definitions Image Definitions
+azure.image-templates  Image Templates
+azure.image-versions   Image Versions
+azure.images           Images
+azure.immersive-readers Immersive Readers
+azure.import-export-jobs Import Export Jobs
+azure.industrial-iot   Industrial IoT
+azure.information      Information
+azure.information-protection Azure Information Protection
+azure.input-output     Input Output
+azure.instance-pools   Instance Pools
+azure.integration-accounts Integration Accounts
+azure.integration-environments Integration Environments
+azure.integration-service-environments Integration Service Environments
+azure.internet-analyzer-profiles Internet Analyzer Profiles
+azure.intune           Intune
+azure.intune-app-protection Intune App Protection
+azure.intune-for-education Intune For Education
+azure.intune-trends    Intune Trends
+azure.iot-central-applications IoT Central Applications
+azure.iot-edge         IoT Edge
+azure.iot-hub          IoT Hub
+azure.iot-operations   Azure IoT Operations
+azure.ip-address-manager IP Address manager
+azure.ip-groups        IP Groups
+azure.journey-hub      Journey Hub
+azure.key-vaults       Key Vaults
+azure.keys             Keys
+azure.kubernetes-fleet-manager Kubernetes Fleet Manager
+azure.kubernetes-hub   Kubernetes Hub
+azure.kubernetes-services Kubernetes Services
+azure.lab-accounts     Lab Accounts
+azure.lab-services     Lab Services
+azure.landing-zone     Landing Zone
+azure.language         Language
+azure.language-understanding Language Understanding
+azure.launch-portal    Launch Portal
+azure.learn            Learn
+azure.lighthouse       Azure Lighthouse
+azure.linux            Azure Linux
+azure.load-balancer-hub Load Balancer Hub
+azure.load-balancers   Load Balancers
+azure.load-test        Load Test
+azure.load-testing     Load Testing
+azure.local            Azure Local
+azure.local-network-gateways Local Network Gateways
+azure.location         Location
+azure.log-analytics-query-pack Log Analytics Query Pack
+azure.log-analytics-workspaces Log Analytics Workspaces
+azure.log-streaming    Log Streaming
+azure.logic-apps       Logic Apps
+azure.logic-apps-custom-connector Logic Apps Custom Connector
+azure.logic-apps-template Logic Apps Template
+azure.machine-learning Azure Machine Learning
+azure.machine-learning-studio-classic-web-services Machine Learning Studio (Classic) Web Services
+azure.machine-learning-studio-web-service-plans Machine Learning Studio Web Service Plans
+azure.machine-learning-studio-workspaces Machine Learning Studio Workspaces
+azure.machinesazurearc MachinesAzureArc
+azure.maintenance-configuration Maintenance Configuration
+azure.managed-applications-center Managed Applications Center
+azure.managed-database Managed Database
+azure.managed-desktop  Managed Desktop
+azure.managed-devops-pools Managed DevOps Pools
+azure.managed-file-shares Managed File Shares
+azure.managed-grafana  Azure Managed Grafana
+azure.managed-identities Managed Identities
+azure.managed-instance-apache-cassandra Managed Instance Apache Cassandra
+azure.managed-redis    Azure Managed Redis
+azure.managed-service-fabric Managed Service Fabric
+azure.management-groups Management Groups
+azure.management-portal Management Portal
+azure.maps-accounts    Azure Maps Accounts
+azure.marketplace      Marketplace
+azure.marketplace-management Marketplace Management
+azure.media            Media
+azure.media-file       Media File
+azure.media-service    Azure Media Service
+azure.medtech-service  MedTech Service
+azure.mesh-applications Mesh Applications
+azure.metrics          Metrics
+azure.metrics-advisor  Metrics Advisor
+azure.microsoft-defender-easm Microsoft Defender EASM
+azure.microsoft-defender-for-cloud Microsoft Defender for Cloud
+azure.microsoft-defender-for-iot Microsoft Defender for IoT
+azure.microsoft-dev-box Microsoft Dev Box
+azure.microsoft-discovery Microsoft Discovery
+azure.migrate          Azure Migrate
+azure.mindaro          Mindaro
+azure.mission-landing-zone Mission Landing Zone
+azure.mobile           Mobile
+azure.mobile-engagement Mobile Engagement
+azure.mobile-networks  Mobile Networks
+azure.modular-data-center Modular Data Center
+azure.module           Module
+azure.monitor          Monitor
+azure.monitor-dashboard Azure Monitor Dashboard
+azure.monitor-health-models Monitor Health Models
+azure.monitor-pipeline Azure Monitor Pipeline
+azure.monitors-for-sap-solutions Azure Monitors for SAP Solutions
+azure.multi-factor-authentication Multi Factor Authentication
+azure.multi-tenancy    Multi Tenancy
+azure.multifactor-authentication Multifactor Authentication
+azure.my-customers     My Customers
+azure.nat              NAT
+azure.netapp-files     Azure NetApp Files
+azure.network-foundation-hub Network Foundation Hub
+azure.network-function-manager Azure Network Function Manager
+azure.network-function-manager-functions Azure Network Function Manager Functions
+azure.network-interfaces Network Interfaces
+azure.network-managers Network Managers
+azure.network-security-groups Network Security Groups
+azure.network-security-hub Network Security Hub
+azure.network-security-perimeters Network Security Perimeters
+azure.network-watcher  Network Watcher
+azure.notification-hub-namespaces Notification Hub Namespaces
+azure.notification-hubs Notification Hubs
+azure.object-understanding Azure Object Understanding
+azure.on-premises-data-gateways On Premises Data Gateways
+azure.open-supply-chain-platform Open Supply Chain Platform
+azure.openai           Azure OpenAI
+azure.operation-log-classic Operation Log (Classic)
+azure.operator-5g-core Azure Operator 5G Core
+azure.operator-insights Azure Operator Insights
+azure.operator-nexus   Azure Operator Nexus
+azure.operator-service-manager Azure Operator Service Manager
+azure.oracle-database  Oracle Database
+azure.orbital          Azure Orbital
+azure.os-images-classic OS Images (Classic)
+azure.osconfig         OSConfig
+azure.outbound-connection Outbound Connection
+azure.partner-namespace Partner Namespace
+azure.partner-registration Partner Registration
+azure.partner-topic    Partner Topic
+azure.peering-service  Peering Service
+azure.peerings         Peerings
+azure.personalizers    Personalizers
+azure.planetary-computer-pro Planetary Computer Pro
+azure.policy           Policy
+azure.power            Power
+azure.power-bi-embedded Power BI Embedded
+azure.power-platform   Power Platform
+azure.power-up         Power Up
+azure.powershell       Powershell
+azure.preview-features Preview Features
+azure.private-endpoints Private Endpoints
+azure.private-link     Private Link
+azure.private-link-service Private Link Service
+azure.private-link-services Private Link Services
+azure.process-explorer Process Explorer
+azure.production-ready-database Production Ready Database
+azure.programmable-connectivity Azure Programmable Connectivity
+azure.promethus        promethus
+azure.proximity-placement-groups Proximity Placement Groups
+azure.public-ip-addresses Public IP Addresses
+azure.public-ip-addresses-classic Public IP Addresses (Classic)
+azure.public-ip-prefixes Public IP Prefixes
+azure.pubsub           pubsub
+azure.qna-makers       QnA Makers
+azure.quickstart-center Quickstart Center
+azure.quotas           Azure Quotas
+azure.recent           Recent
+azure.recovery-services-vaults Recovery Services Vaults
+azure.red-hat-openshift Azure Red Hat OpenShift
+azure.region-management Region Management
+azure.relays           Relays
+azure.remote-rendering Remote Rendering
+azure.reservations     Reservations
+azure.reserved-capacity Reserved Capacity
+azure.reserved-ip-addresses-classic Reserved IP Addresses (Classic)
+azure.resiliency       Resiliency
+azure.resource-explorer Resource Explorer
+azure.resource-graph-explorer Resource Graph Explorer
+azure.resource-group-list Resource Group List
+azure.resource-groups  Resource Groups
+azure.resource-guard   Resource Guard
+azure.resource-linked  Resource Linked
+azure.resource-management-private-link Resource Management Private Link
+azure.resource-mover   Resource Mover
+azure.resources-provider Resources Provider
+azure.restore-points   Restore Points
+azure.restore-points-collections Restore Points Collections
+azure.route-filters    Route Filters
+azure.route-tables     Route Tables
+azure.rtos             RTOS
+azure.savings-plans    Savings Plans
+azure.scheduled-actions Scheduled Actions
+azure.scheduler        Scheduler
+azure.scheduler-job-collections Scheduler Job Collections
+azure.scvmm-management-servers SCVMM Management Servers
+azure.search           Search
+azure.search-grid      Search Grid
+azure.security         Security
+azure.security-baselines Security Baselines
+azure.sendgrid-accounts SendGrid Accounts
+azure.sentinel         Azure Sentinel
+azure.server-farm      Server Farm
+azure.serverless-search Serverless Search
+azure.service-bus      Azure Service Bus
+azure.service-catalog-mad Service Catalog MAD
+azure.service-endpoint-policies Service Endpoint Policies
+azure.service-fabric-clusters Service Fabric Clusters
+azure.service-group-relationships Service Group Relationships
+azure.service-groups   Service Groups
+azure.service-health   Service Health
+azure.service-providers Service Providers
+azure.shared-image-galleries Shared Image Galleries
+azure.signalr          SignalR
+azure.software-as-a-service Software as a Service
+azure.software-updates Software Updates
+azure.solutions        Solutions
+azure.sonic-dash       Sonic Dash
+azure.spatial-anchor-accounts Spatial Anchor Accounts
+azure.speech-services  Speech Services
+azure.sphere           Azure Sphere
+azure.spot-vm          Spot VM
+azure.spot-vmss        Spot VMSS
+azure.spring-apps      Azure Spring Apps
+azure.sql              Azure SQL Database
+azure.sql-data-warehouses SQL Data Warehouses
+azure.sql-database     SQL Database
+azure.sql-database-fleet-manager SQL Database Fleet Manager
+azure.sql-edge         Azure SQL Edge
+azure.sql-elastic-pools SQL Elastic Pools
+azure.sql-managed-instance SQL Managed Instance
+azure.sql-server       SQL Server
+azure.sql-server-registries SQL Server Registries
+azure.sql-server-stretch-databases Azure SQL Server Stretch Databases
+azure.sql-vm           Azure SQL VM
+azure.ssd              SSD
+azure.ssh-keys         SSH Keys
+azure.ssis-lift-and-shift-ir SSIS Lift And Shift IR
+azure.stack-hci-premium Stack HCI Premium
+azure.stack-hci-sizer  Azure Stack HCI Sizer
+azure.stage-maps       Stage Maps
+azure.static-apps      Static Apps
+azure.storage-accounts Storage Accounts
+azure.storage-accounts-classic Storage Accounts (Classic)
+azure.storage-actions  Storage Actions
+azure.storage-azure-files Storage Azure Files
+azure.storage-container Storage Container
+azure.storage-explorer Storage Explorer
+azure.storage-functions Storage Functions
+azure.storage-hubs     Storage Hubs
+azure.storage-mover    Azure Storage Mover
+azure.storage-queue    Storage Queue
+azure.storage-sync-services Storage Sync Services
+azure.storsimple-data-managers StorSimple Data Managers
+azure.storsimple-device-managers StorSimple Device Managers
+azure.stream-analytics-jobs Stream Analytics Jobs
+azure.subnet           Subnet
+azure.subscriptions    Subscriptions
+azure.support-center-blue Azure Support Center Blue
+azure.sustainability   Azure Sustainability
+azure.synapse-analytics Azure Synapse Analytics
+azure.system-topic     System Topic
+azure.table            Table
+azure.tag              Tag
+azure.tags             Tags
+azure.targets-management Targets Management
+azure.template-specs   Template Specs
+azure.templates        Templates
+azure.tenant-properties Tenant Properties
+azure.tenant-status    Tenant Status
+azure.test-base        Test Base
+azure.tfs-vc-repository TFS VC Repository
+azure.time-series-data-sets Time Series Data Sets
+azure.time-series-insights-access-policies Time Series Insights Access Policies
+azure.time-series-insights-environments Time Series Insights Environments
+azure.time-series-insights-event-sources Time Series Insights Event Sources
+azure.token-service    Azure Token Service
+azure.toolbox          Toolbox
+azure.toolchain-orchestrator Toolchain Orchestrator
+azure.traffic-manager-profiles Traffic Manager Profiles
+azure.translator-text  Translator Text
+azure.troubleshoot     Troubleshoot
+azure.universal-print  Universal Print
+azure.update-management-center Update Management Center
+azure.user-privacy     User Privacy
+azure.user-settings    User Settings
+azure.user-subscriptions User Subscriptions
+azure.users            Users
+azure.verifiable-credentials Verifiable Credentials
+azure.verification-as-a-service Verification As A Service
+azure.versions         Versions
+azure.video-analyzers  Video Analyzers
+azure.video-indexer    Azure Video Indexer
+azure.virtual-clusters Virtual Clusters
+azure.virtual-desktop  Azure Virtual Desktop
+azure.virtual-instance-for-sap Virtual Instance for SAP
+azure.virtual-machine  Virtual Machine
+azure.virtual-machines-classic Virtual Machines (Classic)
+azure.virtual-network-gateways Virtual Network Gateways
+azure.virtual-networks Virtual Networks
+azure.virtual-networks-classic Virtual Networks (Classic)
+azure.virtual-router   Virtual Router
+azure.virtual-visits-builder Virtual Visits Builder
+azure.virtual-wan-hub  Virtual WAN Hub
+azure.virtual-wans     Virtual WANs
+azure.vm-app-definitions VM App Definitions
+azure.vm-app-versions  VM App Versions
+azure.vm-image-version VM Image Version
+azure.vm-images-classic VM Images (Classic)
+azure.vm-scale-sets    VM Scale Sets
+azure.vmware-solution  Azure VMware Solution
+azure.vnet-appliance   VNet Appliance
+azure.vpnclientwindows VPNClientWindows
+azure.wac              WAC
+azure.wac-installer    WAC Installer
+azure.web-app-plus-database Web App + Database
+azure.web-application-firewall-policies-waf Web Application Firewall Policies(WAF)
+azure.web-jobs         Web Jobs
+azure.web-slots        Web Slots
+azure.web-test         Web Test
+azure.website-power    Website Power
+azure.website-staging  Website Staging
+azure.windows-notification-services Windows Notification Services
+azure.windows10-core-services Windows10 Core Services
+azure.workbooks        Azure Workbooks
+azure.worker-container-app Worker Container App
+azure.workflow         Workflow
+azure.workload-orchestration Workload Orchestration
+azure.workspace-gateway Workspace Gateway
+azure.workspaces       Workspaces
+gcp.access-context-manager Access Context Manager
+gcp.administration     Administration
+gcp.advanced-agent-modeling Advanced Agent Modeling
+gcp.advanced-solutions-lab Advanced Solutions Lab
+gcp.agent-assist       Agent Assist
+gcp.ai-hub             AI Hub
+gcp.ai-platform        AI Platform
+gcp.ai-platform-unified AI Platform Unified
+gcp.analytics-hub      Analytics Hub
+gcp.anthos             Anthos
+gcp.anthos-config-management Anthos Config Management
+gcp.anthos-service-mesh Anthos Service Mesh
+gcp.api                API
+gcp.api-analytics      API Analytics
+gcp.api-monetization   API Monetization
+gcp.apigee-api-platform Apigee API Platform
+gcp.apigee-sense       Apigee Sense
+gcp.app-engine         App Engine
+gcp.artifact-registry  Artifact Registry
+gcp.asset-inventory    Asset Inventory
+gcp.assured-workloads  Assured Workloads
+gcp.automl             AutoML
+gcp.automl-natural-language AutoML Natural Language
+gcp.automl-tables      AutoML Tables
+gcp.automl-translation AutoML Translation
+gcp.automl-video-intelligence AutoML Video Intelligence
+gcp.automl-vision      AutoML Vision
+gcp.bare-metal-solutions Bare Metal Solutions
+gcp.batch              Batch
+gcp.beyondcorp         Beyondcorp
+gcp.bigquery           BigQuery
+gcp.bigtable           Bigtable
+gcp.billing            Billing
+gcp.binary-authorization Binary Authorization
+gcp.catalog            Catalog
+gcp.certificate-authority-service Certificate Authority Service
+gcp.certificate-manager Certificate Manager
+gcp.cloud-api-gateway  Cloud API Gateway
+gcp.cloud-apis         Cloud APIs
+gcp.cloud-armor        Cloud Armor
+gcp.cloud-asset-inventory Cloud Asset Inventory
+gcp.cloud-audit-logs   Cloud Audit Logs
+gcp.cloud-build        Cloud Build
+gcp.cloud-cdn          Cloud CDN
+gcp.cloud-code         Cloud Code
+gcp.cloud-composer     Cloud Composer
+gcp.cloud-data-fusion  Cloud Data Fusion
+gcp.cloud-deploy       Cloud Deploy
+gcp.cloud-deployment-manager Cloud Deployment Manager
+gcp.cloud-dns          Cloud DNS
+gcp.cloud-domains      Cloud Domains
+gcp.cloud-ekm          Cloud EKM
+gcp.cloud-endpoints    Cloud Endpoints
+gcp.cloud-external-ip-addresses Cloud External IP Addresses
+gcp.cloud-firewall-rules Cloud Firewall Rules
+gcp.cloud-for-marketing Cloud For Marketing
+gcp.cloud-functions    Cloud Functions
+gcp.cloud-generic      Cloud Generic
+gcp.cloud-gpu          Cloud GPU
+gcp.cloud-healthcare-api Cloud Healthcare API
+gcp.cloud-healthcare-marketplace Cloud Healthcare Marketplace
+gcp.cloud-hsm          Cloud HSM
+gcp.cloud-ids          Cloud IDS
+gcp.cloud-inference-api Cloud Inference API
+gcp.cloud-interconnect Cloud Interconnect
+gcp.cloud-jobs-api     Cloud Jobs API
+gcp.cloud-load-balancing Cloud Load Balancing
+gcp.cloud-logging      Cloud Logging
+gcp.cloud-marketplace  Google Cloud Marketplace
+gcp.cloud-media-edge   Cloud Media Edge
+gcp.cloud-monitoring   Cloud Monitoring
+gcp.cloud-nat          Cloud NAT
+gcp.cloud-natural-language-api Cloud Natural Language API
+gcp.cloud-network      Cloud Network
+gcp.cloud-ops          Cloud Ops
+gcp.cloud-optimization-ai Cloud Optimization AI
+gcp.cloud-optimization-ai-fleet-routing-api Cloud Optimization AI Fleet Routing API
+gcp.cloud-router       Cloud Router
+gcp.cloud-routes       Cloud Routes
+gcp.cloud-run          Cloud Run
+gcp.cloud-run-for-anthos Cloud Run For Anthos
+gcp.cloud-scheduler    Cloud Scheduler
+gcp.cloud-security-scanner Cloud Security Scanner
+gcp.cloud-shell        Cloud Shell
+gcp.cloud-spanner      Cloud Spanner
+gcp.cloud-sql          Cloud SQL
+gcp.cloud-storage      Cloud Storage
+gcp.cloud-tasks        Cloud Tasks
+gcp.cloud-test-lab     Cloud Test Lab
+gcp.cloud-tpu          Cloud TPU
+gcp.cloud-translation-api Cloud Translation API
+gcp.cloud-vision-api   Cloud Vision API
+gcp.cloud-vpn          Cloud VPN
+gcp.compute-engine     Compute Engine
+gcp.configuration-management Configuration Management
+gcp.connectivity-test  Connectivity Test
+gcp.connectors         Connectors
+gcp.contact-center-ai  Contact Center AI
+gcp.container-optimized-os Container Optimized OS
+gcp.container-registry Container Registry
+gcp.data-catalog       Data Catalog
+gcp.data-labeling      Data Labeling
+gcp.data-layers        Data Layers
+gcp.data-loss-prevention-api Data Loss Prevention API
+gcp.data-qna           Data QnA
+gcp.data-studio        Data Studio
+gcp.data-transfer      Data Transfer
+gcp.database-migration-service Database Migration Service
+gcp.dataflow           Dataflow
+gcp.datalab            Datalab
+gcp.dataplex           Dataplex
+gcp.datapol            Datapol
+gcp.dataprep           Dataprep
+gcp.dataproc           Dataproc
+gcp.dataproc-metastore Dataproc Metastore
+gcp.datashare          Datashare
+gcp.datastore          Datastore
+gcp.datastream         Datastream
+gcp.debugger           Debugger
+gcp.developer-portal   Developer Portal
+gcp.dialogflow         Dialogflow
+gcp.dialogflow-cx      Dialogflow CX
+gcp.dialogflow-insights Dialogflow Insights
+gcp.document-ai        Document AI
+gcp.early-access-center Early Access Center
+gcp.error-reporting    Error Reporting
+gcp.eventarc           Eventarc
+gcp.filestore          Filestore
+gcp.financial-services-marketplace Financial Services Marketplace
+gcp.firestore          Firestore
+gcp.fleet-engine       Fleet Engine
+gcp.free-trial         Free Trial
+gcp.game-servers       Game Servers
+gcp.gce-systems-management GCE Systems Management
+gcp.genomics           Genomics
+gcp.gke                Google Kubernetes Engine
+gcp.gke-on-prem        GKE On prem
+gcp.healthcare-nlp-api Healthcare NLP API
+gcp.home               Home
+gcp.identity-and-access-management Identity And Access Management
+gcp.identity-aware-proxy Identity Aware Proxy
+gcp.identity-platform  Identity Platform
+gcp.iot-core           Iot Core
+gcp.iot-edge           Iot Edge
+gcp.key-access-justifications Key Access Justifications
+gcp.key-management-service Key Management Service
+gcp.kubernetes-engine  Google Kubernetes Engine
+gcp.kuberun            Kuberun
+gcp.launcher           Launcher
+gcp.local-ssd          Local SSD
+gcp.looker             Looker
+gcp.managed-service-for-microsoft-active-directory Managed Service For Microsoft Active Directory
+gcp.maps-platform      Google Maps Platform
+gcp.media-translation-api Media Translation API
+gcp.memorystore        Memorystore
+gcp.migrate-for-anthos Migrate For Anthos
+gcp.migrate-for-compute-engine Migrate For Compute Engine
+gcp.my-cloud           My Cloud
+gcp.network-connectivity-center Network Connectivity Center
+gcp.network-intelligence-center Network Intelligence Center
+gcp.network-security   Network Security
+gcp.network-tiers      Network Tiers
+gcp.network-topology   Network Topology
+gcp.onboarding         Onboarding
+gcp.os-configuration-management OS Configuration Management
+gcp.os-inventory-management OS Inventory Management
+gcp.os-patch-management OS Patch Management
+gcp.partner-interconnect Partner Interconnect
+gcp.partner-portal     Partner Portal
+gcp.performance-dashboard Performance Dashboard
+gcp.permissions        Permissions
+gcp.persistent-disk    Persistent Disk
+gcp.phishing-protection Phishing Protection
+gcp.policy-analyzer    Policy Analyzer
+gcp.premium-network-tier Premium Network Tier
+gcp.private-connectivity Private Connectivity
+gcp.private-service-connect Private Service Connect
+gcp.producer-portal    Producer Portal
+gcp.profiler           Profiler
+gcp.project            Project
+gcp.pubsub             PubSub
+gcp.quantum-engine     Quantum Engine
+gcp.quotas             Quotas
+gcp.real-world-insights Real world Insights
+gcp.recommendations-ai Recommendations AI
+gcp.release-notes      Release Notes
+gcp.retail-api         Retail API
+gcp.risk-manager       Risk Manager
+gcp.run                Cloud Run
+gcp.runtime-config     Runtime Config
+gcp.secret-manager     Secret Manager
+gcp.security           Security
+gcp.security-command-center Security Command Center
+gcp.security-health-advisor Security Health Advisor
+gcp.security-key-enforcement Security Key Enforcement
+gcp.service-discovery  Service Discovery
+gcp.spanner            Cloud Spanner
+gcp.speech-to-text     Speech To Text
+gcp.stackdriver        Stackdriver
+gcp.standard-network-tier Standard Network Tier
+gcp.stream-suite       Stream Suite
+gcp.support            Support
+gcp.tensorflow-enterprise Tensorflow Enterprise
+gcp.text-to-speech     Text To Speech
+gcp.tools-for-powershell Tools For Powershell
+gcp.trace              Trace
+gcp.traffic-director   Traffic Director
+gcp.transfer           Transfer
+gcp.transfer-appliance Transfer Appliance
+gcp.user-preferences   User Preferences
+gcp.vertex-ai          Vertex AI
+gcp.video-intelligence-api Video Intelligence API
+gcp.virtual-private-cloud Virtual Private Cloud
+gcp.visual-inspection  Visual Inspection
+gcp.vmware-engine      VMware Engine
+gcp.web-risk           Web Risk
+gcp.web-security-scanner Web Security Scanner
+gcp.workflows          Workflows
+gcp.workload-identity-pool Workload Identity Pool
+generic.analytics      Analytics
+generic.api            API
+generic.cache          Cache
+generic.client         Client
+generic.container      Container
+generic.database       Database
+generic.document       Document
+generic.email          Email
+generic.firewall       Firewall
+generic.folder         File Store
+generic.function       Function
+generic.gateway        Gateway
+generic.identity       Identity
+generic.internet       Internet
+generic.loadbalancer   Load Balancer
+generic.mobile         Mobile App
+generic.monitoring     Monitoring
+generic.organization   Organization
+generic.pipeline       Pipeline
+generic.queue          Queue
+generic.schedule       Scheduler
+generic.search         Search
+generic.security       Security
+generic.service        Service
+generic.settings       Config
+generic.storage        Storage
+generic.support        Support
+generic.user           User
+generic.workflow       Workflow
+tech.android           Android
+tech.cloudflare        Cloudflare
+tech.cloudflareworkers Cloudflare Workers
+tech.databricks        Databricks
+tech.django            Django
+tech.docker            Docker
+tech.elasticsearch     Elasticsearch
+tech.github            GitHub
+tech.grafana           Grafana
+tech.hono              Hono
+tech.ios               iOS
+tech.istio             Istio
+tech.jaeger            Jaeger
+tech.kafka             Apache Kafka
+tech.kong              Kong
+tech.neo4j             Neo4j
+tech.nextjs            Next.js
+tech.nginx             NGINX
+tech.okta              Okta
+tech.opentelemetry     OpenTelemetry
+tech.postgres          PostgreSQL
+tech.prometheus        Prometheus
+tech.react             React
+tech.redis             Redis
+tech.stripe            Stripe
+tech.vault             Vault

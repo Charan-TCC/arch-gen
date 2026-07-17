@@ -85,6 +85,7 @@ GENERIC_SEED = {
     "generic.schedule": ("alarm_clock", "Scheduler", "integration"),
     "generic.settings": ("settings", "Config", "management"),
     "generic.support": ("headset", "Support", "service"),
+    "generic.email": ("invite", "Email", "integration"),
     "generic.organization": ("organization", "Organization", "management"),
 }
 

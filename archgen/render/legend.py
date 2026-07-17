@@ -23,7 +23,18 @@ from archgen.spec.lint import _ABBREV_RE
 from archgen.spec.models import Diagram
 
 
-def add_legends(slide, diagram: Diagram, theme: Theme, resolver: IconResolver | None = None) -> None:
+def add_legends(
+    slide,
+    diagram: Diagram,
+    theme: Theme,
+    resolver: IconResolver | None = None,
+    slide_w: int | None = None,
+    slide_h: int | None = None,
+) -> None:
+    # Anchor to the ACTUAL slide size — the renderer may have expanded the
+    # slide beyond the theme default to keep text at readable scale.
+    slide_w = int(theme.slide_w) if slide_w is None else slide_w
+    slide_h = int(theme.slide_h) if slide_h is None else slide_h
     resolver = resolver or IconResolver()
     lcfg = theme["legend"]
 
@@ -36,7 +47,7 @@ def add_legends(slide, diagram: Diagram, theme: Theme, resolver: IconResolver | 
     swatch = Emu(Inches(lcfg["swatch_in"]))
     title_h = Emu(Pt(lcfg["title_font_pt"] + 4))
 
-    bottom = int(theme.slide_h) - Emu(Inches(0.12))
+    bottom = slide_h - Emu(Inches(0.12))
     left0 = int(theme.margin)
 
     # --- color legend (bottom-left) --------------------------------------
@@ -57,11 +68,16 @@ def add_legends(slide, diagram: Diagram, theme: Theme, resolver: IconResolver | 
             _text(slide, pal["display"], left0 + pad + swatch + Emu(Pt(5)), y, width - swatch - 3 * pad, theme, lcfg["font_pt"])
             y += row_h
 
-    # --- connection legend (bottom-center) -------------------------------
+    # --- connection legend (centered in the gap between the other panels) --
     if connections:
         width = Emu(Inches(3.35))
         height = title_h + row_h * len(connections) + pad
-        left = (int(theme.slide_w) - width) // 2
+        gap_left = left0 + Emu(Inches(2.2)) if providers else 0
+        gap_right = slide_w - int(theme.margin)
+        if used_abbrevs:
+            n_rows, n_cols = _abbrev_grid(len(used_abbrevs))
+            gap_right -= Emu(Inches(3.0)) * n_cols
+        left = max(gap_left, gap_left + (gap_right - gap_left - width) // 2)
         top = bottom - height
         _panel(slide, left, top, width, height, theme)
         _title(slide, "Connections", left + pad, top + Emu(Pt(2)), width - 2 * pad, theme)
@@ -82,18 +98,58 @@ def add_legends(slide, diagram: Diagram, theme: Theme, resolver: IconResolver | 
             y += row_h
 
     # --- abbreviation legend (bottom-right) ------------------------------
+    # Splits into two columns past _ABBREV_SINGLE_COL rows: on a fixed slide
+    # every extra row steals content height, so a long list goes wide, not tall.
     if used_abbrevs:
-        width = Emu(Inches(3.0))
-        height = title_h + row_h * len(used_abbrevs) + pad
-        left = int(theme.slide_w) - int(theme.margin) - width
+        n_rows, n_cols = _abbrev_grid(len(used_abbrevs))
+        col_w = Emu(Inches(3.0))
+        width = col_w * n_cols
+        height = title_h + row_h * n_rows + pad
+        left = slide_w - int(theme.margin) - width
         top = bottom - height
         _panel(slide, left, top, width, height, theme)
         _title(slide, "Abbreviations", left + pad, top + Emu(Pt(2)), width - 2 * pad, theme)
-        y = top + title_h
-        for abbr in used_abbrevs:
+        for i, abbr in enumerate(used_abbrevs):
+            col, row = divmod(i, n_rows)
+            x = left + pad + col * col_w
+            y = top + title_h + row * row_h
             expansion = diagram.abbreviations[abbr]
-            _text(slide, f"{abbr} — {expansion}", left + pad, y, width - 2 * pad, theme, lcfg["font_pt"])
-            y += row_h
+            _text(slide, f"{abbr} — {expansion}", x, y, col_w - 2 * pad, theme, lcfg["font_pt"])
+
+
+# Abbreviation lists longer than this render in two columns instead of one
+# ever-taller panel (every row of reserve is content height lost).
+_ABBREV_SINGLE_COL = 6
+
+
+def _abbrev_grid(n: int) -> tuple[int, int]:
+    """(rows, cols) for the abbreviation panel."""
+    if n <= _ABBREV_SINGLE_COL:
+        return n, 1
+    return (n + 1) // 2, 2
+
+
+def legends_reserve_height(diagram: Diagram, theme: Theme, resolver: IconResolver | None = None) -> int:
+    """EMU height of the TALLEST bottom legend panel plus its bottom offset.
+
+    The renderer must reserve this much of the slide so content never slides
+    behind a legend — the abbreviation panel in particular grows one row per
+    declared-and-used abbreviation and easily outgrows a fixed reserve.
+    """
+    resolver = resolver or IconResolver()
+    lcfg = theme["legend"]
+    row_h = Emu(Pt(lcfg["font_pt"] + lcfg["row_gap_pt"]))
+    pad = Emu(Inches(lcfg["pad_in"]))
+    title_h = Emu(Pt(lcfg["title_font_pt"] + 4))
+    row_counts = [
+        len(_providers_present(diagram, resolver)),
+        len(_flow_connections_present(diagram)),
+        _abbrev_grid(len(_abbrevs_used(diagram)))[0],
+    ]
+    heights = [title_h + row_h * n + pad for n in row_counts if n]
+    if not heights:
+        return 0
+    return max(heights) + Emu(Inches(0.12)) + Emu(Pt(8))
 
 
 def _connection_legend_kinds(diagram: Diagram) -> list[str]:

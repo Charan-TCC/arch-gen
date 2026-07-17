@@ -127,41 +127,42 @@ text(slide, 3.0, 1.9, 7.333, 0.3, [[("app calls AIF via AI SDK / Agent SDK", 10,
 
 # 3. Cloud Run box
 zone_rrect(slide, 3.0, 2.3, 7.333, 1.4, "Cloud Run", fill=SLATE_INNER)
-draw_wide_node(slide, 3.2, 2.7, 3.3, 0.8, "generic.client", "Frontend", "Web UI • SSO", GREEN_FILL, GREEN_LINE)
+draw_wide_node(slide, 3.2, 2.7, 3.3, 0.8, "azure.browser", "Frontend", "Web UI • SSO", GREEN_FILL, GREEN_LINE)
 draw_wide_node(slide, 6.8, 2.7, 3.3, 0.8, "generic.api", "Backend", "API • orchestration", GREEN_FILL, GREEN_LINE)
 
 # 4. Cloud Run Jobs
 draw_wide_node(slide, 3.0, 3.9, 7.333, 0.8, "gcp.cloud-run", "Cloud Run Jobs — migration workers", "batch, long-running tasks", GREEN_FILL, GREEN_LINE)
 
 # 5. Identity Band
-draw_wide_node(slide, 3.2, 5.3, 2.0, 1.0, "generic.security", "Azure SPN", "auth to Azure", BLUE_FILL, BLUE_LINE)
-draw_wide_node(slide, 5.6, 5.3, 2.0, 1.0, "gcp.secret-manager", "Secret Manager", "Shine secrets store", ORANGE_FILL, ORANGE_LINE)
-draw_wide_node(slide, 8.0, 5.3, 2.0, 1.0, "gcp.identity-and-access-management", "GCP SA", "Cloud Run identity", GREEN_FILL, GREEN_LINE)
+zone_rrect(slide, 3.0, 4.9, 7.333, 1.55, "Identity & secrets on GCP", fill=SLATE_INNER)
+draw_wide_node(slide, 3.2, 5.4, 2.0, 0.9, "azure.managed-identities", "Azure SPN", "auth to Azure", BLUE_FILL, BLUE_LINE)
+draw_wide_node(slide, 5.6, 5.4, 2.0, 0.9, "gcp.secret-manager", "Secret Manager", "Shine secrets store", ORANGE_FILL, ORANGE_LINE)
+draw_wide_node(slide, 8.0, 5.4, 2.0, 0.9, "gcp.identity-and-access-management", "GCP SA", "Cloud Run identity", GREEN_FILL, GREEN_LINE)
 
 # 6. External Nodes
-draw_node(slide, 1.4, 5.8, "generic.internet", "Azure Source")
-draw_node(slide, 11.9, 5.8, "gcp.cloud-generic", "GCP Target")
+draw_node(slide, 1.4, 5.85, "azure.resource-groups", "Azure Source")
+draw_node(slide, 11.9, 5.85, "gcp.cloud-generic", "GCP Target")
 
 # 7. Edges
 # azure_spn -> azure_source (points left)
-straight_connector(slide, 3.2, 5.8, 1.8, 5.8)
-label(slide, 2.1, 5.65, 1.0, 0.3, "read-only")
+straight_connector(slide, 3.2, 5.85, 1.8, 5.85)
+label(slide, 2.1, 5.7, 1.0, 0.3, "read-only")
 
 # secret_manager -> azure_spn (points left)
-straight_connector(slide, 5.6, 5.8, 5.2, 5.8)
-label(slide, 5.25, 5.65, 0.3, 0.3, "SPN secret")
+straight_connector(slide, 5.6, 5.85, 5.2, 5.85)
+label(slide, 5.25, 5.7, 0.3, 0.3, "SPN secret")
 
-# gcp_sa -> secret_manager (points left)
-straight_connector(slide, 8.0, 5.8, 7.6, 5.8)
-label(slide, 7.65, 5.65, 0.3, 0.3, "reads")
+# cloud_run_jobs -> secret_manager (points down)
+straight_connector(slide, 6.6, 4.7, 6.6, 5.4)
+label(slide, 6.65, 4.95, 0.6, 0.3, "reads")
 
 # cloud_run_jobs -> gcp_sa (points down)
-straight_connector(slide, 9.0, 4.7, 9.0, 5.3)
-label(slide, 8.7, 4.85, 0.6, 0.3, "runs as")
+straight_connector(slide, 9.0, 4.7, 9.0, 5.4)
+label(slide, 9.05, 4.95, 0.6, 0.3, "runs as")
 
 # gcp_sa -> gcp_target (points right)
-straight_connector(slide, 10.0, 5.8, 11.5, 5.8)
-label(slide, 10.35, 5.65, 0.8, 0.3, "provision")
+straight_connector(slide, 10.0, 5.85, 11.5, 5.85)
+label(slide, 10.35, 5.7, 0.8, 0.3, "provision")
 
 # 8. Annotations
 # Left side box

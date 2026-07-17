@@ -10,9 +10,14 @@ and [docs/SPEC_FORMAT.md](docs/SPEC_FORMAT.md).
 The expensive mistake is **iterating on rendered output by trial-and-error** instead
 of understanding constraints first. Do these three things up front:
 
-1. **Confirm the fidelity bar.** If the user gave a reference image, ask ONE question:
-   *must it match that image closely, or is a clean archgen-style diagram fine?* This
-   single answer picks the whole path (see §3). Don't assume.
+1. **Ask the user TWO questions before writing any spec — every time, no assuming:**
+   - **Page format:** *formal presentation (16:9, fixed 13.33"×7.5" slide) or free-form
+     (slide grows so text never shrinks below readable size)?* This is the spec's
+     required `page` field; lint refuses a flow spec without it. On `"16:9"` the
+     content must be reshaped until it fits readably — the slide will not grow.
+   - **Fidelity bar** (only if the user gave a reference image): *must it match that
+     image closely, or is a clean archgen-style diagram fine?* This answer picks the
+     whole path (see §3).
 2. **Check capabilities:** run `make doctor`. It reports the layout engine and icon
    converter actually available in THIS environment.
 3. **Know the layout constraints** (§2) before choosing a `direction`/`kind`. The
@@ -63,20 +68,34 @@ Signs you need the bespoke path: 3+ side-by-side zones **plus** a full-width ban
 header/annotation arrows, numbered callouts, or left-aligned icon+caption cards.
 archgen has no template for those — `build_shine.py` is the worked example.
 
-## 4. Visual QA — DO NOT re-render blindly to "check"
+## 4. Visual QA — text report first, PNG last (token budget is part of the job)
 
-**MANDATORY before closing ANY diagram task — the agent MUST look at the output as an
-image, not just trust that the pipeline exited 0.** The loop is not optional:
+Iterating by rendering PNGs and eyeballing them is the expensive failure mode: every
+image view costs far more tokens than a text report, and visual diagnosis re-discovers
+facts the tool already knows. The loop below is ordered by cost — exhaust each stage
+before escalating to the next:
 
-1. Render the spec to a `.pptx`, then rasterize it to PNG (`make preview SPEC=...`, or
-   `qlmanage -t -s 1600 -o <dir> <file.pptx>`).
-2. **Actually open and view the PNG** (Read the image file). Check for: labels clipping
-   or wrapping mid-word, icons or text spilling outside their card/container, overlapping
-   shapes, collided connectors, empty/placeholder icons, off-slide elements.
-3. If ANYTHING is wrong or "just doesn't look good" → go back, fix the spec (or the
-   renderer if it's a rendering bug), re-render, and **view again**. Repeat until the
-   image is clean. Never hand back or close a task on an unviewed or flawed render.
-4. Only once the rendered image looks correct do you close the task.
+1. **Lint** (`make lint SPEC=...`) — spec-level problems.
+2. **Render with the layout report**:
+   `archgen render <spec> -o <out> --auto-direction --strict`.
+   `--auto-direction` lays out both TB and LR and keeps the better fit (a decision the
+   tool makes deterministically — never burn an iteration discovering it yourself).
+   The printed **layout report** flags scale collapse, cramped cards, words that will
+   break mid-word, and unbalanced slides — with the concrete fix for each. Iterate on
+   the SPEC against this text report until it has **no error-level findings**
+   (`--strict` exits 3 while any remain). Do NOT rasterize or view a PNG during this
+   stage. **Budget: 3 spec-fix iterations** — if errors persist after 3, the shape is
+   wrong for this profile: change `kind`/`layered` or switch path per §3; don't grind.
+3. **One mandatory PNG view** — the report can't see everything (icon quality,
+   connector collisions, overall balance). Rasterize (`make preview SPEC=...` or
+   `qlmanage -t -s 1600 -o <dir> <file.pptx>`) and **actually view the PNG** (Read the
+   image). Check: labels clipping/wrapping mid-word, text spilling outside containers,
+   overlapping shapes, collided connectors, empty/placeholder icons, off-slide elements.
+4. If something is visually wrong → fix, re-render (report must stay clean), view again.
+   **Budget: 2 fix-and-view rounds after the first look** (3 PNG views total). Still
+   flawed after that? The layout profile can't express the composition — switch path
+   (§3, usually bespoke) or surface the tradeoff to the user. Never close a task on an
+   unviewed or flawed render — but never chase pixel perfection past the budget either.
 
 - Committed reference renders live in **[docs/gallery/](docs/gallery/)** — look there
   first instead of re-running the pipeline to remember what a spec produces.

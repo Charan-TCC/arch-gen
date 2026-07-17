@@ -1,0 +1,95 @@
+# Heimdall — end-to-end pipeline from source code + operational systems through
+# secure ingestion, transformation, graph/SQL storage, automated FAIR analysis,
+# and delivery in the Heimdall web app. Six ordered tier bands via `layered: true`;
+# the renderer sizes cards to fit the densest tier (the four log / data / fair rails).
+#
+#   archgen render examples/heimdall_architecture.yaml -o out/heimdall.pptx
+
+title: "Heimdall — End-to-End Data & Governance Architecture"
+kind: flow
+page: "16:9"
+direction: TB
+layered: true
+provider_default: generic
+
+abbreviations:
+  AI: "Artificial Intelligence"
+  DB: "Database"
+  SQL: "Structured Query Language"
+  FAIR: "Factor Analysis of Information Risk"
+
+groups:
+  - {id: sources,   label: "Sources"}
+  - {id: ingestion, label: "Ingestion"}
+  - {id: logs,      label: "Log Ingestion"}
+  - {id: data,      label: "Data Layer"}
+  - {id: fair,      label: "FAIR Analysis"}
+  - {id: app,       label: "Heimdall App"}
+
+nodes:
+  # Data Sources
+  - {id: github,   icon_key: tech.github,       label: "GitHub",     group: sources}
+  - {id: harness,  icon_key: generic.pipeline,  label: "Harness",    group: sources}
+  - {id: aiagents, icon_key: generic.workflow,  label: "AI Agents",  group: sources}
+  - {id: runtime,  icon_key: generic.service,   label: "Runtime",    group: sources}
+
+  # Ingestion Layer
+  - {id: sandbox,  icon_key: generic.container, label: "Sandbox Container", group: ingestion}
+  - {id: codescan, icon_key: generic.security,  label: "Code Scan Engine",  group: ingestion}
+
+  # Log Ingestion Layer
+  - {id: codescanlogs, icon_key: generic.document,   label: "Code Scan Logs",     group: logs}
+  - {id: harnesslogs,  icon_key: generic.document,   label: "Harness Logs",       group: logs}
+  - {id: aiagentlogs,  icon_key: generic.monitoring, label: "AI Agent Obs Logs",  group: logs}
+  - {id: runtimelogs,  icon_key: generic.document,   label: "Runtime Logs",       group: logs}
+
+  # Data Layer
+  - {id: lake,       icon_key: generic.folder,   label: "Data Lake",      group: data}
+  - {id: databricks, icon_key: tech.databricks,  label: "Databricks Job", group: data}
+  - {id: neo4j,      icon_key: tech.neo4j,       label: "Neo4j Graph DB", group: data}
+  - {id: sqldb,      icon_key: generic.database, label: "SQL Database",   group: data}
+
+  # FAIR Analysis Layer
+  - {id: fairagent,  icon_key: generic.function, label: "FAIR Agent",       group: fair}
+  - {id: trigger,    icon_key: generic.workflow, label: "Workflow Trigger", group: fair}
+  - {id: servicenow, icon_key: generic.support,  label: "ServiceNow",       group: fair}
+  - {id: email,      icon_key: generic.email,    label: "Email Alerts",     group: fair}
+
+  # Application Layer (Heimdall)
+  - {id: users,  icon_key: generic.user,     label: "Users",          group: app}
+  - {id: auth,   icon_key: generic.identity, label: "Authentication", group: app}
+  - {id: react,  icon_key: tech.react,       label: "React Frontend", group: app}
+  - {id: django, icon_key: tech.django,      label: "Django Backend", group: app}
+
+edges:
+  # Sources -> Ingestion / Logs
+  - {src: github,   dst: sandbox,  label: "clone"}
+  - {src: sandbox,  dst: codescan}
+  - {src: codescan, dst: codescanlogs}
+  - {src: harness,  dst: harnesslogs}
+  - {src: aiagents, dst: aiagentlogs}
+  - {src: runtime,  dst: runtimelogs}
+
+  # Logs -> Data Lake
+  - {src: codescanlogs, dst: lake}
+  - {src: harnesslogs,  dst: lake}
+  - {src: aiagentlogs,  dst: lake}
+  - {src: runtimelogs,  dst: lake}
+
+  # Data Layer transform + store
+  - {src: lake,       dst: databricks}
+  - {src: databricks, dst: neo4j}
+  - {src: databricks, dst: sqldb}
+
+  # FAIR Analysis reads graph + structured data, automates actions
+  - {src: neo4j, dst: fairagent, style: dashed, kind: diagnostics}
+  - {src: sqldb, dst: fairagent, style: dashed, kind: diagnostics}
+  - {src: fairagent, dst: trigger}
+  - {src: trigger,   dst: servicenow}
+  - {src: trigger,   dst: email}
+
+  # Heimdall App: Django reads the graph + SQL stores and serves the UI
+  - {src: fairagent, dst: django, label: "results"}
+  - {src: auth,   dst: react}
+  - {src: django, dst: react}
+  - {src: react,  dst: users}

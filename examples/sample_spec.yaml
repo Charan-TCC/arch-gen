@@ -1,6 +1,7 @@
 title: "Multi-Cloud 3-Tier Web Application"
 provider_default: generic
 direction: LR
+page: "16:9"
 
 abbreviations:
   AKS: "Azure Kubernetes Service"

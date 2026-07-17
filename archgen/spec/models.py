@@ -151,6 +151,16 @@ class Diagram(_Strict):
     direction: Literal["TB", "LR"] = Field(
         "LR", description="Primary layout flow: top-to-bottom or left-to-right."
     )
+    page: Literal["16:9", "free"] | None = Field(
+        None,
+        description=(
+            "Slide format — the USER's decision, ask them every time; never assume. "
+            "'16:9' locks the standard 13.33\"x7.5\" deck slide (formal presentations; "
+            "content must be reshaped until it fits readably). 'free' lets the "
+            "renderer grow the slide so text never shrinks below readable size "
+            "(working diagrams, posters, wikis). Required for flow diagrams."
+        ),
+    )
     layered: bool = Field(
         False,
         description=(

@@ -38,6 +38,18 @@ LAYERED_CLUSTER_MARGIN_PT = 12
 LAYERED_CARD_W_MIN, LAYERED_CARD_W_MAX = 1.35, 1.85
 LAYERED_CARD_H_MIN, LAYERED_CARD_H_MAX = 0.62, 0.92
 
+# Cluster title metrics fed to dot so it reserves REAL headroom for the title
+# the renderer will draw (13pt bold, wrapping in narrow clusters). Kept in sync
+# with theme group.title_font_pt; the char width is a generous bold estimate so
+# dot reserves at least as many lines as PowerPoint will render — over-reserving
+# is safe (airier container), under-reserving overlaps the first node.
+CLUSTER_TITLE_PT = 13
+CLUSTER_TITLE_CHAR_IN = 0.105
+# The dot-side reserve scales down with the layout while the drawn title font
+# clamps at a readable minimum — reserve at a larger fontsize so the headroom
+# still clears the drawn title at the lowest readable scale (~0.5).
+CLUSTER_TITLE_RESERVE_PT = 20
+
 
 def _clamp(v: float, lo: float, hi: float) -> float:
     return max(lo, min(hi, v))
@@ -59,16 +71,22 @@ def layered_card_size(diagram: Diagram, avail_w_in: float, avail_h_in: float) ->
 
     ns, rs = LAYERED_NODESEP_IN, LAYERED_RANKSEP_IN
     cm = LAYERED_CLUSTER_MARGIN_PT / 72.0
-    if diagram.direction == "LR":
-        stack, lanes = n_max, n_tiers  # stack vertically within a tier column
-    else:  # TB: tiers are rows, nodes lie side by side
-        stack, lanes = n_tiers, n_max
+    title = (CLUSTER_TITLE_PT * 1.6) / 72.0  # per-cluster title headroom band
 
-    # Vertical budget carries per-card gaps + cluster top/bottom margins + a title band.
-    v_over = (stack - 1) * ns + 2 * cm + 0.35
-    h_over = (lanes - 1) * rs + 2 * cm * lanes + 0.4
-    card_h = _clamp((avail_h_in - v_over) / stack, LAYERED_CARD_H_MIN, LAYERED_CARD_H_MAX)
-    card_w = _clamp((avail_w_in - h_over) / lanes, LAYERED_CARD_W_MIN, LAYERED_CARD_W_MAX)
+    if diagram.direction == "LR":
+        # Tiers are COLUMNS side by side (ranksep apart); nodes stack vertically
+        # inside a tier (nodesep apart). Vertical budget is one tier's internals.
+        v_over = (n_max - 1) * ns + 2 * cm + title
+        h_over = (n_tiers - 1) * rs + 2 * cm * n_tiers + 0.4
+        card_h = _clamp((avail_h_in - v_over) / n_max, LAYERED_CARD_H_MIN, LAYERED_CARD_H_MAX)
+        card_w = _clamp((avail_w_in - h_over) / n_tiers, LAYERED_CARD_W_MIN, LAYERED_CARD_W_MAX)
+    else:
+        # TB: tiers are ROWS stacked (ranksep apart, each with its own margins
+        # and title band); nodes lie side by side inside a row (nodesep apart).
+        v_over = n_tiers * (2 * cm + title) + (n_tiers - 1) * rs
+        h_over = (n_max - 1) * ns + 2 * cm + 0.4
+        card_h = _clamp((avail_h_in - v_over) / n_tiers, LAYERED_CARD_H_MIN, LAYERED_CARD_H_MAX)
+        card_w = _clamp((avail_w_in - h_over) / n_max, LAYERED_CARD_W_MIN, LAYERED_CARD_W_MAX)
     return card_w, card_h
 
 
@@ -167,7 +185,14 @@ def build_dot(diagram: Diagram, *, node_w: float | None = None, node_h: float | 
         g = group_by_id[gid]
         out = [f'{indent}subgraph {_safe("cluster_" + gid)} {{']
         if g.label:
-            out.append(f'{indent}  label="{_esc(g.label)}";')
+            # Pre-wrap the title at the narrowest width this cluster can have
+            # (its widest member card + margins) so dot reserves one line of
+            # headroom PER wrapped line — a wide title in a one-column tier
+            # otherwise overlaps the first node when the renderer wraps it.
+            min_w_in = nw + 2 * (cluster_margin / 72.0)
+            wrapped = _wrap_title(g.label, min_w_in)
+            out.append(f'{indent}  label="{_esc(wrapped)}";')
+            out.append(f"{indent}  fontsize={CLUSTER_TITLE_RESERVE_PT};")
             out.append(f'{indent}  style="rounded";')
             out.append(f'{indent}  margin={cluster_margin};')
         else:
@@ -274,3 +299,21 @@ def _safe(name: str) -> str:
 
 def _esc(text: str) -> str:
     return text.replace('"', '\\"')
+
+
+def _wrap_title(label: str, width_in: float) -> str:
+    """Greedy word-wrap a cluster title to the given width, joined with DOT's
+    ``\\n`` escape so dot reserves a headroom line per wrapped line."""
+    per_line = max(int(width_in / CLUSTER_TITLE_CHAR_IN), 6)
+    lines: list[str] = []
+    cur = ""
+    for word in label.split():
+        cand = f"{cur} {word}".strip()
+        if cur and len(cand) > per_line:
+            lines.append(cur)
+            cur = word
+        else:
+            cur = cand
+    if cur:
+        lines.append(cur)
+    return "\\n".join(lines)

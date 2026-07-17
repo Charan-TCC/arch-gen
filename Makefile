@@ -27,11 +27,15 @@ test: ## Run the test suite
 lint: ## Validate the spec ($(SPEC))
 	$(ARCHGEN) lint $(SPEC)
 
-render: ## Render $(SPEC) -> $(OUT)
-	$(ARCHGEN) render $(SPEC) -o $(OUT)
+# RENDER_FLAGS defaults to the agent workflow (CLAUDE.md §4): best-fit direction
+# and a layout report that fails on error findings. RENDER_FLAGS= to disable.
+RENDER_FLAGS ?= --auto-direction --strict
+
+render: ## Render $(SPEC) -> $(OUT) (with layout report)
+	$(ARCHGEN) render $(SPEC) -o $(OUT) $(RENDER_FLAGS)
 
 preview: ## Render + open a PNG preview of $(OUT) (macOS QuickLook)
-	$(ARCHGEN) render $(SPEC) -o $(OUT)
+	$(ARCHGEN) render $(SPEC) -o $(OUT) $(RENDER_FLAGS)
 	@rm -rf .preview && mkdir -p .preview
 	@qlmanage -t -s 1600 -o .preview $(OUT) >/dev/null 2>&1 && open .preview/*.png
 

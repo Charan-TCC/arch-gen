@@ -28,6 +28,10 @@ Hard rules (the spec is auto-validated and rejected if any are broken):
 7. Group related nodes into `groups` (tiers, VPCs, resource groups). Set a
    group's `provider` when it clearly belongs to one cloud.
 8. Choose `direction: LR` for request/data flows, `TB` for layered stacks.
+8b. `page` is REQUIRED for flow diagrams and is the user's decision — ask them:
+    `"16:9"` for a formal deck (fixed 13.33"x7.5" slide; keep the diagram compact
+    enough to fit) or `"free"` for a working diagram (the slide grows so text
+    stays readable). If the description doesn't say, ask; do not guess.
 9. Use `kind: network` for cloud-network architecture with VNets/VPCs, subnets,
    DNS zones, gateways, private endpoints, or managed services. Assign meaningful
    node `role` and group `kind`/`role`; never invent coordinates or visual styles.

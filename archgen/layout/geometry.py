@@ -75,6 +75,12 @@ class Transform:
         self._off_y = top + (avail_h - drawn_h) / 2
         self._slide_h = slide_h_emu
 
+    @property
+    def scale(self) -> float:
+        """Dimensionless fit factor: 1.0 draws the graph at its natural Graphviz
+        size; below ~0.75 node cards shrink past label readability."""
+        return self._scale
+
     def _emu_x(self, x_pt: float) -> float:
         return self._off_x + (x_pt - self._x0) * EMU_PER_POINT * self._scale
 

@@ -5,6 +5,26 @@ All notable changes to archgen. Format loosely follows
 
 ## [Unreleased]
 
+### Fixed
+- **Group titles no longer overlap the first node.** `build_dot` pre-wraps cluster labels
+  at the narrowest possible cluster width and reserves headroom at a fontsize that still
+  clears the drawn title at low layout scales; the drawn title font now scales down with
+  the layout (floor 9pt) and its textbox hugs the wrapped text.
+- **Content no longer hides behind legends.** The bottom legend reserve is computed from
+  the legends that actually render (abbreviation panel rows included) instead of a fixed
+  band; abbreviation lists past 6 entries render in two columns, and the connections
+  panel centers in the free gap between the other panels.
+- **Node label boxes hug their text** (width and height, capped inside the card) instead
+  of spanning the full card width — what you grab in PowerPoint now matches the label.
+  Node label fonts scale down with the layout (floor 8pt) so labels stop breaking
+  mid-word in scale-shrunk cards.
+- **Edge labels avoid nodes.** Flow edge labels walk the elbow route for a collision-free
+  spot (vs. node cards and other edge labels) and shove sideways past whatever card the
+  midpoint hits when the connector runs straight through a node stack.
+- **Layered TB sizing** used LR gap math (nodesep/ranksep swapped); tiers-as-rows now
+  budget margins, title bands, and ranksep correctly, and `--auto-direction` now covers
+  layered diagrams (card size recomputed per orientation).
+
 ### Added
 - **Layered flow mode** (`layered: true`) — renders groups as clean parallel tier bands
   (columns in LR, rows in TB) instead of staggering by edge depth. The renderer owns all

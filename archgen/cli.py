@@ -1,6 +1,7 @@
 """archgen command-line interface.
 
-  archgen render <spec.yaml> -o out.pptx     # spec -> editable pptx
+  archgen render <spec.yaml> -o out.pptx     # spec -> editable pptx (+ layout report)
+  archgen render ... --auto-direction --strict # pick best TB/LR; exit 3 on layout errors
   archgen lint   <spec.yaml>                  # validate a spec, list problems
   archgen prompt "<description>"              # print the agent prompt to feed Codex/Claude
   archgen generate "<description>" -o out.pptx # LLM -> spec -> pptx (needs ANTHROPIC_API_KEY)
@@ -27,6 +28,16 @@ def main(argv: list[str] | None = None) -> int:
     p_render.add_argument("spec")
     p_render.add_argument("-o", "--out", default="out.pptx")
     p_render.add_argument("--engine", choices=["auto", "graphviz", "simple"], default="auto")
+    p_render.add_argument(
+        "--auto-direction",
+        action="store_true",
+        help="lay out both TB and LR and keep the better-fitting one (flow diagrams)",
+    )
+    p_render.add_argument(
+        "--strict",
+        action="store_true",
+        help="exit non-zero when the layout report contains an error-level finding",
+    )
 
     p_lint = sub.add_parser("lint", help="validate a spec file")
     p_lint.add_argument("spec")
@@ -79,7 +90,8 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def _render(args) -> int:
-    from archgen.render.renderer import render_spec
+    from archgen.layout.diagnostics import has_errors
+    from archgen.render.renderer import Renderer
     from archgen.spec.io import load_spec
     from archgen.spec.lint import lint
 
@@ -88,8 +100,21 @@ def _render(args) -> int:
     if errors:
         print("spec invalid:\n  - " + "\n  - ".join(errors), file=sys.stderr)
         return 2
-    out = render_spec(diagram, args.out, engine=args.engine)
+    renderer = Renderer()
+    out = renderer.render(
+        diagram, args.out, engine=args.engine, auto_direction=args.auto_direction
+    )
     print(f"rendered {out}")
+    # The layout report is the cheap feedback loop: fix everything it flags
+    # BEFORE rasterizing a PNG to look at (see CLAUDE.md §4).
+    if renderer.diagnostics:
+        print("layout report:")
+        for f in renderer.diagnostics:
+            print(f"  [{f.severity}] {f.message}")
+        if args.strict and has_errors(renderer.diagnostics):
+            return 3
+    elif diagram.kind.value != "network":
+        print("layout report: clean")
     return 0
 
 

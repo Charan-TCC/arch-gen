@@ -9371,6 +9371,18 @@
         "holder": "Icons8"
       }
     },
+    "generic.email": {
+      "file": "generic/email.svg",
+      "provider": "generic",
+      "display_name": "Email",
+      "category": "integration",
+      "recolorable": false,
+      "source": "flat-color-icons",
+      "license": {
+        "name": "MIT",
+        "holder": "Icons8"
+      }
+    },
     "generic.firewall": {
       "file": "generic/firewall.svg",
       "provider": "generic",
@@ -9695,6 +9707,24 @@
         "url": ""
       }
     },
+    "tech.django": {
+      "file": "tech/django.svg",
+      "provider": "tech",
+      "display_name": "Django",
+      "category": "brand",
+      "recolorable": false,
+      "brand_hex": "#092E20",
+      "source": "logos",
+      "color_logo_name": "django-icon",
+      "simple_icons_slug": "django",
+      "simple_icons_version": "16.26.0",
+      "source_url": "https://www.djangoproject.com/community/logos/",
+      "guidelines_url": "",
+      "license": {
+        "type": "",
+        "url": ""
+      }
+    },
     "tech.docker": {
       "file": "tech/docker.svg",
       "provider": "tech",
@@ -9708,6 +9738,42 @@
       "simple_icons_version": "16.26.0",
       "source_url": "https://www.docker.com/company/newsroom/media-resources",
       "guidelines_url": "",
+      "license": {
+        "type": "",
+        "url": ""
+      }
+    },
+    "tech.elasticsearch": {
+      "file": "tech/elasticsearch.svg",
+      "provider": "tech",
+      "display_name": "Elasticsearch",
+      "category": "brand",
+      "recolorable": false,
+      "brand_hex": "#005571",
+      "source": "logos",
+      "color_logo_name": "elasticsearch",
+      "simple_icons_slug": "elasticsearch",
+      "simple_icons_version": "16.26.0",
+      "source_url": "https://www.elastic.co/brand",
+      "guidelines_url": "",
+      "license": {
+        "type": "",
+        "url": ""
+      }
+    },
+    "tech.github": {
+      "file": "tech/github.svg",
+      "provider": "tech",
+      "display_name": "GitHub",
+      "category": "brand",
+      "recolorable": false,
+      "brand_hex": "#181717",
+      "source": "logos",
+      "color_logo_name": "github-icon",
+      "simple_icons_slug": "github",
+      "simple_icons_version": "16.26.0",
+      "source_url": "https://github.com/logos",
+      "guidelines_url": "https://github.com/logos",
       "license": {
         "type": "",
         "url": ""
@@ -9834,6 +9900,24 @@
       "simple_icons_version": "16.26.0",
       "source_url": "https://konghq.com/brand-assets/",
       "guidelines_url": "https://konghq.com/brand/",
+      "license": {
+        "type": "",
+        "url": ""
+      }
+    },
+    "tech.neo4j": {
+      "file": "tech/neo4j.svg",
+      "provider": "tech",
+      "display_name": "Neo4j",
+      "category": "brand",
+      "recolorable": false,
+      "brand_hex": "#4581C3",
+      "source": "logos",
+      "color_logo_name": "neo4j",
+      "simple_icons_slug": "neo4j",
+      "simple_icons_version": "16.26.0",
+      "source_url": "https://neo4j.com/brand/#logo",
+      "guidelines_url": "https://neo4j.com/brand/#logo",
       "license": {
         "type": "",
         "url": ""

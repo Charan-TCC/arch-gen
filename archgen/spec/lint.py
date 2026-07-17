@@ -30,6 +30,15 @@ def lint(diagram: Diagram, resolver: IconResolver | None = None) -> list[str]:
     errors: list[str] = []
     resolver = resolver or IconResolver()
 
+    # --- page format (a user decision, never a default) --------------------
+    if diagram.kind.value == "flow" and diagram.page is None:
+        errors.append(
+            'page format not declared: set page: "16:9" (formal deck — slide stays '
+            '13.33"x7.5" and content must be reshaped to fit) or page: "free" (the '
+            "slide grows so text never shrinks below readable size). This is the "
+            "user's call — ask them, don't assume."
+        )
+
     node_ids = [n.id for n in diagram.nodes]
     group_ids = [g.id for g in diagram.groups]
 
