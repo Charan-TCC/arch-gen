@@ -97,10 +97,11 @@ Five layers (see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the file-by-fi
 
 Full field reference: [docs/SPEC_FORMAT.md](docs/SPEC_FORMAT.md). Summary:
 
-- `Diagram{ title, kind, provider_default, direction, nodes[], groups[], edges[], abbreviations{} }`
-- `Node{ id, icon_key, label, group? }`
-- `Group{ id, label, parent?, provider? }`
-- `Edge{ src, dst, label?, style }`
+- `Diagram{ title, kind, page, direction, layered, provider_default, nodes[], groups[], edges[], abbreviations{} }`
+  — `page` (`16:9` \| `free`) is **required for flow** and is the user's decision (ask; don't assume). `16:9` locks the 13.33"×7.5" deck slide; `free` lets it grow so text stays readable.
+- `Node{ id, icon_key, label, group?, role? }`
+- `Group{ id, label, parent?, provider?, kind?, role? }`
+- `Edge{ src, dst, label?, style, kind }`
 
 The JSON Schema is generated from the pydantic models (`archgen schema`) and embedded
 in the agent prompt, so the agent's output validates against the same source of truth.
@@ -121,6 +122,11 @@ These are enforced by the linter and/or tests; treat them as contracts when chan
 7. **Output is editable**: nodes/labels/arrows/legends are native shapes; only logos are
    pictures. Verified by the golden render test.
 8. **Legends are derived from spec content**, so they never go stale.
+9. **Flow specs declare `page`** (`16:9` \| `free`) — the user's decision; the linter
+   rejects a flow spec without it, and the CLI can supply it via `--page`.
+10. **Flow connectors are bound to their node shapes** (`stCxn`/`endCxn`) so arrows move
+    with the node in PowerPoint; the drawn geometry is preserved so the static render is
+    unchanged. Verified by the render test.
 
 ---
 
@@ -129,7 +135,7 @@ These are enforced by the linter and/or tests; treat them as contracts when chan
 | Stage | Input | Output | Fails when |
 |---|---|---|---|
 | agent | NL description | spec YAML | (model output; retried on lint failure) |
-| linter | `Diagram` | `list[str]` errors | any invariant 1–4 violated |
+| linter | `Diagram` | `list[str]` errors | any invariant 1–4 or 9 violated |
 | layout | `Diagram` | `Layout` (pts, y-up) | Graphviz requested but `dot` absent |
 | geometry | `Layout` + slide dims | EMU rects | — |
 | renderer | `Diagram` + `Layout` | `.pptx` | icon file missing |

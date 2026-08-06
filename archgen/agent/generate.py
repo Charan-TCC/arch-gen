@@ -38,8 +38,14 @@ def generate_spec(
     complete: Complete,
     resolver: IconResolver | None = None,
     max_retries: int = 2,
+    page: str | None = None,
 ) -> Diagram:
-    """Ask the model for a spec; on lint failure, feed errors back and retry."""
+    """Ask the model for a spec; on lint failure, feed errors back and retry.
+
+    ``page`` is the user's page-format decision, collected by the CLI. When
+    given it is injected into the parsed spec before linting — the model cannot
+    reliably ask the user a question in a YAML-only completion loop, so the CLI
+    owns that decision and the model never has to guess it."""
     resolver = resolver or IconResolver()
     system = build_system_prompt(resolver)
     user = build_user_prompt(description)
@@ -48,6 +54,8 @@ def generate_spec(
         raw = complete(system, user)
         try:
             diagram = parse_spec_text(raw)
+            if page is not None:
+                diagram = diagram.model_copy(update={"page": page})
             errors = lint(diagram, resolver)
         except Exception as exc:  # noqa: BLE001 - malformed output is retryable
             errors = [f"could not parse/validate output: {exc}"]

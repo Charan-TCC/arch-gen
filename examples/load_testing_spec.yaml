@@ -13,11 +13,11 @@ abbreviations:
   IAM: "Identity and Access Management"
 
 groups:
-  - {id: frontend, label: "Frontend", provider: aws}
-  - {id: backend, label: "Backend (Load Testing)", provider: aws}
+  - {id: frontend, label: "Frontend Layer", provider: aws, style: dashed, border_color: "4A90E2", fill_color: "F0F5FC"}
+  - {id: backend, label: "Backend Layer", provider: aws, style: dashed, border_color: "36D1C4", fill_color: "E8F9F9"}
   - {id: ecr_repo, label: "Container Repository", provider: aws}
-  - {id: regional, label: "Regional Resources", provider: aws}
-  - {id: vpc, label: "Secure VPC", parent: regional, kind: subnet}
+  - {id: regional, label: "Regional Load Testing Resources", provider: aws, style: dashed, border_color: "FF4D4D", fill_color: "FFF0F0"}
+  - {id: vpc, label: "Amazon VPC", parent: regional, kind: subnet, style: dashed, border_color: "2ECC71", fill_color: "EAF9F1"}
   - {id: ops, label: "Ops & Monitoring", provider: aws}
 
 nodes:

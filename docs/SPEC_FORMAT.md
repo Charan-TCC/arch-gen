@@ -10,6 +10,7 @@ schema with `archgen schema`.
 |---|---|---|---|---|
 | `title` | string | ✅ | — | Slide title (top-left of the slide). |
 | `kind` | `flow` \| `network` | | `flow` | Selects the ordinary graph layout or semantic cloud-network layout. |
+| `page` | `16:9` \| `free` | ✅ (flow) | — | **The user's call — ask, don't assume.** `16:9` locks the standard 13.33"×7.5" deck slide (formal presentation; content must be reshaped to fit readably). `free` lets the slide grow so text never shrinks below a readable size (working diagrams/posters). Required for `flow`; the linter rejects a flow spec without it. `archgen render`/`generate` accept `--page` to set it from the CLI. |
 | `direction` | `LR` \| `TB` | | `LR` | Flow: left-to-right or top-to-bottom. |
 | `layered` | bool | | `false` | Flow only. Render groups as ordered tier bands (columns in LR, rows in TB) instead of staggering by edge depth; the renderer sizes cards to fit the densest tier, so many-node tiers stay legible. Requires Graphviz; ignored by `network`. |
 | `provider_default` | provider | | `generic` | Fallback tint for containers with no clear provider. |
@@ -83,6 +84,7 @@ A spec is rejected **before rendering** if any of these fail (`archgen lint <spe
 
 ```yaml
 title: "API with a queue"
+page: "16:9"          # required for flow — 16:9 (locked deck) or free (slide grows)
 direction: LR
 abbreviations:
   AKS: "Azure Kubernetes Service"

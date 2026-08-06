@@ -125,6 +125,15 @@ class Group(_Strict):
     )
     kind: GroupKind = Field(GroupKind.tier, description="Semantic container type.")
     role: GroupRole = Field(GroupRole.default, description="Functional role within a network diagram.")
+    style: Literal["solid", "dashed", "dotted"] | None = Field(
+        None, description="Line style for the group border."
+    )
+    border_color: str | None = Field(
+        None, description="Custom hex color for the group border (e.g. 'FF0000')."
+    )
+    fill_color: str | None = Field(
+        None, description="Custom hex color for the group background tint (e.g. 'FFE0E0')."
+    )
 
 
 class Edge(_Strict):

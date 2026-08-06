@@ -78,6 +78,47 @@ def test_edges_have_arrowheads(rendered):
     assert xml.count("tailEnd") == expected
 
 
+def test_edges_are_bound_to_node_shapes(rendered):
+    """Every real edge's connector is bound to its source and destination node
+    shapes (stCxn/endCxn), so moving a node in PowerPoint drags its arrows along
+    instead of leaving them free-floating (DESIGN_GUIDELINES §6). Legend sample
+    lines are intentionally left unbound."""
+    import re
+
+    prs = Presentation(str(rendered))
+    xml = prs.slides[0].shapes._spTree.xml
+    n_edges = len(load_spec(SAMPLE).edges)
+    assert xml.count("stCxn") == n_edges
+    assert xml.count("endCxn") == n_edges
+    # Every binding must reference a shape id that actually exists on the slide.
+    shape_ids = set(re.findall(r'<p:cNvPr id="(\d+)"', xml))
+    cxn_ids = re.findall(r'<a:(?:st|end)Cxn id="(\d+)"', xml)
+    assert cxn_ids and all(i in shape_ids for i in cxn_ids)
+
+
+def test_render_spec_honours_page_format(tmp_path):
+    """render_spec must derive slide growth from the spec's `page` field, not
+    force it. A cramped 16:9 spec stays locked (matching the direct Renderer),
+    while `free` grows. Regression: the wrapper hardcoded expand_slide=True and
+    silently posterized formal 16:9 decks rendered via `archgen generate`."""
+    from archgen.spec.models import Diagram, Edge, Node
+
+    nodes = [Node(id=f"n{i}", icon_key="generic.service", label=f"Node {i}") for i in range(8)]
+    edges = [Edge(src=f"n{i}", dst=f"n{i + 1}") for i in range(7)]
+    base = dict(title="chain", direction="TB", nodes=nodes, edges=edges)
+
+    locked = render_spec(Diagram(**base, page="16:9"), tmp_path / "locked.pptx")
+    grown = render_spec(Diagram(**base, page="free"), tmp_path / "grown.pptx")
+    direct = Renderer().render(Diagram(**base, page="16:9"), tmp_path / "direct.pptx")
+
+    h_locked = Presentation(str(locked)).slide_height
+    h_grown = Presentation(str(grown)).slide_height
+    h_direct = Presentation(str(direct)).slide_height
+
+    assert h_locked == h_direct  # wrapper no longer diverges from the direct path
+    assert h_grown > h_locked  # free let the cramped chain grow
+
+
 def test_legends_present(rendered):
     prs = Presentation(str(rendered))
     texts = {s.text_frame.text for s in prs.slides[0].shapes if s.has_text_frame}

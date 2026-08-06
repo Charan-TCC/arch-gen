@@ -62,6 +62,23 @@ def test_cramped_but_readable_scale_is_a_warn_not_error():
     assert any("scaled to" in f.message for f in findings if f.severity == "warn")
 
 
+def test_release_quality_promotes_cramped_to_error():
+    """A cramped-but-readable layout is a warning in draft; in release it becomes
+    an error so `--strict` refuses to ship a sub-readable formal slide."""
+    scale = (COLLAPSE_SCALE + MIN_READABLE_SCALE) / 2
+    kw = dict(scale=scale, avail_w_emu=AVAIL_W, avail_h_emu=AVAIL_H)
+    assert not has_errors(diagnose(_diagram(), _layout(), **kw))
+    assert has_errors(diagnose(_diagram(), _layout(), quality="release", **kw))
+
+
+def test_release_quality_keeps_a_healthy_layout_clean():
+    """Release only promotes readability warnings — a healthy layout stays clean."""
+    findings = diagnose(
+        _diagram(), _layout(), scale=1.0, avail_w_emu=AVAIL_W, avail_h_emu=AVAIL_H, quality="release"
+    )
+    assert not has_errors(findings)
+
+
 def test_no_circular_flip_advice_after_auto_direction():
     findings = diagnose(
         _diagram(),

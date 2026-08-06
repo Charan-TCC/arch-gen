@@ -8,6 +8,7 @@ legends — is a native PowerPoint shape, so the whole slide is editable.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
 
 from pptx import Presentation
@@ -31,6 +32,20 @@ from archgen.render.theme import Theme, load_theme
 from archgen.spec.models import Diagram, DiagramKind, GroupKind, NodeRole, Provider
 
 
+@dataclass
+class _EdgeBinding:
+    """Deferred connector-to-node binding: connectors are drawn before nodes
+    (so routes sit behind cards), so we record what to bind and apply it once
+    the node shapes exist. See Renderer._draw_edges / _bind_edges."""
+
+    conn: object
+    src: str
+    dst: str
+    src_idx: int
+    dst_idx: int
+    coords: tuple[tuple[int, int], tuple[int, int]]
+
+
 class Renderer:
     def __init__(self, theme: Theme | None = None, resolver: IconResolver | None = None):
         self.theme = theme or load_theme()
@@ -47,6 +62,7 @@ class Renderer:
         engine: str = "auto",
         auto_direction: bool = False,
         expand_slide: bool | None = None,
+        quality: str = "draft",
     ) -> Path:
         prs = Presentation()
         network = diagram.kind == DiagramKind.network
@@ -176,6 +192,7 @@ class Renderer:
                 label_cap_in=self.theme["node"]["label_max_width_in"],
                 direction_flipped=direction_flipped,
                 auto_direction_tried=auto_direction_tried,
+                quality=quality,
             )
             if slide_expanded_from is not None:
                 from archgen.layout.diagnostics import Finding
@@ -206,8 +223,11 @@ class Renderer:
             # Flow routes sit behind the cards, matching the network renderer and
             # keeping arrow shafts from visually cutting through node artwork.
             node_rects = self._node_rects(layout, tf)
-            self._draw_edges(slide, diagram, node_rects)
-            self._draw_nodes(slide, diagram, node_rects, scale=tf.scale)
+            edge_binds = self._draw_edges(slide, diagram, node_rects)
+            node_shapes = self._draw_nodes(slide, diagram, node_rects, scale=tf.scale)
+            # Bind connectors to their node shapes now that both exist, so the
+            # arrows stay attached when a node is moved in PowerPoint.
+            self._bind_edges(edge_binds, node_shapes)
             add_legends(slide, diagram, self.theme, slide_w=self._slide_w, slide_h=self._slide_h)
 
         Path(out_path).parent.mkdir(parents=True, exist_ok=True)
@@ -256,9 +276,20 @@ class Renderer:
             pal = self.theme.provider(prov)
             shape = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, rect.left, rect.top, rect.width, rect.height)
             shape.fill.solid()
-            shape.fill.fore_color.rgb = Theme.rgb(pal["tint"])
-            shape.line.color.rgb = Theme.rgb(pal["line"])
+            
+            fill_hex = group.fill_color.lstrip("#") if group and group.fill_color else pal["tint"]
+            shape.fill.fore_color.rgb = Theme.rgb(fill_hex)
+            
+            line_hex = group.border_color.lstrip("#") if group and group.border_color else pal["line"]
+            shape.line.color.rgb = Theme.rgb(line_hex)
             shape.line.width = Pt(gcfg["line_pt"])
+            
+            if group and group.style:
+                dash_map = {"dashed": "dash", "dotted": "sysDot", "solid": "solid"}
+                dash_val = dash_map.get(group.style)
+                if dash_val and dash_val != "solid":
+                    self._set_line_dash(shape, dash_val)
+                    
             self._remove_effects(shape)
             self._set_corner_radius(shape, 0.08)
             # Container title (top-left, inside). The box hugs its wrapped text:
@@ -282,7 +313,8 @@ class Renderer:
             r.font.size = Pt(title_pt)
             r.font.bold = True
             r.font.name = self.theme.font
-            r.font.color.rgb = Theme.rgb(pal["line"])
+            title_hex = group.border_color.lstrip("#") if group and group.border_color else pal["line"]
+            r.font.color.rgb = Theme.rgb(title_hex)
 
     def _draw_network_container(self, slide, group, label: str, rect: Rect) -> None:
         ncfg = self.theme["network"]
@@ -320,14 +352,17 @@ class Renderer:
         run.font.color.rgb = Theme.rgb(ncfg["vnet_line"] if group.kind == GroupKind.network else ncfg["panel_line"])
 
     # -- nodes -------------------------------------------------------------
-    def _draw_nodes(self, slide, diagram, rects: dict[str, Rect], scale: float = 1.0) -> None:
+    def _draw_nodes(self, slide, diagram, rects: dict[str, Rect], scale: float = 1.0) -> dict[str, object]:
         ncfg = self.theme["node"]
         icon_by_node = {n.id: n for n in diagram.nodes}
+        shapes: dict[str, object] = {}
         for nid, rect in rects.items():
             node = icon_by_node[nid]
             grp = slide.shapes.add_group_shape()
             self._place_icon(grp, node, rect)
             self._place_label(grp, node.label, rect, scale=scale)
+            shapes[nid] = grp
+        return shapes
 
     def _node_rects(self, layout, tf) -> dict[str, Rect]:
         return {
@@ -542,9 +577,13 @@ class Renderer:
         r.font.color.rgb = Theme.rgb(ncfg["label_color"])
 
     # -- edges -------------------------------------------------------------
-    def _draw_edges(self, slide, diagram, node_rects: dict[str, Rect]) -> None:
+    def _draw_edges(self, slide, diagram, node_rects: dict[str, Rect]) -> list["_EdgeBinding"]:
+        """Draw connectors and return the data needed to bind each one to its
+        node shapes (deferred to _bind_edges, since the node shapes are drawn
+        after the edges so the routes sit behind the cards)."""
         ecfg = self.theme["edge"]
         placed_labels: list[Rect] = []
+        binds: list[_EdgeBinding] = []
         for e in diagram.edges:
             a = node_rects.get(e.src)
             b = node_rects.get(e.dst)
@@ -553,7 +592,8 @@ class Renderer:
             # Native PowerPoint elbow (right-angle) connector — editable, and it
             # auto-routes cleanly instead of cutting diagonally across the slide.
             # Anchors are chosen purely from geometry, so this works for any graph.
-            (x1, y1), (x2, y2) = _elbow_anchors(a, b)
+            src_side, dst_side = _anchor_sides(a, b)
+            (x1, y1), (x2, y2) = _side_anchor(a, src_side), _side_anchor(b, dst_side)
             connector_type = MSO_CONNECTOR.ELBOW if (x1 != x2 and y1 != y2) else MSO_CONNECTOR.STRAIGHT
             conn = slide.shapes.add_connector(connector_type, x1, y1, x2, y2)
             semantic = self.theme["connections"].get(e.kind.value, {})
@@ -561,12 +601,46 @@ class Renderer:
             conn.line.width = Pt(ecfg["line_pt"])
             self._dash_and_arrow(conn, e.style.value)
             self._remove_effects(conn)
+            binds.append(
+                _EdgeBinding(
+                    conn=conn,
+                    src=e.src,
+                    dst=e.dst,
+                    src_idx=_SIDE_TO_CXN_IDX[src_side],
+                    dst_idx=_SIDE_TO_CXN_IDX[dst_side],
+                    coords=((x1, y1), (x2, y2)),
+                )
+            )
             if e.label:
                 cx, cy = self._edge_label_spot(
                     e.label, (x1, y1), (x2, y2), node_rects, placed_labels
                 )
                 placed_labels.append(self._edge_label_rect(e.label, cx, cy))
                 self._edge_label(slide, e.label, cx, cy)
+        return binds
+
+    def _bind_edges(self, binds: list["_EdgeBinding"], node_shapes: dict[str, object]) -> None:
+        """Attach each connector's ends to its source/destination node shapes so
+        moving a node in PowerPoint drags its arrows along (DESIGN_GUIDELINES §6).
+
+        begin_connect/end_connect snap the endpoint to the node group's *content*
+        bounding box (icon+label, narrower than the layout card), which would
+        shift every rendered arrow inward. We restore the layout-computed anchors
+        afterwards: the static render (qlmanage PNG) keeps its routing, while
+        PowerPoint re-derives the endpoints from the stCxn/endCxn binding on open."""
+        for bind in binds:
+            src_shape = node_shapes.get(bind.src)
+            dst_shape = node_shapes.get(bind.dst)
+            if src_shape is None or dst_shape is None:
+                continue
+            try:
+                bind.conn.begin_connect(src_shape, bind.src_idx)
+                bind.conn.end_connect(dst_shape, bind.dst_idx)
+            except Exception:  # noqa: BLE001 - binding is best-effort, geometry already drawn
+                continue
+            (x1, y1), (x2, y2) = bind.coords
+            bind.conn.begin_x, bind.conn.begin_y = x1, y1
+            bind.conn.end_x, bind.conn.end_y = x2, y2
 
     def _edge_label_rect(self, text: str, cx: int, cy: int) -> Rect:
         font_pt = self.theme["edge"]["label_font_pt"]
@@ -885,20 +959,30 @@ def _edge_point(rect: Rect, tx: int, ty: int) -> tuple[int, int]:
     return int(cx + dx * scale), int(cy + dy * scale)
 
 
-def _elbow_anchors(a: Rect, b: Rect) -> tuple[tuple[int, int], tuple[int, int]]:
-    """Exit/entry points for an elbow connector, chosen by dominant axis so the
-    right-angle route leaves and enters the facing sides of each node."""
+# Connection-site index for each rectangle side. python-pptx numbers a shape's
+# connection points counter-clockwise from the top-centre, so top=0, left=1,
+# bottom=2, right=3 — used to bind connector ends to node shapes (see
+# Renderer._bind_edges).
+_SIDE_TO_CXN_IDX = {"top": 0, "left": 1, "bottom": 2, "right": 3}
+
+
+def _anchor_sides(a: Rect, b: Rect) -> tuple[str, str]:
+    """Which side of the source and destination an elbow connector leaves/enters,
+    chosen by dominant axis so the right-angle route faces the two nodes."""
     dx, dy = b.cx - a.cx, b.cy - a.cy
     # Prefer vertical (top/bottom) anchors when there is significant vertical separation,
     # preventing horizontal lines from cutting across vertical columns.
     if abs(dx) >= 1.8 * abs(dy):  # horizontally dominant
-        if dx >= 0:
-            return _side_anchor(a, "right"), _side_anchor(b, "left")
-        return _side_anchor(a, "left"), _side_anchor(b, "right")
+        return ("right", "left") if dx >= 0 else ("left", "right")
     # vertically dominant -> leave/enter top|bottom sides
-    if dy >= 0:
-        return _side_anchor(a, "bottom"), _side_anchor(b, "top")
-    return _side_anchor(a, "top"), _side_anchor(b, "bottom")
+    return ("bottom", "top") if dy >= 0 else ("top", "bottom")
+
+
+def _elbow_anchors(a: Rect, b: Rect) -> tuple[tuple[int, int], tuple[int, int]]:
+    """Exit/entry points for an elbow connector, chosen by dominant axis so the
+    right-angle route leaves and enters the facing sides of each node."""
+    sa, sb = _anchor_sides(a, b)
+    return _side_anchor(a, sa), _side_anchor(b, sb)
 
 
 def _side_anchor(rect: Rect, side: str) -> tuple[int, int]:
@@ -926,8 +1010,18 @@ def render_spec(
     out_path: str | Path,
     engine: str = "auto",
     auto_direction: bool = False,
-    expand_slide: bool = True,
+    expand_slide: bool | None = None,
+    quality: str = "draft",
 ) -> Path:
+    # expand_slide defaults to None so the renderer derives it from the spec's
+    # `page` field (16:9 locks the slide, free lets it grow). Hardcoding True
+    # here silently turned formal 16:9 decks into tall posters via the
+    # `generate` path — see Renderer.render.
     return Renderer().render(
-        diagram, out_path, engine=engine, auto_direction=auto_direction, expand_slide=expand_slide
+        diagram,
+        out_path,
+        engine=engine,
+        auto_direction=auto_direction,
+        expand_slide=expand_slide,
+        quality=quality,
     )

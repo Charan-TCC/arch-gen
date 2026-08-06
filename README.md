@@ -90,6 +90,7 @@ publishing a diagram.
 ```yaml
 title: "Multi-Cloud 3-Tier Web Application"
 kind: flow                    # flow (default) or network
+page: "16:9"                  # required for flow — 16:9 (locked deck) or free (slide grows); the user's call
 direction: LR                 # LR (flow) or TB (stack)
 abbreviations:                # every ABBR used in a label must be declared
   AKS: "Azure Kubernetes Service"

@@ -58,10 +58,20 @@ def diagnose(
     label_cap_in: float = 1.4,
     direction_flipped: bool = False,
     auto_direction_tried: bool = False,
+    quality: str = "draft",
 ) -> list[Finding]:
     """Return layout-quality findings for a *flow* layout (network boards are
-    hand-tuned and skip this)."""
+    hand-tuned and skip this).
+
+    ``quality`` picks the readability bar. In ``"draft"`` (default) a cramped
+    layout is a *warning* — the tool still emits a usable working diagram. In
+    ``"release"`` the same conditions are *errors*: a formal presentation slide
+    scaled below the readable floor (or with hard-wrapping labels) is not
+    shippable, so ``--strict`` should refuse it rather than pass unreadable
+    output. Release never *lowers* a severity; it only promotes readability
+    warnings to errors."""
     findings: list[Finding] = []
+    release = quality == "release"
 
     if direction_flipped:
         findings.append(
@@ -83,10 +93,14 @@ def diagnose(
             direction_hint = "both directions were tried — reshape the spec: "
         else:
             direction_hint = f"try direction {flip} (or `--auto-direction`), then "
-        severity = "error" if scale < COLLAPSE_SCALE else "warn"
+        collapsed = scale < COLLAPSE_SCALE
+        # Below the collapse floor is always an error; between collapse and the
+        # readable floor is a warning in draft but an error in release (a formal
+        # slide with sub-readable text is not shippable).
+        severity = "error" if (collapsed or release) else "warn"
         effect = (
             "labels will collapse and wrap mid-word"
-            if severity == "error"
+            if collapsed
             else "cards are cramped and much of the slide is empty"
         )
         reshape = (
@@ -117,7 +131,7 @@ def diagnose(
         worst_id, worst_w = min(narrow, key=lambda t: t[1])
         findings.append(
             Finding(
-                "warn",
+                "error" if release else "warn",
                 f"{len(narrow)} node card(s) drawn under {MIN_CARD_WIDTH_IN}\" wide "
                 f"(worst: '{worst_id}' at {worst_w:.2f}\") — labels will wrap hard.",
             )
@@ -137,7 +151,7 @@ def diagnose(
         if len(longest) * CHAR_WIDTH_IN > cap:
             findings.append(
                 Finding(
-                    "warn",
+                    "error" if release else "warn",
                     f"node '{n.id}': word '{longest}' is wider than its label box "
                     f"(~{cap:.2f}\") and will break mid-word — abbreviate it "
                     f"(declare in `abbreviations`).",

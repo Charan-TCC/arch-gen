@@ -8,3 +8,5 @@ assets/icons/*/
 *.egg-info/
 out/*
 !out/.gitkeep
+
+.agent-memory/.dirty

@@ -1,0 +1,78 @@
+title: "Multi-Region Azure Web Application"
+page: "free"
+direction: TB
+provider_default: azure
+
+abbreviations:
+  AD: "Active Directory"
+  CDN: "Content Delivery Network"
+  DNS: "Domain Name System"
+  DB: "Database"
+  SQL: "Structured Query Language"
+
+groups:
+  - {id: global, label: "Global / Edge Services"}
+  - {id: active, label: "Active Region"}
+  - {id: standby, label: "Standby Region"}
+
+nodes:
+  - {id: user, label: "Users", icon_key: generic.user, group: global}
+  - {id: dns, label: "Azure DNS", icon_key: azure.dns-zones, group: global}
+  - {id: fd, label: "Azure Front Door", icon_key: azure.front-door-and-cdn-profiles, group: global}
+  - {id: ad, label: "Azure AD", icon_key: azure.ad-b2c, group: global}
+  - {id: cdn, label: "Azure CDN", icon_key: azure.cdn-profiles, group: global}
+  - {id: blob, label: "Blob Storage", icon_key: azure.storage-accounts, group: global}
+  
+  # Active Region
+  - {id: web1, label: "Web App", icon_key: azure.app-services, group: active}
+  - {id: func1, label: "Function App", icon_key: azure.function-apps, group: active}
+  - {id: queue1, label: "Azure Queue", icon_key: azure.storage-queue, group: active}
+  - {id: redis1, label: "Redis Cache", icon_key: azure.cache-redis, group: active}
+  - {id: sql1, label: "SQL Database", icon_key: azure.sql-database, group: active}
+  - {id: cosmos1, label: "Cosmos DB", icon_key: azure.cosmos-db, group: active}
+  - {id: search1, label: "Azure Search", icon_key: azure.cognitive-search, group: active}
+
+  # Standby Region
+  - {id: web2, label: "Web App", icon_key: azure.app-services, group: standby}
+  - {id: func2, label: "Function App", icon_key: azure.function-apps, group: standby}
+  - {id: queue2, label: "Azure Queue", icon_key: azure.storage-queue, group: standby}
+  - {id: redis2, label: "Redis Cache", icon_key: azure.cache-redis, group: standby}
+  - {id: sql2, label: "SQL Database", icon_key: azure.sql-database, group: standby}
+  - {id: cosmos2, label: "Cosmos DB", icon_key: azure.cosmos-db, group: standby}
+  - {id: search2, label: "Azure Search", icon_key: azure.cognitive-search, group: standby}
+
+edges:
+  - {src: user, dst: dns, label: "Lookup"}
+  - {src: dns, dst: fd, label: "Resolve"}
+  - {src: user, dst: fd, label: "Traffic"}
+  - {src: user, dst: cdn, label: "Static Assets"}
+  - {src: user, dst: ad, label: "Auth", style: dashed}
+  - {src: cdn, dst: blob, label: "Origin"}
+  
+  # Active Routing
+  - {src: fd, dst: web1, label: "Route"}
+  - {src: ad, dst: web1, label: "Token", style: dashed}
+  
+  # Active Processing
+  - {src: web1, dst: queue1, label: "Enqueue"}
+  - {src: queue1, dst: func1, label: "Trigger"}
+  - {src: web1, dst: redis1, label: "Cache"}
+  - {src: func1, dst: redis1, label: "Cache"}
+  - {src: func1, dst: sql1, label: "R/W"}
+  - {src: func1, dst: cosmos1, label: "R/W"}
+  - {src: web1, dst: search1, label: "Query"}
+  - {src: func1, dst: search1, label: "Index"}
+
+  # Standby Routing (Passive)
+  - {src: fd, dst: web2, label: "Failover Route", style: dotted}
+  - {src: ad, dst: web2, label: "Token", style: dashed}
+  
+  # Standby Processing (Same as Active)
+  - {src: web2, dst: queue2, label: "Enqueue"}
+  - {src: queue2, dst: func2, label: "Trigger"}
+  - {src: web2, dst: redis2, label: "Cache"}
+  - {src: func2, dst: redis2, label: "Cache"}
+  - {src: func2, dst: sql2, label: "R/W"}
+  - {src: func2, dst: cosmos2, label: "R/W"}
+  - {src: web2, dst: search2, label: "Query"}
+  - {src: func2, dst: search2, label: "Index"}

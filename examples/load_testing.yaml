@@ -1,0 +1,77 @@
+title: "Serverless Distributed Load Testing on AWS"
+kind: network
+direction: LR
+page: "16:9"
+provider_default: aws
+
+abbreviations:
+  API: "Application Programming Interface"
+  AWS: "Amazon Web Services"
+  ECR: "Elastic Container Registry"
+  ECS: "Elastic Container Service"
+  IAM: "Identity and Access Management"
+  IoT: "Internet of Things"
+  S3: "Simple Storage Service"
+  VPC: "Virtual Private Cloud"
+
+groups:
+  - {id: aws_cloud, label: "AWS Cloud", provider: aws, kind: cloud, role: boundary}
+  - {id: frontend, label: "Frontend & Access", parent: aws_cloud, provider: aws, kind: tier, role: ingress}
+  - {id: backend, label: "Load Testing Engine", parent: aws_cloud, provider: aws, kind: tier, role: compute}
+  - {id: repository, label: "Container Image Repository", parent: aws_cloud, provider: aws, kind: tier, role: management}
+  - {id: load_vpc, label: "Regional Load Resources (VPC)", parent: aws_cloud, provider: aws, kind: network, role: private_access}
+
+nodes:
+  - {id: user, icon_key: generic.user, label: "Test Operator", role: external}
+  - {id: target, icon_key: generic.internet, label: "Target Application", role: external}
+
+  # Frontend and secure API access
+  - {id: amplify, icon_key: aws.amplify, label: "AWS Amplify", group: frontend}
+  - {id: web_console, icon_key: aws.s3, label: "Web Console (S3)", group: frontend}
+  - {id: cloudfront, icon_key: aws.cloudfront, label: "Amazon CloudFront", group: frontend}
+  - {id: cognito, icon_key: aws.cognito, label: "Amazon Cognito", group: frontend}
+  - {id: iam, icon_key: aws.identity-and-access-management, label: "AWS IAM", group: frontend}
+  - {id: api_gateway, icon_key: aws.api-gateway, label: "Amazon API Gateway", group: frontend}
+
+  # Load-testing control plane, state, assets, and observability
+  - {id: api_handler, icon_key: aws.lambda, label: "API Handler", group: backend}
+  - {id: metadata, icon_key: aws.dynamodb, label: "Test Metadata", group: backend}
+  - {id: test_assets, icon_key: aws.s3, label: "Test Assets (S3)", group: backend}
+  - {id: task_runner, icon_key: aws.lambda, label: "Task Runner", group: backend}
+  - {id: automation, icon_key: aws.lambda, label: "Lifecycle Automation", group: backend}
+  - {id: iot_core, icon_key: aws.iot-core, label: "AWS IoT Core", group: backend}
+  - {id: cloudwatch, icon_key: aws.cloudwatch, label: "Amazon CloudWatch", group: backend}
+
+  # Reusable load-generator image
+  - {id: taurus_image, icon_key: generic.container, label: "Taurus Image", group: repository}
+  - {id: ecr, icon_key: aws.elastic-container-registry, label: "Public Amazon ECR", group: repository}
+
+  # Serverless regional load generation
+  - {id: ecs, icon_key: aws.elastic-container-service, label: "Amazon ECS", group: load_vpc}
+  - {id: fargate, icon_key: aws.fargate, label: "AWS Fargate Tasks", group: load_vpc}
+
+edges:
+  - {src: user, dst: cloudfront, label: "Open console", kind: https}
+  - {src: cloudfront, dst: web_console, label: "Static app", kind: https}
+  - {src: amplify, dst: web_console, label: "Build & deploy", style: dashed}
+  - {src: web_console, dst: cognito, label: "Authenticate", kind: https}
+  - {src: cognito, dst: iam, label: "Authorized access", style: dashed}
+  - {src: web_console, dst: api_gateway, label: "Start / status", kind: https}
+  - {src: api_gateway, dst: api_handler, label: "REST API", kind: https}
+
+  - {src: api_handler, dst: metadata, label: "Read / write"}
+  - {src: api_handler, dst: test_assets, label: "Scripts & results"}
+  - {src: api_handler, dst: task_runner, label: "Start workflow"}
+  - {src: task_runner, dst: metadata, label: "Test config"}
+  - {src: task_runner, dst: test_assets, label: "Load assets"}
+  - {src: task_runner, dst: automation, label: "Orchestrate"}
+
+  - {src: taurus_image, dst: ecr, label: "Publish image"}
+  - {src: automation, dst: ecs, label: "Launch / cleanup"}
+  - {src: ecr, dst: ecs, label: "Pull image"}
+  - {src: ecs, dst: fargate, label: "Run tasks"}
+  - {src: fargate, dst: target, label: "Generate load", kind: https}
+
+  - {src: iot_core, dst: fargate, label: "Live control", style: dashed}
+  - {src: fargate, dst: cloudwatch, label: "Logs & metrics", kind: diagnostics}
+  - {src: cloudwatch, dst: api_handler, label: "Execution data", kind: diagnostics}

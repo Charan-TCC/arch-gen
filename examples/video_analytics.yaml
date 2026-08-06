@@ -1,0 +1,60 @@
+title: "Video Analytics Pipeline"
+kind: flow
+layered: true
+direction: LR
+page: "16:9"
+
+abbreviations:
+  AI: "Artificial Intelligence"
+  AD: "Active Directory"
+  DB: "Database"
+  AKS: "Azure Kubernetes Service"
+  SQL: "Structured Query Language"
+  DET: "Detection"
+  FUNC: "Functions"
+  CONT: "Container"
+  K8S: "Kubernetes"
+
+groups:
+  - {id: ingest_zone, label: "Ingest & Storage"}
+  - {id: ai_zone, label: "AI Processing"}
+  - {id: app_zone, label: "Application & Events"}
+  - {id: mgmt_zone, label: "Management Plane"}
+
+nodes:
+  - {id: user, icon_key: generic.user, label: "User"}
+  - {id: upload, icon_key: azure.storage-azure-files, label: "Azure Files", group: ingest_zone}
+  - {id: ingest, icon_key: azure.container-instances, label: "Video Ingest", group: ingest_zone}
+  - {id: storage, icon_key: azure.storage-accounts, label: "Azure Storage", group: ingest_zone}
+  - {id: ai_vision, icon_key: azure.container-instances, label: "AI Vision", group: ai_zone}
+  - {id: cognitive, icon_key: azure.cognitive-services, label: "AI Services", group: ai_zone}
+  - {id: anomaly, icon_key: azure.container-instances, label: "Anomaly DET", group: ai_zone}
+  - {id: sql, icon_key: azure.sql-database, label: "Azure SQL DB", group: app_zone}
+  - {id: functions, icon_key: azure.function-apps, label: "Azure FUNC", group: app_zone}
+  - {id: sendgrid, icon_key: generic.email, label: "SendGrid", group: app_zone}
+  - {id: webapp, icon_key: azure.app-services, label: "App Service Web App", group: app_zone}
+  - {id: aad, icon_key: generic.identity, label: "Azure AD", group: app_zone}
+  - {id: acr, icon_key: azure.container-registries, label: "CONT Registry", group: mgmt_zone}
+  - {id: aks, icon_key: azure.kubernetes-services, label: "K8S Service", group: mgmt_zone}
+  - {id: keyvault, icon_key: azure.key-vaults, label: "Azure Key Vault", group: mgmt_zone}
+  - {id: monitor, icon_key: azure.monitor, label: "Azure Monitor", group: mgmt_zone}
+
+edges:
+  - {src: user, dst: upload, label: "video"}
+  - {src: upload, dst: ingest}
+  - {src: ingest, dst: storage, label: "frames"}
+  - {src: storage, dst: ai_vision}
+  - {src: ai_vision, dst: cognitive}
+  - {src: cognitive, dst: ai_vision}
+  - {src: ai_vision, dst: anomaly}
+  - {src: anomaly, dst: sql}
+  - {src: anomaly, dst: functions}
+  - {src: functions, dst: sendgrid}
+  - {src: sql, dst: webapp}
+  - {src: user, dst: webapp}
+  - {src: user, dst: aad, label: "login"}
+  - {src: aad, dst: webapp, label: "token"}
+  - {src: acr, dst: aks}
+  - {src: aks, dst: ingest, style: dashed}
+  - {src: aks, dst: ai_vision, style: dashed}
+  - {src: aks, dst: anomaly, style: dashed}
