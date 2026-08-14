@@ -35,6 +35,14 @@ of understanding constraints first. Do these three things up front:
   no vector EMF and no `soffice`. Icons embed as high-res PNG. This is fine.
 - QuickLook substitutes the Windows font "Segoe UI" with a wider fallback, so **PNG
   previews wrap text slightly more than real PowerPoint** — judge layout, not exact wrap.
+- **`out/` is archgen's scratch output dir** — the default target for ad-hoc
+  renders (`OUT ?= out.pptx` in the Makefile writes there when you pass a bare
+  filename with a directory). It's gitignored and `make clean` removes it freely;
+  never treat anything in it as precious. **`outputs/` is a different, older
+  directory that predates this Makefile and is NOT managed by it** — it isn't
+  touched by `make clean`, isn't rendered into by any documented command, and
+  may hold decks with no reproducible source spec. Don't delete anything under
+  `outputs/` without checking whether its source still exists.
 
 ## 2. Layout engines & their constraints
 
