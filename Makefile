@@ -39,8 +39,8 @@ preview: ## Render + open a PNG preview of $(OUT) (macOS QuickLook)
 	@rm -rf .preview && mkdir -p .preview
 	@qlmanage -t -s 1600 -o .preview $(OUT) >/dev/null 2>&1 && open .preview/*.png
 
-gallery: ## Render every example (+ bespoke shine board) to docs/gallery/*.png
-	./scripts/build_gallery.sh
+gallery: ## Render every example (+ bespoke azure data platform board) to docs/gallery/*.png
+	ARCHGEN=$(ARCHGEN) PY=$(PY) ./scripts/build_gallery.sh
 
 doctor: ## Report layout/converter capabilities
 	$(ARCHGEN) doctor

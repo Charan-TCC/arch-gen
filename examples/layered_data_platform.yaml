@@ -3,6 +3,10 @@
 # the groups into clean parallel tier bands and size cards to fit the densest tier
 # (here the six-node Source rail) — no hand-placed coordinates.
 #
+# The `business` group also demonstrates a per-group style override
+# (style/border_color/fill_color) instead of the provider palette default — the
+# only place in examples/ this is exercised.
+#
 #   archgen render examples/layered_data_platform.yaml -o out.pptx
 
 title: "Azure Modern Data Platform"
@@ -25,7 +29,7 @@ groups:
   - {id: storage,  label: "Storage",  provider: azure}
   - {id: process,  label: "Process & AI", provider: azure}
   - {id: serve,    label: "Serve",    provider: azure}
-  - {id: business, label: "Business", provider: generic}
+  - {id: business, label: "Business", provider: generic, style: dashed, border_color: "6B4FBB", fill_color: "F1EDFB"}
 
 nodes:
   # Source

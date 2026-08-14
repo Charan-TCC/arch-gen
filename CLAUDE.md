@@ -66,7 +66,8 @@ reference image the user wants matched closely?
 
 Signs you need the bespoke path: 3+ side-by-side zones **plus** a full-width band,
 header/annotation arrows, numbered callouts, or left-aligned icon+caption cards.
-archgen has no template for those — `build_shine.py` is the worked example.
+archgen has no template for those — `custom_builds/build_azure_data_platform.py`
+is the worked example.
 
 ## 4. Visual QA — text report first, PNG last (token budget is part of the job)
 
@@ -121,9 +122,9 @@ png = emf.to_picture(e.path, recolor_hex=recolor, prefer_vector=False)   # retur
 # add_picture(png, ...) in python-pptx; keep everything as native shapes/text/connectors.
 ```
 
-`build_shine.py` (repo root) is the scaffold: helpers `card`, `zone`, `connector`,
-`icon`, `text`. A new bespoke diagram = new content list + coordinates, same helpers.
-Regenerate its PNG via `make gallery`.
+`custom_builds/build_azure_data_platform.py` is the scaffold: helpers `card`,
+`zone`, `connector`, `icon`, `text`. A new bespoke diagram = new content list +
+coordinates, same helpers. Regenerate its PNG via `make gallery`.
 
 ## 6. Gotcha already fixed — don't reintroduce
 

@@ -6,7 +6,15 @@ __pycache__/
 assets/icons/*/
 .archgen_cache/
 *.egg-info/
-out/*
-!out/.gitkeep
+
+# render scratch dirs: out/ is archgen's default output (safe to `make clean`);
+# outputs/ predates this Makefile and is not managed by it — see CLAUDE.md §1.
+out/
+outputs/
+.preview/
+
+# root-level ad-hoc renders only (matches `make clean`'s `rm -rf *.pptx` glob).
+# A deck committed deliberately under docs/ or examples/ stays visible.
+/*.pptx
 
 .agent-memory/.dirty
