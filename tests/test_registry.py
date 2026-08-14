@@ -204,6 +204,52 @@ def test_converter_falls_back_when_vector_engine_rejects_svg(tmp_path, monkeypat
     assert out.read_bytes() == b"png"
 
 
+def test_concurrent_conversion_of_same_icon_is_safe(tmp_path, monkeypatch):
+    """Regression for the emf.py temp-file collision: two callers converting the
+    SAME icon at the same time must never write/unlink a shared filename. Each
+    conversion now runs in a private temp dir and publishes with `os.replace`,
+    so both racers should land on the identical, complete cached file."""
+    import threading
+
+    svg = tmp_path / "official.svg"
+    _fake_svg(svg)
+    cache = tmp_path / "cache"
+    monkeypatch.setattr(emf, "_CACHE_DIR", cache)
+    monkeypatch.setattr(emf, "_candidate_engines", lambda _prefer: ["cairosvg"])
+
+    def slow_rasterize(_svg_bytes, out):
+        import time
+
+        time.sleep(0.02)  # widen the race window
+        out.write_bytes(b"png-bytes")
+
+    monkeypatch.setattr(emf, "_cairosvg", slow_rasterize)
+
+    results: list[Path] = []
+    errors: list[Exception] = []
+
+    def worker():
+        try:
+            results.append(emf.to_picture(svg))
+        except Exception as exc:  # noqa: BLE001
+            errors.append(exc)
+
+    threads = [threading.Thread(target=worker) for _ in range(8)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+
+    assert not errors
+    assert len(results) == 8
+    assert len(set(results)) == 1  # every thread resolved to the same cache path
+    out = results[0]
+    assert out.is_file()
+    assert out.read_bytes() == b"png-bytes"
+    # No leftover per-attempt temp dirs — each is rmtree'd in `finally`.
+    assert not list(cache.glob("_tmp_*"))
+
+
 def test_quicklook_thumbnail_canvas_is_trimmed_and_refit(tmp_path):
     path = tmp_path / "thumbnail.png"
     image = Image.new("RGBA", (512, 512), (255, 255, 255, 255))

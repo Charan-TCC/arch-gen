@@ -19,14 +19,21 @@ Results are cached on disk by content hash + options, so each icon converts once
 Brand-icon licensing guardrail: only ``recolorable`` icons (CC0 simple-icons) are
 ever recolored; brand icons (AWS/Azure/GCP) are converted verbatim, uniform-scale
 only — never distorted or recolored.
+
+Concurrency: each conversion attempt writes into a private, per-call temp
+directory and publishes the result with an atomic ``os.replace`` into the shared
+disk cache. Two processes converting the *same* icon concurrently do redundant
+work but never corrupt each other's output — see ``to_picture``.
 """
 
 from __future__ import annotations
 
 import hashlib
+import os
 import re
 import shutil
 import subprocess
+import tempfile
 from pathlib import Path
 
 _CACHE_DIR = Path(__file__).resolve().parent.parent.parent / ".archgen_cache" / "icons"
@@ -62,29 +69,40 @@ def to_picture(svg_path: Path, recolor_hex: str | None = None, prefer_vector: bo
             return out
         out.parent.mkdir(parents=True, exist_ok=True)
 
-        # Write the (possibly recolored) SVG to a temp file for CLI converters.
-        tmp_svg = _CACHE_DIR / f"_src_{key}.svg"
-        tmp_svg.write_bytes(svg_bytes)
+        # Convert into a private, per-attempt temp dir and publish atomically.
+        # Two processes converting the SAME icon concurrently must never share a
+        # filename: the old `_src_<key>.svg` scheme let one racer unlink() a temp
+        # file the other was still reading, and `_inkscape`/`_cairosvg` wrote
+        # straight to `out`, so a concurrent `out.is_file()` check above could
+        # observe a partially-written file. A unique temp dir plus `os.replace`
+        # (atomic on the same filesystem) closes both holes; if two processes
+        # race, both do the redundant conversion but the last replace just wins
+        # — same key, same bytes, no corruption.
+        tmp_dir = Path(tempfile.mkdtemp(dir=_CACHE_DIR, prefix=f"_tmp_{key}_"))
+        tmp_out = tmp_dir / f"out.{ext}"
         try:
-            if engine == "inkscape":
-                _inkscape(tmp_svg, out)
-            elif engine == "soffice":
-                _soffice(tmp_svg, out)
-            elif engine == "soffice_png":
-                _soffice_png(tmp_svg, out)
-            elif engine == "qlmanage":
-                _qlmanage(tmp_svg, out)
+            if engine == "cairosvg":
+                _cairosvg(svg_bytes, tmp_out)  # takes bytes directly; no SVG file needed
             else:
-                _cairosvg(svg_bytes, out)
-            if out.is_file():
+                tmp_svg = tmp_dir / f"{svg_path.stem}.svg"
+                tmp_svg.write_bytes(svg_bytes)
+                if engine == "inkscape":
+                    _inkscape(tmp_svg, tmp_out)
+                elif engine == "soffice":
+                    _soffice(tmp_svg, tmp_out)
+                elif engine == "soffice_png":
+                    _soffice_png(tmp_svg, tmp_out)
+                elif engine == "qlmanage":
+                    _qlmanage(tmp_svg, tmp_out)
+            if tmp_out.is_file():
+                os.replace(tmp_out, out)
                 return out
             errors.append(f"{engine}: produced no output")
         except Exception as exc:  # noqa: BLE001 - a broken optional engine must fall through
-            out.unlink(missing_ok=True)
             detail = getattr(exc, "stderr", None) or str(exc)
             errors.append(f"{engine}: {str(detail).strip()}")
         finally:
-            tmp_svg.unlink(missing_ok=True)
+            shutil.rmtree(tmp_dir, ignore_errors=True)
 
     detail = "; ".join(errors)
     raise ConversionError(f"could not convert {svg_path}; {detail}")
