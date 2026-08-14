@@ -21,10 +21,6 @@ MAX_LABEL_LEN = 28
 _ABBREV_RE = re.compile(r"\b[A-Z][A-Z0-9]{1,}\b")
 
 
-class SpecError(ValueError):
-    """Raised by :func:`validate` when ``raise_on_error`` is set."""
-
-
 def lint(diagram: Diagram, resolver: IconResolver | None = None) -> list[str]:
     """Return a list of validation errors (empty == valid)."""
     errors: list[str] = []
@@ -107,14 +103,6 @@ def lint(diagram: Diagram, resolver: IconResolver | None = None) -> list[str]:
             f"(needed for the abbreviation legend)."
         )
 
-    return errors
-
-
-def validate(diagram: Diagram, resolver: IconResolver | None = None, raise_on_error: bool = True) -> list[str]:
-    """Lint and (optionally) raise :class:`SpecError` on any problem."""
-    errors = lint(diagram, resolver)
-    if errors and raise_on_error:
-        raise SpecError("Spec failed validation:\n  - " + "\n  - ".join(errors))
     return errors
 
 

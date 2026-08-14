@@ -978,13 +978,6 @@ def _anchor_sides(a: Rect, b: Rect) -> tuple[str, str]:
     return ("bottom", "top") if dy >= 0 else ("top", "bottom")
 
 
-def _elbow_anchors(a: Rect, b: Rect) -> tuple[tuple[int, int], tuple[int, int]]:
-    """Exit/entry points for an elbow connector, chosen by dominant axis so the
-    right-angle route leaves and enters the facing sides of each node."""
-    sa, sb = _anchor_sides(a, b)
-    return _side_anchor(a, sa), _side_anchor(b, sb)
-
-
 def _side_anchor(rect: Rect, side: str) -> tuple[int, int]:
     if side == "left":
         return rect.left, rect.cy

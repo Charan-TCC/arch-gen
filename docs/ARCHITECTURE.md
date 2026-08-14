@@ -56,9 +56,9 @@ docs/         this reference + spec format
 | File | Responsibility | Key surface |
 |---|---|---|
 | `models.py` | Strict pydantic models (`extra="forbid"`) including semantic network roles and connection kinds. | `Diagram`, `Node`, `Group`, `Edge`, `DiagramKind`, `NodeRole`, `GroupKind`, `GroupRole`, `EdgeKind` |
-| `lint.py` | Fail-loud validation of all spec invariants; returns human-readable errors. | `lint()`, `validate()`, `SpecError`, `MAX_LABEL_LEN`, `_ABBREV_RE` |
+| `lint.py` | Fail-loud validation of all spec invariants; returns human-readable errors. | `lint()`, `MAX_LABEL_LEN`, `_ABBREV_RE` |
 | `schema.py` | Export JSON Schema from the models (for the agent prompt). | `json_schema()`, `json_schema_str()` |
-| `io.py` | Load a spec from a YAML/JSON file or string. | `load_spec()`, `loads_spec()` |
+| `io.py` | Load a spec from a YAML/JSON file or string. | `load_spec()` |
 
 **Depends on:** `pydantic`, `PyYAML`, `registry.resolver` (icon existence checks).
 
@@ -84,7 +84,7 @@ docs/         this reference + spec format
 |---|---|---|
 | `theme.yaml` | All design tokens: fonts, slide size, grid, node/group/edge/legend styling, per-provider palette (hex/tint/line). Edit → every diagram restyles. | data |
 | `theme.py` | Load `theme.yaml`, expose tokens + `RGBColor`/EMU helpers. | `Theme`, `load_theme()` |
-| `renderer.py` | The deterministic renderer. Flow diagrams use grouped cards + **native PowerPoint elbow connectors** (right-angle, geometric anchors); network diagrams use flat native boundary panels, role-aware icon treatments, explicit Manhattan polylines, and no inherited theme shadows. Recolorable logos are tinted to `brand_hex`. | `Renderer.render()`, `render_spec()`; `_elbow_anchors`, `_recolor_hex` |
+| `renderer.py` | The deterministic renderer. Flow diagrams use grouped cards + **native PowerPoint elbow connectors** (right-angle, geometric anchors); network diagrams use flat native boundary panels, role-aware icon treatments, explicit Manhattan polylines, and no inherited theme shadows. Recolorable logos are tinted to `brand_hex`. | `Renderer.render()`, `render_spec()`; `_anchor_sides`, `_side_anchor`, `_recolor_hex` |
 | `legend.py` | Build provider, abbreviation, and network connection legends from spec content as native editable shapes. | `add_legends()`, `add_connection_legend()` |
 
 **Depends on:** `python-pptx`, `PyYAML`, `registry.emf`/`resolver`, `layout.*`.

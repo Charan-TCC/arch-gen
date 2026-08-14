@@ -237,9 +237,6 @@ def _parse_json(doc: dict) -> Layout:
     graph_bb = _parse_bb(doc.get("bb", "0,0,100,100"))
     id_by_gvid: dict[str, str] = {}
     nodes: dict[str, NodeLayout] = {}
-    for obj in doc.get("objects", []):
-        if obj.get("nodes") is not None or str(obj.get("name", "")).startswith("cluster_"):
-            continue  # skip subgraph container objects here; handled below
     # First pass: real nodes have a "pos"; clusters have a "bb".
     clusters: list[ClusterLayout] = []
     for obj in doc.get("objects", []):

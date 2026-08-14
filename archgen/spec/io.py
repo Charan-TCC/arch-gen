@@ -32,10 +32,6 @@ def load_spec(path: str | Path) -> Diagram:
     return _parse(text, source=str(p))
 
 
-def loads_spec(text: str) -> Diagram:
-    return _parse(text, source="<string>")
-
-
 def _parse(text: str, source: str) -> Diagram:
     try:
         data = yaml.safe_load(text)
