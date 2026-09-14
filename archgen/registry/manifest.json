@@ -9761,6 +9761,41 @@
         "url": ""
       }
     },
+    "tech.express": {
+      "file": "tech/express.svg",
+      "provider": "tech",
+      "display_name": "Express",
+      "category": "brand",
+      "recolorable": false,
+      "brand_hex": "#0A0A0A",
+      "source": "logos",
+      "color_logo_name": "express",
+      "simple_icons_slug": "express",
+      "simple_icons_version": "16.29.0",
+      "source_url": "https://github.com/openjs-foundation/artwork/blob/3816245ebbf4707bdafde748350ac8476b6b5b62/projects/express/express-icon-black.svg",
+      "guidelines_url": "",
+      "license": {
+        "type": "",
+        "url": ""
+      }
+    },
+    "tech.nodejs": {
+      "file": "tech/Node.js.svg",
+      "provider": "tech",
+      "display_name": "Node.js",
+      "category": "brand",
+      "recolorable": false,
+      "brand_hex": "#83CD29",
+      "source": "devicon"
+    },
+    "tech.sqlserver": {
+      "file": "tech/Microsoft-SQL-Server.svg",
+      "provider": "tech",
+      "display_name": "Microsoft SQL Server",
+      "category": "brand",
+      "recolorable": false,
+      "source": "devicon"
+    },
     "tech.github": {
       "file": "tech/github.svg",
       "provider": "tech",

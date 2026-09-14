@@ -1,0 +1,158 @@
+title: "EDTIH Application Architecture"
+kind: flow
+page: "16:9"
+direction: LR
+layered: true
+provider_default: azure
+
+abbreviations:
+  AD: "Active Directory"
+  ADF: "Azure Data Factory"
+  ADLS: "Azure Data Lake Storage"
+  API: "Application Programming Interface"
+  BI: "Business Intelligence"
+  CI: "Continuous Integration"
+  CD: "Continuous Deployment"
+  CRUD: "Create, Read, Update, Delete"
+  EDTIH: "Enterprise Data & Tech Integration Hub"
+  Gen2: "Generation 2"
+  PBI: "Power BI"
+  SPA: "Single Page Application"
+  SQL: "Structured Query Language"
+  SSO: "Single Sign-On"
+  UI: "User Interface"
+
+groups:
+  - id: devops_identity
+    label: "DevOps & Identity Tier"
+    provider: generic
+  - id: app_service
+    label: "Azure Web App Service"
+    provider: azure
+  - id: orchestration
+    label: "Analytics & Orchestration"
+    provider: azure
+  - id: data_tier
+    label: "Data Tier & Lakehouse"
+    provider: azure
+
+nodes:
+  # DevOps & Identity
+  - id: devops
+    icon_key: azure.devops
+    label: "Azure DevOps"
+    group: devops_identity
+  - id: aad
+    icon_key: azure.entra-id-protection
+    label: "Azure AD SSO"
+    group: devops_identity
+  - id: user
+    icon_key: generic.user
+    label: "Enterprise User"
+    group: devops_identity
+
+  # Azure Web App Service
+  - id: express
+    icon_key: tech.express
+    label: "Express.js Backend"
+    group: app_service
+  - id: react
+    icon_key: tech.react
+    label: "React Frontend"
+    group: app_service
+
+  # Analytics & Orchestration
+  - id: adf
+    icon_key: azure.data-factories
+    label: "Azure Data Factory"
+    group: orchestration
+  - id: pbi
+    icon_key: azure.power-bi-embedded
+    label: "Power BI Embedded"
+    group: orchestration
+
+  # Data Sources & Storage
+  - id: adls
+    icon_key: azure.data-lake-storage-gen1
+    label: "ADLS Gen2"
+    group: data_tier
+  - id: databricks
+    icon_key: azure.databricks
+    label: "Databricks Delta"
+    group: data_tier
+  - id: sql
+    icon_key: azure.sql-server
+    label: "SQL Server"
+    group: data_tier
+
+edges:
+  # CI/CD Deployment
+  - src: devops
+    dst: express
+    label: "CI/CD Deploy"
+
+  # User & Authentication
+  - src: user
+    dst: react
+    label: "HTTPS Access"
+  - src: user
+    dst: aad
+    label: "SSO Login"
+    style: dashed
+  - src: react
+    dst: aad
+    label: "OAuth2 Token"
+    style: dashed
+  - src: express
+    dst: aad
+    label: "Verify Token"
+    style: dashed
+
+  # Full-Stack App Service
+  - src: react
+    dst: express
+    label: "API Requests"
+
+  # Reporting & Analytics Embed
+  - src: express
+    dst: pbi
+    label: "Embed Token"
+  - src: react
+    dst: pbi
+    label: "Embed Reports"
+    style: dashed
+
+  # Pipeline Orchestration
+  - src: express
+    dst: adf
+    label: "Trigger Run"
+
+  # Data Ingestion & Pipeline Orchestration
+  - src: adf
+    dst: adls
+    label: "Lake Ingestion"
+  - src: adf
+    dst: databricks
+    label: "Transform"
+  - src: adf
+    dst: sql
+    label: "Data Sync"
+
+  # Analytical & Relational Data Stores
+  - src: express
+    dst: sql
+    label: "CRUD"
+  - src: databricks
+    dst: adls
+    label: "Delta Lake"
+    style: dashed
+
+  # Power BI Data Feeds
+  - src: pbi
+    dst: databricks
+    label: "Delta Tables"
+    style: dotted
+  - src: pbi
+    dst: sql
+    label: "DirectQuery"
+    style: dotted
