@@ -1,0 +1,42 @@
+title: "Single Monolithic Shared Architecture"
+kind: flow
+page: "16:9"
+direction: LR
+layered: true
+
+abbreviations:
+  API: "Application Programming Interface"
+  DB: "Database"
+  SQL: "Structured Query Language"
+  I/O: "Input / Output"
+  App: "Application"
+  Ops: "Operations"
+
+groups:
+  - {id: client_tier, label: "Client Applications Tier", provider: generic}
+  - {id: backend_tier, label: "Shared Azure App Service", provider: azure}
+  - {id: db_tier, label: "Shared Azure SQL Database", provider: azure}
+
+nodes:
+  # Client applications
+  - {id: app1, icon_key: generic.client, label: "App 1", group: client_tier}
+  - {id: app2, icon_key: generic.client, label: "App 2", group: client_tier}
+  - {id: app3, icon_key: generic.client, label: "App 3", group: client_tier}
+  - {id: app4, icon_key: generic.client, label: "App 4", group: client_tier}
+
+  # Shared App Service Monolith
+  - {id: api_monolith, icon_key: azure.appservice, label: "Shared Monolith API", group: backend_tier}
+  - {id: bg_jobs, icon_key: generic.workflow, label: "Shared Background Tasks", group: backend_tier}
+
+  # Shared Database
+  - {id: sql_db, icon_key: azure.sql, label: "Azure SQL Shared DB", group: db_tier}
+
+edges:
+  - {src: app1, dst: api_monolith, label: "HTTP"}
+  - {src: app2, dst: api_monolith, label: "HTTP"}
+  - {src: app3, dst: api_monolith, label: "HTTP"}
+  - {src: app4, dst: api_monolith, label: "HTTP"}
+  - {src: api_monolith, dst: bg_jobs, label: "Async Tasks"}
+  - {src: api_monolith, dst: sql_db, label: "Queries"}
+  - {src: bg_jobs, dst: sql_db, label: "Batch I/O"}
+

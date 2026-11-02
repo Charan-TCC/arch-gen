@@ -1,0 +1,157 @@
+title: "GS Dashboard – Technical Architecture"
+kind: flow
+page: "16:9"
+direction: LR
+layered: true
+provider_default: azure
+
+abbreviations:
+  API: "Application Programming Interface"
+  CI: "Continuous Integration"
+  CD: "Continuous Deployment"
+  DB: "Database"
+  GS: "Global Services"
+  ID: "Identity"
+  JWT: "JSON Web Token"
+  MSAL: "Microsoft Authentication Library"
+  SPA: "Single Page Application"
+  SPN: "Service Principal Name"
+  SQL: "Structured Query Language"
+  SSO: "Single Sign-On"
+
+groups:
+  - id: identity
+    label: "Identity & Authentication"
+    provider: azure
+  - id: client
+    label: "Client Tier"
+    provider: generic
+  - id: static_web
+    label: "Azure Static Web Apps"
+    provider: azure
+  - id: app_service
+    label: "Azure App Service"
+    provider: azure
+  - id: data_services
+    label: "Data & Monitoring"
+    provider: azure
+  - id: devops_cicd
+    label: "Azure DevOps · CI/CD"
+    provider: azure
+
+nodes:
+  # Identity
+  - id: entra
+    icon_key: azure.devops
+    label: "Azure SPN · Entra ID"
+    group: identity
+
+  # Client
+  - id: users
+    icon_key: azure.users
+    label: "Users (Browser)"
+    group: client
+
+  # Static Web Apps
+  - id: react
+    icon_key: tech.react
+    label: "React Frontend (SPA)"
+    group: static_web
+
+  # App Service
+  - id: python
+    icon_key: tech.python
+    label: "Python Backend API"
+    group: app_service
+  - id: jwt
+    icon_key: tech.jwt
+    label: "Auth Middleware (JWT)"
+    group: app_service
+
+  # Data & Monitoring
+  - id: sql
+    icon_key: azure.sql-database
+    label: "Azure SQL DB"
+    group: data_services
+  - id: vault
+    icon_key: azure.key-vaults
+    label: "Azure Key Vault"
+    group: data_services
+  - id: insights
+    icon_key: azure.application-insights
+    label: "Application Insights"
+    group: data_services
+
+  # Azure DevOps
+  - id: repos
+    icon_key: tech.git
+    label: "Azure Repos"
+    group: devops_cicd
+  - id: pipelines
+    icon_key: generic.pipeline
+    label: "Azure Pipelines"
+    group: devops_cicd
+  - id: deploy_swa
+    icon_key: azure.static-apps
+    label: "Static Web Deploy"
+    group: devops_cicd
+  - id: deploy_app
+    icon_key: azure.app-services
+    label: "App Service Deploy"
+    group: devops_cicd
+
+edges:
+  # User flows
+  - src: users
+    dst: react
+    label: "1. Login"
+  - src: users
+    dst: entra
+    label: "2. Authenticate"
+    style: dashed
+  - src: entra
+    dst: react
+    label: "Access token"
+    style: dashed
+
+  # Runtime API flows
+  - src: react
+    dst: python
+    label: "3. API calls"
+  - src: python
+    dst: jwt
+    label: "Validate token"
+  - src: jwt
+    dst: entra
+    label: "4. Token Check"
+    style: dashed
+
+  # Data tier connections
+  - src: python
+    dst: sql
+    label: "Dashboard data"
+  - src: python
+    dst: vault
+    label: "App secrets"
+  - src: python
+    dst: insights
+    label: "Logs & metrics"
+
+  # CI/CD flows
+  - src: repos
+    dst: pipelines
+    label: "trigger on push"
+  - src: pipelines
+    dst: deploy_swa
+    label: "Frontend"
+  - src: pipelines
+    dst: deploy_app
+    label: "Backend"
+  - src: deploy_swa
+    dst: react
+    label: "Deploy frontend"
+    style: dashed
+  - src: deploy_app
+    dst: python
+    label: "Deploy backend"
+    style: dashed

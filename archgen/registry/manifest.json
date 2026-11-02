@@ -9779,22 +9779,23 @@
         "url": ""
       }
     },
-    "tech.nodejs": {
-      "file": "tech/Node.js.svg",
+    "tech.git": {
+      "file": "tech/git.svg",
       "provider": "tech",
-      "display_name": "Node.js",
+      "display_name": "Git",
       "category": "brand",
       "recolorable": false,
-      "brand_hex": "#83CD29",
-      "source": "devicon"
-    },
-    "tech.sqlserver": {
-      "file": "tech/Microsoft-SQL-Server.svg",
-      "provider": "tech",
-      "display_name": "Microsoft SQL Server",
-      "category": "brand",
-      "recolorable": false,
-      "source": "devicon"
+      "brand_hex": "#F03C2E",
+      "source": "logos",
+      "color_logo_name": "git-icon",
+      "simple_icons_slug": "git",
+      "simple_icons_version": "16.36.0",
+      "source_url": "https://git-scm.com/community/logos",
+      "guidelines_url": "",
+      "license": {
+        "type": "CC-BY-3.0",
+        "url": ""
+      }
     },
     "tech.github": {
       "file": "tech/github.svg",
@@ -9899,6 +9900,24 @@
       "simple_icons_version": "16.26.0",
       "source_url": "https://github.com/cncf/artwork/blob/e7e09686c20db6ddac06e482cf3338b0c8b2e22d/projects/jaeger/icon/black/jaeger-icon-black.svg",
       "guidelines_url": "https://github.com/cncf/artwork/blob/e7e09686c20db6ddac06e482cf3338b0c8b2e22d/projects/jaeger/jaeger-logo-guide.pdf",
+      "license": {
+        "type": "",
+        "url": ""
+      }
+    },
+    "tech.jwt": {
+      "file": "tech/jwt.svg",
+      "provider": "tech",
+      "display_name": "JSON Web Tokens",
+      "category": "brand",
+      "recolorable": true,
+      "brand_hex": "#000000",
+      "source": "simple-icons",
+      "color_logo_name": "",
+      "simple_icons_slug": "jsonwebtokens",
+      "simple_icons_version": "16.36.0",
+      "source_url": "https://jwt.io",
+      "guidelines_url": "",
       "license": {
         "type": "",
         "url": ""
@@ -10061,6 +10080,24 @@
       "simple_icons_version": "16.26.0",
       "source_url": "https://prometheus.io",
       "guidelines_url": "",
+      "license": {
+        "type": "",
+        "url": ""
+      }
+    },
+    "tech.python": {
+      "file": "tech/python.svg",
+      "provider": "tech",
+      "display_name": "Python",
+      "category": "brand",
+      "recolorable": false,
+      "brand_hex": "#3776AB",
+      "source": "logos",
+      "color_logo_name": "python",
+      "simple_icons_slug": "python",
+      "simple_icons_version": "16.36.0",
+      "source_url": "https://www.python.org/community/logos/",
+      "guidelines_url": "https://www.python.org/community/logos/",
       "license": {
         "type": "",
         "url": ""
