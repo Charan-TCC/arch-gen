@@ -10,6 +10,7 @@
   archgen icons add nextdotjs --key tech.nextjs # cache SVG + rebuild manifest
   archgen schema                              # dump the spec JSON Schema
   archgen doctor                              # report layout/converter capabilities
+  archgen qa out.pptx                         # alignment / text-box / arrow-overlap QA
 """
 
 from __future__ import annotations
@@ -33,6 +34,10 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="lay out both TB and LR and keep the better-fitting one (flow diagrams)",
     )
+    p_render.add_argument("--page", choices=["16:9", "free"], default=None,
+                          help="override/set the spec's page format")
+    p_render.add_argument("--theme", default=None,
+                          help="style preset (styles/*.json), overrides the spec's theme")
     p_render.add_argument(
         "--strict",
         action="store_true",
@@ -48,7 +53,10 @@ def main(argv: list[str] | None = None) -> int:
     p_gen = sub.add_parser("generate", help="LLM description -> spec -> pptx (needs ANTHROPIC_API_KEY)")
     p_gen.add_argument("description")
     p_gen.add_argument("-o", "--out", default="out.pptx")
-    p_gen.add_argument("--model", default="claude-sonnet-5")
+    p_gen.add_argument("--model", default="claude-sonnet-5-5")
+    p_gen.add_argument("--page", choices=["16:9", "free"], default=None,
+                       help="page format (the user's decision; skips asking)")
+    p_gen.add_argument("--theme", default=None, help="style preset (styles/*.json)")
     p_gen.add_argument("--save-spec", default=None, help="also write the generated spec YAML here")
 
     p_icons = sub.add_parser("icons", help="list, search, or add icon assets")
@@ -63,6 +71,8 @@ def main(argv: list[str] | None = None) -> int:
     p_icon_add.add_argument("--force", action="store_true", help="replace an existing cached SVG")
     sub.add_parser("schema", help="dump the spec JSON Schema")
     sub.add_parser("doctor", help="report capabilities")
+    p_qa = sub.add_parser("qa", help="geometry QA on any .pptx: alignment, text-box size, arrow overlaps")
+    p_qa.add_argument("pptx", nargs="+")
 
     args = parser.parse_args(argv)
 
@@ -81,6 +91,9 @@ def main(argv: list[str] | None = None) -> int:
             return _icons(args)
         if args.cmd == "schema":
             return _schema()
+        if args.cmd == "qa":
+            from archgen.shared import geomcheck
+            return geomcheck.main(args.pptx)
         if args.cmd == "doctor":
             return _doctor()
     except SpecLoadError as exc:
@@ -96,6 +109,13 @@ def _render(args) -> int:
     from archgen.spec.lint import lint
 
     diagram = load_spec(args.spec)
+    upd = {}
+    if getattr(args, "page", None):
+        upd["page"] = args.page
+    if getattr(args, "theme", None):
+        upd["theme"] = args.theme
+    if upd:
+        diagram = diagram.model_copy(update=upd)
     errors = lint(diagram)
     if errors:
         print("spec invalid:\n  - " + "\n  - ".join(errors), file=sys.stderr)
@@ -105,6 +125,15 @@ def _render(args) -> int:
         diagram, args.out, engine=args.engine, auto_direction=args.auto_direction
     )
     print(f"rendered {out}")
+    from archgen.shared import geomcheck
+    geo = geomcheck.check_pptx(out)
+    if geo:
+        print(f"geometry report: {sum(g.severity == 'error' for g in geo)} error(s), "
+              f"{sum(g.severity == 'warn' for g in geo)} warning(s)")
+        for g in geo:
+            print(f"  {g}")
+        if args.strict and any(g.severity == "error" for g in geo):
+            return 3
     # The layout report is the cheap feedback loop: fix everything it flags
     # BEFORE rasterizing a PNG to look at (see CLAUDE.md §4).
     if renderer.diagnostics:
@@ -154,7 +183,9 @@ def _generate(args) -> int:
             file=sys.stderr,
         )
         return 2
-    diagram = generate_spec(args.description, anthropic_complete(args.model))
+    diagram = generate_spec(args.description, anthropic_complete(args.model), page=args.page)
+    if args.theme:
+        diagram = diagram.model_copy(update={"theme": args.theme})
     if args.save_spec:
         import yaml
 

@@ -1,7 +1,7 @@
 # Architecture — file-by-file reference
 
 Maps every source file to its responsibility, key public surface, and dependencies.
-Companion to [../SPEC.md](../SPEC.md). Keep this in sync when adding/renaming modules.
+Companion to [SPEC.md](SPEC.md). Keep this in sync when adding/renaming modules.
 
 ## Pipeline
 

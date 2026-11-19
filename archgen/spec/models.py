@@ -188,4 +188,4 @@ class Diagram(_Strict):
         default_factory=dict,
         description="Abbreviation -> expansion, e.g. {'AKS': 'Azure Kubernetes Service'}. Every abbreviation appearing in a label MUST be declared here (the linter enforces it), and they populate the abbreviation legend.",
     )
-    theme: str = Field("default", description="Theme name (reserved; only 'default' ships today).")
+    theme: str = Field("default", description="Style preset: 'default' or a name from styles/ (same presets as PPT Gen, e.g. corporate-clean, modern-tech, editorial).")

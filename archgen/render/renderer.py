@@ -18,6 +18,7 @@ from pptx.oxml.ns import qn
 from pptx.oxml.xmlchemy import OxmlElement
 from pptx.util import Emu, Pt
 
+from archgen.shared import compose
 from archgen.layout.engine import compute_layout
 from archgen.layout.geometry import Rect, Transform
 from archgen.registry import emf
@@ -44,6 +45,8 @@ class _EdgeBinding:
     src_idx: int
     dst_idx: int
     coords: tuple[tuple[int, int], tuple[int, int]]
+    vertical: bool = False
+    bend: float | None = None
 
 
 class Renderer:
@@ -65,6 +68,10 @@ class Renderer:
         quality: str = "draft",
     ) -> Path:
         prs = Presentation()
+        self._node_font_pt = 99.0
+        if diagram.theme and diagram.theme != "default":
+            # Spec-selected style preset (styles/*.json, shared with PPT Gen).
+            self.theme = load_theme(preset=diagram.theme)
         network = diagram.kind == DiagramKind.network
         # Layered mode packs groups into parallel bands with renderer-owned card
         # sizing; it is a flow-only, graphviz-only path.
@@ -207,6 +214,13 @@ class Renderer:
                 )
 
         slide = prs.slides.add_slide(prs.slide_layouts[6])  # blank
+        try:
+            bg = self.theme["background"]
+        except KeyError:
+            bg = None
+        if bg:
+            slide.background.fill.solid()
+            slide.background.fill.fore_color.rgb = Theme.rgb(bg)
 
         if not network:
             self._add_title(slide, diagram.title)
@@ -223,11 +237,18 @@ class Renderer:
             # Flow routes sit behind the cards, matching the network renderer and
             # keeping arrow shafts from visually cutting through node artwork.
             node_rects = self._node_rects(layout, tf)
-            edge_binds = self._draw_edges(slide, diagram, node_rects)
-            node_shapes = self._draw_nodes(slide, diagram, node_rects, scale=tf.scale)
-            # Bind connectors to their node shapes now that both exist, so the
-            # arrows stay attached when a node is moved in PowerPoint.
-            self._bind_edges(edge_binds, node_shapes)
+            if engine_used == "graphviz" and any(len(e.points) >= 2 for e in layout.edges):
+                # Draw cards first so arrows can end on what is VISIBLE (the
+                # icon+label group, not the bigger invisible layout card), then
+                # send the arrows behind the cards.
+                node_shapes = self._draw_nodes(slide, diagram, node_rects, scale=tf.scale)
+                self._draw_routed_edges(slide, diagram, layout, tf, node_shapes)
+            else:
+                edge_binds = self._draw_edges(slide, diagram, node_rects)
+                node_shapes = self._draw_nodes(slide, diagram, node_rects, scale=tf.scale)
+                # Bind connectors to their node shapes now that both exist, so the
+                # arrows stay attached when a node is moved in PowerPoint.
+                self._bind_edges(edge_binds, node_shapes)
             add_legends(slide, diagram, self.theme, slide_w=self._slide_w, slide_h=self._slide_h)
 
         Path(out_path).parent.mkdir(parents=True, exist_ok=True)
@@ -252,7 +273,11 @@ class Renderer:
         run.font.size = Pt(title_size)
         run.font.bold = True
         run.font.name = self.theme.font
-        run.font.color.rgb = Theme.rgb(self.theme["node"]["label_color"])
+        try:
+            title_hex = self.theme["title_color"]
+        except KeyError:
+            title_hex = self.theme["node"]["label_color"]
+        run.font.color.rgb = Theme.rgb(title_hex)
 
     # -- containers --------------------------------------------------------
     def _draw_containers(self, slide, diagram, layout, tf, provider_by_group) -> None:
@@ -575,8 +600,117 @@ class Renderer:
         r.font.size = Pt(font_pt)
         r.font.name = self.theme.font
         r.font.color.rgb = Theme.rgb(ncfg["label_color"])
+        self._node_font_pt = min(getattr(self, "_node_font_pt", font_pt), font_pt)
 
     # -- edges -------------------------------------------------------------
+    def _draw_routed_edges(self, slide, diagram, layout, tf, node_shapes) -> None:
+        """Draw graphviz's orthogonal routes (they already avoid nodes).
+
+        Ends are trimmed/extended onto the visible node group so arrowheads touch
+        the icon+label. Routes of 1 segment (straight) or 3 segments (elbow) become
+        native connectors GLUED to the nodes; longer routes become a freeform
+        polyline (exact path, not glued). Arrows are moved behind the cards."""
+        ecfg = self.theme["edge"]
+        pending = {}
+        for el in layout.edges:
+            pending.setdefault((el.src, el.dst), []).append(el)
+        content = {nid: _shape_rect(sh) for nid, sh in node_shapes.items()}
+        first_node_el = next(iter(node_shapes.values()))._element if node_shapes else None
+        drawn = []
+        placed_labels: list[Rect] = []
+        # Everything a label must not sit on: node cards and container titles.
+        obstacles: list[Rect] = list(content.values())
+        for sh in slide.shapes:
+            if getattr(sh, "has_text_frame", False) and sh.text_frame.text.strip():
+                obstacles.append(_shape_rect(sh))
+        for e in diagram.edges:
+            routes = pending.get((e.src, e.dst))
+            if not routes or e.src not in content or e.dst not in content:
+                continue
+            el = routes.pop(0)
+            pts = [tf.point(x, y) for x, y in el.points]
+            pts = _snap_route_ends(pts, content[e.src], content[e.dst])
+            if len(pts) < 2:
+                continue
+            semantic = self.theme["connections"].get(e.kind.value, {})
+            color = semantic.get("color", ecfg["color"])
+            shape = self._route_shape(slide, pts, node_shapes[e.src], node_shapes[e.dst])
+            shape.line.color.rgb = Theme.rgb(color)
+            shape.line.width = Pt(ecfg["line_pt"])
+            self._dash_and_arrow(shape, e.style.value)
+            self._remove_effects(shape)
+            drawn.append(shape)
+            if e.label:
+                cx, cy = self._route_label_spot(e.label, pts, obstacles + placed_labels)
+                placed_labels.append(self._edge_label_rect(e.label, cx, cy))
+                drawn.append(self._edge_label(slide, e.label, cx, cy))
+        # z-order: routes and their labels behind every node card
+        if first_node_el is not None:
+            tree = first_node_el.getparent()
+            for shp in drawn:
+                if shp is None:
+                    continue
+                tree.remove(shp._element)
+                tree.insert(tree.index(first_node_el), shp._element)
+
+    def _route_label_spot(self, text, pts, avoid: list[Rect]) -> tuple[int, int]:
+        """A spot ON the route (longest runs first) whose label box clears every
+        card, container title and earlier label; else the route's midpoint."""
+        segs = sorted(zip(pts, pts[1:]), key=lambda ab: -(abs(ab[1][0] - ab[0][0]) + abs(ab[1][1] - ab[0][1])))
+        probe = self._edge_label_rect(text, 0, 0)
+        min_run = Inches_val(0.22)  # visible line left on each side of the label
+        for a, b in segs:
+            vertical = a[0] == b[0]
+            run = abs(b[1] - a[1]) if vertical else abs(b[0] - a[0])
+            if run < (probe.height if vertical else probe.width) + 2 * min_run:
+                continue  # label would swallow the whole arrow
+            for t in (0.5, 0.35, 0.65):
+                cx, cy = int(a[0] + t * (b[0] - a[0])), int(a[1] + t * (b[1] - a[1]))
+                r = self._edge_label_rect(text, cx, cy)
+                if not any(_rects_intersect(r, o) for o in avoid):
+                    return cx, cy
+        # Short arrows: sit the label BESIDE the line so the arrow stays visible.
+        gap = Emu(Pt(4))
+        for a, b in segs:
+            mx, my = (a[0] + b[0]) // 2, (a[1] + b[1]) // 2
+            if a[0] == b[0]:
+                spots = [(mx + probe.width // 2 + gap, my), (mx - probe.width // 2 - gap, my)]
+            else:
+                spots = [(mx, my - probe.height // 2 - gap), (mx, my + probe.height // 2 + gap)]
+            for cx, cy in spots:
+                r = self._edge_label_rect(text, cx, cy)
+                if not any(_rects_intersect(r, o) for o in avoid):
+                    return cx, cy
+        return _polyline_mid(pts)
+
+    def _route_shape(self, slide, pts, src_shape, dst_shape):
+        segs = len(pts) - 1
+        (x1, y1), (x2, y2) = pts[0], pts[-1]
+        first_vertical = pts[0][0] == pts[1][0]
+        if segs == 1 or segs == 3:
+            kind = MSO_CONNECTOR.STRAIGHT if segs == 1 else MSO_CONNECTOR.ELBOW
+            conn = slide.shapes.add_connector(kind, x1, y1, x2, y2)
+            try:
+                conn.begin_connect(src_shape, _SIDE_TO_CXN_IDX[_exit_side(pts[0], pts[1])])
+                conn.end_connect(dst_shape, _SIDE_TO_CXN_IDX[_exit_side(pts[-1], pts[-2])])
+            except Exception:  # noqa: BLE001 - glue is best-effort
+                pass
+            # Glue snaps ends to connection sites; restore the computed route.
+            conn.begin_x, conn.begin_y, conn.end_x, conn.end_y = x1, y1, x2, y2
+            if segs == 3:
+                if first_vertical:
+                    bend = (pts[1][1] - y1) / (y2 - y1) if y2 != y1 else 0.5
+                else:
+                    bend = (pts[1][0] - x1) / (x2 - x1) if x2 != x1 else 0.5
+                compose.route_elbow(conn, x1, y1, x2, y2, vertical=first_vertical,
+                                    bend=min(max(bend, 0.0), 1.0))
+            return conn
+        builder = slide.shapes.build_freeform(x1, y1, scale=1.0)
+        builder.add_line_segments(pts[1:], close=False)
+        shape = builder.convert_to_shape()
+        shape.fill.background()
+        return shape
+
     def _draw_edges(self, slide, diagram, node_rects: dict[str, Rect]) -> list["_EdgeBinding"]:
         """Draw connectors and return the data needed to bind each one to its
         node shapes (deferred to _bind_edges, since the node shapes are drawn
@@ -584,18 +718,26 @@ class Renderer:
         ecfg = self.theme["edge"]
         placed_labels: list[Rect] = []
         binds: list[_EdgeBinding] = []
-        for e in diagram.edges:
+        ports = _fan_out_ports(diagram.edges, node_rects)
+        bends = _stagger_bends(diagram.edges, node_rects, ports)
+        for i, e in enumerate(diagram.edges):
             a = node_rects.get(e.src)
             b = node_rects.get(e.dst)
             if a is None or b is None:
                 continue
             # Native PowerPoint elbow (right-angle) connector — editable, and it
             # auto-routes cleanly instead of cutting diagonally across the slide.
-            # Anchors are chosen purely from geometry, so this works for any graph.
+            # Anchors are chosen purely from geometry, so this works for any graph;
+            # edges sharing a node side get distinct ports so they never bundle.
             src_side, dst_side = _anchor_sides(a, b)
-            (x1, y1), (x2, y2) = _side_anchor(a, src_side), _side_anchor(b, dst_side)
-            connector_type = MSO_CONNECTOR.ELBOW if (x1 != x2 and y1 != y2) else MSO_CONNECTOR.STRAIGHT
+            (x1, y1), (x2, y2) = ports[(i, "src")], ports[(i, "dst")]
+            is_elbow = x1 != x2 and y1 != y2
+            connector_type = MSO_CONNECTOR.ELBOW if is_elbow else MSO_CONNECTOR.STRAIGHT
             conn = slide.shapes.add_connector(connector_type, x1, y1, x2, y2)
+            vertical = src_side in ("top", "bottom")
+            bend = bends.get(i) if is_elbow else None
+            if bend is not None:
+                compose.route_elbow(conn, x1, y1, x2, y2, vertical=vertical, bend=bend)
             semantic = self.theme["connections"].get(e.kind.value, {})
             conn.line.color.rgb = Theme.rgb(semantic.get("color", ecfg["color"]))
             conn.line.width = Pt(ecfg["line_pt"])
@@ -609,11 +751,14 @@ class Renderer:
                     src_idx=_SIDE_TO_CXN_IDX[src_side],
                     dst_idx=_SIDE_TO_CXN_IDX[dst_side],
                     coords=((x1, y1), (x2, y2)),
+                    vertical=vertical,
+                    bend=bend,
                 )
             )
             if e.label:
                 cx, cy = self._edge_label_spot(
-                    e.label, (x1, y1), (x2, y2), node_rects, placed_labels
+                    e.label, (x1, y1), (x2, y2), node_rects, placed_labels,
+                    route=_route_points((x1, y1), (x2, y2), vertical, bend),
                 )
                 placed_labels.append(self._edge_label_rect(e.label, cx, cy))
                 self._edge_label(slide, e.label, cx, cy)
@@ -641,10 +786,17 @@ class Renderer:
             (x1, y1), (x2, y2) = bind.coords
             bind.conn.begin_x, bind.conn.begin_y = x1, y1
             bind.conn.end_x, bind.conn.end_y = x2, y2
+            if bind.bend is not None:
+                compose.route_elbow(bind.conn, x1, y1, x2, y2,
+                                    vertical=bind.vertical, bend=bind.bend)
+
+    def _edge_font_pt(self) -> float:
+        # An arrow label is secondary text: never larger than the node labels.
+        return min(self.theme["edge"]["label_font_pt"], getattr(self, "_node_font_pt", 99) - 1)
 
     def _edge_label_rect(self, text: str, cx: int, cy: int) -> Rect:
-        font_pt = self.theme["edge"]["label_font_pt"]
-        w = _text_width_emu(text, font_pt) + Emu(Pt(6))
+        font_pt = self._edge_font_pt()
+        w = max(Emu(Pt(len(text) * font_pt * 0.62)), int(_text_width_emu(text, font_pt) * 1.2)) + Emu(Pt(6))
         h = Emu(Pt(font_pt + 5))
         return Rect(left=cx - w // 2, top=cy - h // 2, width=w, height=h)
 
@@ -655,6 +807,7 @@ class Renderer:
         p2: tuple[int, int],
         node_rects: dict[str, Rect],
         placed_labels: list[Rect],
+        route: list[tuple[int, int]] | None = None,
     ) -> tuple[int, int]:
         """Pick a label spot ON the connector's route that collides with neither
         node cards nor already-placed edge labels. PowerPoint's elbow runs
@@ -675,6 +828,14 @@ class Renderer:
             (mx + nudge, my), (mx - nudge, my),
             (x1 + nudge, (y1 + my) // 2), (x1 - nudge, (y1 + my) // 2),
         ]
+        if route and len(route) > 1:
+            # Known drawn path: try the middle run first, then the other legs,
+            # then the same spots nudged sideways — every candidate is on/at the line.
+            segs = list(zip(route, route[1:]))
+            order = sorted(range(len(segs)), key=lambda k: abs(k - (len(segs) - 1) / 2))
+            mids = [((a[0] + b[0]) // 2, (a[1] + b[1]) // 2) for a, b in (segs[k] for k in order)]
+            candidates = mids + [(x + d, y) for x, y in mids for d in (nudge, -nudge)]
+            mx, my = mids[0]
         def is_free(rect: Rect) -> bool:
             # Inflate the probe: the width estimate is for the theme font, and
             # preview rasterizers substitute wider ones — a near-miss on paper
@@ -809,12 +970,13 @@ class Renderer:
 
     def _edge_label(self, slide, text: str, cx: int, cy: int) -> None:
         ecfg = self.theme["edge"]
-        font_pt = ecfg["label_font_pt"]
+        font_pt = self._edge_font_pt()
         # Size the box to hold the text on ONE line. python-pptx text boxes carry
         # ~0.1" internal margins by default; left unzeroed they eat the usable
         # width and force short labels (e.g. "15") to wrap into stacked digits.
         pad = Emu(Pt(3))
-        text_w = Emu(Pt(len(text) * font_pt * 0.62))
+        # Uppercase-aware width with headroom (preview fonts render wider).
+        text_w = max(Emu(Pt(len(text) * font_pt * 0.62)), int(_text_width_emu(text, font_pt) * 1.2))
         w = text_w + 2 * pad
         h = Emu(Pt(font_pt + 5))
         left = cx - w // 2
@@ -837,19 +999,21 @@ class Renderer:
         r.font.color.rgb = Theme.rgb(ecfg["label_color"])
         # Small white backing so the label reads over lines.
         box.fill.solid()
-        box.fill.fore_color.rgb = Theme.rgb("FFFFFF")
+        box.fill.fore_color.rgb = Theme.rgb(self.theme["node"]["box_fill"])
         box.line.fill.background()
         self._remove_effects(box)
+        return box
 
     # -- xml helpers -------------------------------------------------------
     def _dash_and_arrow(self, conn, style: str) -> None:
         ln = conn.line._get_or_add_ln()
-        # Arrowhead at the destination end.
-        tail = ln.makeelement(qn("a:tailEnd"), {"type": "triangle", "w": "med", "len": "med"})
-        ln.append(tail)
+        # Schema order inside a:ln is fill, prstDash, join, headEnd, tailEnd.
         if style in ("dashed", "dotted"):
             d = ln.makeelement(qn("a:prstDash"), {"val": "dash" if style == "dashed" else "sysDot"})
             ln.append(d)
+        # Arrowhead at the destination end.
+        tail = ln.makeelement(qn("a:tailEnd"), {"type": "triangle", "w": "med", "len": "med"})
+        ln.append(tail)
 
     def _set_corner_radius(self, shape, frac: float) -> None:
         try:
@@ -976,6 +1140,156 @@ def _anchor_sides(a: Rect, b: Rect) -> tuple[str, str]:
         return ("right", "left") if dx >= 0 else ("left", "right")
     # vertically dominant -> leave/enter top|bottom sides
     return ("bottom", "top") if dy >= 0 else ("top", "bottom")
+
+
+def _fan_out_ports(edges, rects: dict[str, Rect]) -> dict[tuple[int, str], tuple[int, int]]:
+    """Anchor point for each edge end. Ends that share a node side are spread
+    evenly across the middle 60% of that side, ordered by where the other end
+    lies, so parallel arrows get separate lanes instead of one stacked line."""
+    slots: dict[tuple[str, str], list[tuple[int, str, int]]] = {}
+    for i, e in enumerate(edges):
+        a, b = rects.get(e.src), rects.get(e.dst)
+        if a is None or b is None:
+            continue
+        s_side, d_side = _anchor_sides(a, b)
+        horiz_s = s_side in ("top", "bottom")
+        horiz_d = d_side in ("top", "bottom")
+        slots.setdefault((e.src, s_side), []).append((i, "src", b.cx if horiz_s else b.cy))
+        slots.setdefault((e.dst, d_side), []).append((i, "dst", a.cx if horiz_d else a.cy))
+    out: dict[tuple[int, str], tuple[int, int]] = {}
+    for (nid, side), ends in slots.items():
+        rect = rects[nid]
+        ends.sort(key=lambda t: t[2])
+        n = len(ends)
+        for k, (i, which, _) in enumerate(ends):
+            x, y = _side_anchor(rect, side)
+            if n > 1:
+                frac = -0.3 + 0.6 * k / (n - 1)
+                if side in ("top", "bottom"):
+                    x = int(rect.cx + frac * rect.width)
+                else:
+                    y = int(rect.cy + frac * rect.height)
+            out[(i, which)] = (x, y)
+    return out
+
+
+def _route_points(p1, p2, vertical: bool, bend: float | None) -> list[tuple[int, int]]:
+    """The polyline a connector is drawn as (matches compose.route_elbow)."""
+    (x1, y1), (x2, y2) = p1, p2
+    if bend is None or x1 == x2 or y1 == y2:
+        return [p1, p2]
+    if vertical:
+        yb = int(y1 + bend * (y2 - y1))
+        return [p1, (x1, yb), (x2, yb), p2]
+    xb = int(x1 + bend * (x2 - x1))
+    return [p1, (xb, y1), (xb, y2), p2]
+
+
+def _shape_rect(sh) -> Rect:
+    return Rect(left=int(sh.left), top=int(sh.top), width=int(sh.width), height=int(sh.height))
+
+
+def _exit_side(p, q) -> str:
+    """Side of a node that a route leaves through at p heading to q."""
+    if p[0] == q[0]:
+        return "bottom" if q[1] > p[1] else "top"
+    return "right" if q[0] > p[0] else "left"
+
+
+def _snap_route_ends(pts, src: Rect, dst: Rect, gap: int = 25400 * 3):
+    """Move a route's first/last point onto the visible node bounds (plus a
+    hair of gap), sliding the end segment sideways into the node's span when
+    needed. Keeps every segment axis-aligned."""
+    pts = [list(p) for p in pts]
+    if len(pts) < 2:
+        return [tuple(p) for p in pts]
+
+    # Decide each end's orientation BEFORE moving anything: on a 2-point route
+    # snapping the start shifts the shared segment and would hide the end's.
+    orient = {0: pts[0][0] == pts[1][0], len(pts) - 1: pts[-1][0] == pts[-2][0]}
+    horiz = {0: pts[0][1] == pts[1][1], len(pts) - 1: pts[-1][1] == pts[-2][1]}
+
+    def fix(i_end, i_next, r: Rect):
+        e, n = pts[i_end], pts[i_next]
+        pad = min(r.width, r.height) // 6
+        if orient[i_end]:  # vertical end segment
+            x = min(max(e[0], r.left + pad), r.left + r.width - pad)
+            if len(pts) > 2:
+                e[0] = n[0] = x
+            else:
+                e[0] = x
+            e[1] = r.top - gap if n[1] < r.cy else r.top + r.height + gap
+        elif horiz[i_end]:  # horizontal end segment
+            y = min(max(e[1], r.top + pad), r.top + r.height - pad)
+            if len(pts) > 2:
+                e[1] = n[1] = y
+            else:
+                e[1] = y
+            e[0] = r.left - gap if n[0] < r.cx else r.left + r.width + gap
+
+    fix(0, 1, src)
+    fix(len(pts) - 1, len(pts) - 2, dst)
+    if len(pts) == 2 and pts[0][0] != pts[1][0] and pts[0][1] != pts[1][1]:
+        # a straight route whose ends slid apart: add a jog in the middle
+        (x1, y1), (x2, y2) = pts
+        if abs(x2 - x1) < abs(y2 - y1):
+            ym = (y1 + y2) // 2
+            pts = [[x1, y1], [x1, ym], [x2, ym], [x2, y2]]
+        else:
+            xm = (x1 + x2) // 2
+            pts = [[x1, y1], [xm, y1], [xm, y2], [x2, y2]]
+    out = _dedupe_points([tuple(p) for p in pts])
+    # drop collinear midpoints
+    i = 1
+    while i < len(out) - 1:
+        a, b, c = out[i - 1], out[i], out[i + 1]
+        if (a[0] == b[0] == c[0]) or (a[1] == b[1] == c[1]):
+            out.pop(i)
+        else:
+            i += 1
+    return out
+
+
+def _polyline_mid(pts) -> tuple[int, int]:
+    """Point half-way along a polyline's length."""
+    lens = [abs(b[0] - a[0]) + abs(b[1] - a[1]) for a, b in zip(pts, pts[1:])]
+    half = sum(lens) / 2
+    for (a, b), L in zip(zip(pts, pts[1:]), lens):
+        if half <= L and L:
+            t = half / L
+            return int(a[0] + t * (b[0] - a[0])), int(a[1] + t * (b[1] - a[1]))
+        half -= L
+    return pts[-1]
+
+
+_BEND_ORDER = (0.5, 0.32, 0.68, 0.2, 0.8, 0.41, 0.59)
+
+
+def _stagger_bends(edges, rects: dict[str, Rect], ports) -> dict[int, float]:
+    """Bend fraction per elbow edge. Elbows whose middle runs would fall on the
+    same line (same pair of ranks) get different bends, so they don't stack."""
+    buckets: dict[tuple, list[tuple[int, int]]] = {}
+    q = 914400 // 10  # 0.1in buckets
+    for i, e in enumerate(edges):
+        if (i, "src") not in ports:
+            continue
+        (x1, y1), (x2, y2) = ports[(i, "src")], ports[(i, "dst")]
+        if x1 == x2 or y1 == y2:
+            continue
+        s_side, _ = _anchor_sides(rects[e.src], rects[e.dst])
+        if s_side in ("top", "bottom"):
+            key = ("v", min(y1, y2) // q, max(y1, y2) // q)
+            order = min(x1, x2)
+        else:
+            key = ("h", min(x1, x2) // q, max(x1, x2) // q)
+            order = min(y1, y2)
+        buckets.setdefault(key, []).append((order, i))
+    out: dict[int, float] = {}
+    for items in buckets.values():
+        items.sort()
+        for k, (_, i) in enumerate(items):
+            out[i] = _BEND_ORDER[k % len(_BEND_ORDER)]
+    return out
 
 
 def _side_anchor(rect: Rect, side: str) -> tuple[int, int]:

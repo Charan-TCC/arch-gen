@@ -1,0 +1,62 @@
+{
+  "preset": "consulting-classic",
+  "title": "Consulting Classic",
+  "best_for": "analysis-heavy decks, recommendations, steering committees",
+  "source": "preset",
+  "mode": "light",
+  "color": {
+    "background": "#FFFFFF",
+    "surface": "#F4F5F6",
+    "surface-alt": "#E8EAEC",
+    "border": "#B9BFC6",
+    "text-primary": "#1A1D21",
+    "text-secondary": "#50565E",
+    "text-inverse": "#FFFFFF",
+    "accent": "#00507A",
+    "accent-secondary": "#5C6670",
+    "positive": "#166534",
+    "warning": "#854D0E",
+    "negative": "#991B1B",
+    "neutral": "#7D858E"
+  },
+  "chart_series": [
+    "accent",
+    "accent-secondary",
+    "neutral",
+    "text-secondary"
+  ],
+  "font": {
+    "primary": "Calibri",
+    "heading": "Calibri",
+    "fallback": "Arial",
+    "mono": "Consolas"
+  },
+  "type_scale": {
+    "cover": 44,
+    "section": 32,
+    "title": 24,
+    "statement": 34,
+    "subtitle": 16,
+    "body": 12,
+    "caption": 10,
+    "footer": 9,
+    "hero": 72
+  },
+  "space": {
+    "xs": 4,
+    "sm": 6,
+    "md": 12,
+    "lg": 18,
+    "section": 28
+  },
+  "style": {
+    "corner_radius": 0.02,
+    "line_pt": 0.75,
+    "card": "outline",
+    "divider": "rule",
+    "cover": "left-text-right-visual",
+    "decoration": "none",
+    "density": "compact",
+    "icon_style": "line"
+  }
+}

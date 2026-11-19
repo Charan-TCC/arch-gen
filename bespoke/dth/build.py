@@ -295,5 +295,8 @@ badge(slide, 9.15, SFC[1], 6)
 seg(slide, M_ECR[0] - h, FARG[1], FARG[0] + h, FARG[1], arrow=True)
 badge(slide, 9.15, FARG[1], 7)
 
-prs.save("data_transfer_hub.pptx")
+import os; os.makedirs("out", exist_ok=True)
+from archgen.shared.geomcheck import fix_presentation
+fix_presentation(prs)  # hug text boxes, snap near-miss alignment
+prs.save("out/data_transfer_hub.pptx")
 print("saved data_transfer_hub.pptx")

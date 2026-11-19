@@ -679,6 +679,9 @@ def build_deck(out_path: str | Path = "out/gs_dashboard.pptx") -> None:
     # Ensure output directory exists and save presentation
     out = Path(out_path)
     out.parent.mkdir(parents=True, exist_ok=True)
+    import os; os.makedirs("out", exist_ok=True)
+    from archgen.shared.geomcheck import fix_presentation
+    fix_presentation(prs)  # hug text boxes, snap near-miss alignment
     prs.save(str(out))
     print(f"Rendered -> {out}")
 

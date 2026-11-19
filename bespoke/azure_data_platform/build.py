@@ -252,6 +252,9 @@ text(slide, 0.4, 6.92, 12.5, 0.3,
        ("- - - ", 9, True, FLOW_AI), ("= AI enrichment (Databricks → Cognitive Services)", 9, False, GRAY)]],
      align=PP_ALIGN.LEFT)
 
-out = sys.argv[1] if len(sys.argv) > 1 else "azure_data_platform.pptx"
+out = sys.argv[1] if len(sys.argv) > 1 else "out/azure_data_platform.pptx"
+import os; os.makedirs("out", exist_ok=True)
+from archgen.shared.geomcheck import fix_presentation
+fix_presentation(prs)  # hug text boxes, snap near-miss alignment
 prs.save(out)
 print("saved", out)

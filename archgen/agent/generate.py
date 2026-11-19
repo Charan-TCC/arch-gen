@@ -71,7 +71,7 @@ def generate_spec(
     raise GenerationError("spec still invalid after retries:\n  - " + "\n  - ".join(last_errors))
 
 
-def anthropic_complete(model: str = "claude-sonnet-5") -> Complete:
+def anthropic_complete(model: str = "claude-sonnet-5-5") -> Complete:
     """Return a ``complete`` backed by the Anthropic API (requires the SDK + key)."""
 
     def _complete(system: str, user: str) -> str:

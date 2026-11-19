@@ -270,5 +270,8 @@ draw_edge(6.5, 6.2, 7.3, 5.2, 13, 6.9, 5.7)
 # From Lambda 2 up to DynamoDB
 draw_edge(6.2, 5.9, 6.1, 5.6, 14, 6.1, 5.75, straight=True)
 
-prs.save("multi_account_architecture_bespoke.pptx")
+import os; os.makedirs("out", exist_ok=True)
+from archgen.shared.geomcheck import fix_presentation
+fix_presentation(prs)  # hug text boxes, snap near-miss alignment
+prs.save("out/multi_account_architecture_bespoke.pptx")
 print("saved multi_account_architecture_bespoke.pptx")

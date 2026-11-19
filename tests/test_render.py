@@ -68,28 +68,35 @@ def test_labels_are_editable_text(rendered):
 
 
 def test_edges_have_arrowheads(rendered):
+    """Every edge carries an arrowhead, whether it is drawn as a native
+    connector (straight / one elbow) or as a freeform following graphviz's
+    longer orthogonal route."""
     prs = Presentation(str(rendered))
     xml = prs.slides[0].shapes._spTree.xml
     diagram = load_spec(SAMPLE)
     semantics = {(edge.style.value, edge.kind.value) for edge in diagram.edges}
     n_legend_lines = len(semantics) if len(semantics) > 1 else 0
     expected = len(diagram.edges) + n_legend_lines
-    assert xml.count("<p:cxnSp>") == expected
     assert xml.count("tailEnd") == expected
 
 
 def test_edges_are_bound_to_node_shapes(rendered):
-    """Every real edge's connector is bound to its source and destination node
+    """Every connector-shaped edge is bound to its source and destination node
     shapes (stCxn/endCxn), so moving a node in PowerPoint drags its arrows along
-    instead of leaving them free-floating (DESIGN_GUIDELINES §6). Legend sample
-    lines are intentionally left unbound."""
+    (DESIGN_GUIDELINES §6). Legend sample lines are intentionally unbound, and
+    routes with more than one bend are freeforms (exact graphviz path), which
+    PowerPoint cannot glue."""
     import re
 
     prs = Presentation(str(rendered))
     xml = prs.slides[0].shapes._spTree.xml
-    n_edges = len(load_spec(SAMPLE).edges)
-    assert xml.count("stCxn") == n_edges
-    assert xml.count("endCxn") == n_edges
+    diagram = load_spec(SAMPLE)
+    semantics = {(edge.style.value, edge.kind.value) for edge in diagram.edges}
+    n_legend_lines = len(semantics) if len(semantics) > 1 else 0
+    n_edge_connectors = xml.count("<p:cxnSp>") - n_legend_lines
+    assert n_edge_connectors >= len(diagram.edges) // 2   # most routes stay native
+    assert xml.count("stCxn") == n_edge_connectors
+    assert xml.count("endCxn") == n_edge_connectors
     # Every binding must reference a shape id that actually exists on the slide.
     shape_ids = set(re.findall(r'<p:cNvPr id="(\d+)"', xml))
     cxn_ids = re.findall(r'<a:(?:st|end)Cxn id="(\d+)"', xml)

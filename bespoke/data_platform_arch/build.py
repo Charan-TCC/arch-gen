@@ -1177,6 +1177,9 @@ def build_deck(out_path: str | Path = "out/recreated_architecture.pptx") -> None
     render_slide_2(prs)
 
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+    import os; os.makedirs("out", exist_ok=True)
+    from archgen.shared.geomcheck import fix_presentation
+    fix_presentation(prs)  # hug text boxes, snap near-miss alignment
     prs.save(str(out_path))
     print(f"Full presentation deck saved to: {out_path}")
 

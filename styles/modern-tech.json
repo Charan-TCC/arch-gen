@@ -1,0 +1,62 @@
+{
+  "preset": "modern-tech",
+  "title": "Modern Tech",
+  "best_for": "platform, AI, engineering and product decks",
+  "source": "preset",
+  "mode": "dark",
+  "color": {
+    "background": "#0B1020",
+    "surface": "#141B2E",
+    "surface-alt": "#1C2540",
+    "border": "#3A4766",
+    "text-primary": "#EEF2FA",
+    "text-secondary": "#A9B4CC",
+    "text-inverse": "#0B1020",
+    "accent": "#2DD4BF",
+    "accent-secondary": "#A78BFA",
+    "positive": "#4ADE80",
+    "warning": "#FBBF24",
+    "negative": "#F87171",
+    "neutral": "#8B96AE"
+  },
+  "chart_series": [
+    "accent",
+    "accent-secondary",
+    "neutral",
+    "text-secondary"
+  ],
+  "font": {
+    "primary": "Segoe UI",
+    "heading": "Segoe UI Semibold",
+    "fallback": "Arial",
+    "mono": "Consolas"
+  },
+  "type_scale": {
+    "cover": 44,
+    "section": 32,
+    "title": 26,
+    "statement": 34,
+    "subtitle": 16,
+    "body": 14,
+    "caption": 11,
+    "footer": 9,
+    "hero": 72
+  },
+  "space": {
+    "xs": 4,
+    "sm": 8,
+    "md": 16,
+    "lg": 24,
+    "section": 40
+  },
+  "style": {
+    "corner_radius": 0.08,
+    "line_pt": 1.0,
+    "card": "filled",
+    "divider": "glow-rule",
+    "cover": "centered-visual",
+    "decoration": "grid-dots",
+    "density": "balanced",
+    "icon_style": "mono-accent"
+  }
+}

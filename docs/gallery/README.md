@@ -28,4 +28,4 @@ that is the visual QA (DESIGN_GUIDELINES §"required visual QA"). A single
 | ![aws_discovery_platform](aws_discovery_platform.png) | [aws_discovery_platform.yaml](../../examples/aws_discovery_platform.yaml) | network (architecture board) |
 | ![load_testing](load_testing.png) | [load_testing.yaml](../../examples/load_testing.yaml) | network |
 | ![multi_region_azure](multi_region_azure.png) | [multi_region_azure.yaml](../../examples/multi_region_azure.yaml) | flow (graphviz) |
-| ![azure_modern_data_platform](azure_modern_data_platform.png) | [build_azure_data_platform.py](../../custom_builds/build_azure_data_platform.py) | **bespoke** python-pptx (6-tier layered board; not the archgen renderer) |
+| ![azure_modern_data_platform](azure_modern_data_platform.png) | [bespoke/azure_data_platform/build.py](../../bespoke/azure_data_platform/build.py) | **bespoke** python-pptx (6-tier layered board; not the archgen renderer) |

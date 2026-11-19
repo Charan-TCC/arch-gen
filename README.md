@@ -5,7 +5,7 @@ spec. An LLM agent (Codex/Claude) writes *only* the spec; a deterministic Python
 renderer owns all the aesthetics — consistent sizing, spacing, colors, grouped
 containers, tidy arrows, auto-fit labels, and auto-generated legends.
 
-Agents and contributors must follow [DESIGN_GUIDELINES.md](DESIGN_GUIDELINES.md)
+Agents and contributors must follow [DESIGN_GUIDELINES.md](docs/DESIGN_GUIDELINES.md)
 before generating or delivering a slide. It defines the asset-only logo policy,
 placeholder disclosure, flat/no-shadow treatment, connector integrity, text fitting,
 grouping, and required visual QA.

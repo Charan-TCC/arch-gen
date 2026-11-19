@@ -356,5 +356,8 @@ add_legend_row(ly + 0.60, "OIDC / Auth", PURPLE, dashed=True)
 add_legend_row(ly + 0.85, "Async Event", ORANGE, dotted=True)
 add_legend_row(ly + 1.10, "Telemetry", GRAY, dotted=True)
 
-prs.save("byc_architecture.pptx")
+import os; os.makedirs("out", exist_ok=True)
+from archgen.shared.geomcheck import fix_presentation
+fix_presentation(prs)  # hug text boxes, snap near-miss alignment
+prs.save("out/byc_architecture.pptx")
 print("saved byc_architecture.pptx")

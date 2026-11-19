@@ -38,7 +38,7 @@ done
 # quiet `if [ -f ... ]` guard is exactly how docs/gallery/shine_migration.png
 # went stale (its script, build_shine.py, was referenced here for years but
 # never actually existed in the repo).
-BESPOKE=custom_builds/build_azure_data_platform.py
+BESPOKE=bespoke/azure_data_platform/build.py
 if [ ! -f "$BESPOKE" ]; then
   echo "error: $BESPOKE not found — fix this script or remove its gallery entry" >&2
   exit 1

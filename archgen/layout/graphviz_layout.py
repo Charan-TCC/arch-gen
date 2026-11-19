@@ -24,14 +24,17 @@ NODE_W_IN = 1.5
 NODE_H_IN = 1.35
 
 # Default spacing (points/inches) for ordinary flow diagrams.
-NODESEP_IN = 1.2
-RANKSEP_IN = 2.0
-CLUSTER_MARGIN_PT = 48
+# Tight enough that the diagram reads as one composition (the old 1.2/2.0
+# left acres of empty canvas and forced poster-sized slides); ortho routing
+# still has room to run channels between cards.
+NODESEP_IN = 0.55
+RANKSEP_IN = 0.95
+CLUSTER_MARGIN_PT = 24
 
 # Layered mode uses much tighter spacing so tiers pack into clean bands instead
 # of the airy default that makes tall columns overflow the slide.
-LAYERED_NODESEP_IN = 0.12
-LAYERED_RANKSEP_IN = 0.85
+LAYERED_NODESEP_IN = 0.3
+LAYERED_RANKSEP_IN = 1.2
 LAYERED_CLUSTER_MARGIN_PT = 12
 
 # Card-size envelope the renderer picks within, for layered auto-sizing.
@@ -114,7 +117,8 @@ class ClusterLayout:
 class EdgeLayout:
     src: str
     dst: str
-    points: list[tuple[float, float]] = field(default_factory=list)  # spline control pts, points
+    points: list[tuple[float, float]] = field(default_factory=list)  # route polyline, points (start -> arrow tip)
+    label_pos: tuple[float, float] | None = None  # graphviz-placed label centre, points
 
 
 @dataclass
@@ -165,6 +169,12 @@ def build_dot(diagram: Diagram, *, node_w: float | None = None, node_h: float | 
     lines.append(f'  rankdir={diagram.direction};')
     lines.append("  compound=true;")  # allow edges to/from clusters
     lines.append("  newrank=true;")
+    # Orthogonal routing: graphviz computes right-angle routes that go AROUND
+    # nodes; the renderer draws these instead of inventing its own elbows.
+    # Ortho can't carry edge labels, so labels become xlabels, which dot
+    # places next to the route without overlapping nodes.
+    lines.append("  splines=ortho;")
+    lines.append("  forcelabels=true;")
     lines.append('  node [shape=box, fixedsize=true, '
                  f'width={nw}, height={nh}];')
     lines.append(f"  nodesep={nodesep};")
@@ -216,7 +226,7 @@ def build_dot(diagram: Diagram, *, node_w: float | None = None, node_h: float | 
     for e in diagram.edges:
         attrs = [f'style={style_map[e.style.value]}']
         if e.label:
-            attrs.append(f'label="{_esc(e.label)}"')
+            attrs.append(f'xlabel="{_esc(e.label)}"')
         lines.append(f"  {_safe(e.src)} -> {_safe(e.dst)} [{', '.join(attrs)}];")
 
     # Layered mode: pin every tier (group) to one rank so it renders as a clean
@@ -263,7 +273,9 @@ def _parse_json(doc: dict) -> Layout:
         head = id_by_gvid.get(str(e.get("head")))
         if tail is None or head is None:
             continue
-        edges.append(EdgeLayout(src=tail, dst=head, points=_parse_spline(e.get("pos", ""))))
+        xlp = e.get("xlp") or e.get("lp")
+        edges.append(EdgeLayout(src=tail, dst=head, points=_parse_spline(e.get("pos", "")),
+                                label_pos=_parse_pos(xlp) if xlp else None))
 
     return Layout(graph_bb=graph_bb, nodes=nodes, clusters=clusters, edges=edges)
 
@@ -279,15 +291,49 @@ def _parse_pos(s: str) -> tuple[float, float]:
 
 
 def _parse_spline(s: str) -> list[tuple[float, float]]:
+    """Graphviz edge ``pos`` -> polyline from tail to arrow tip.
+
+    Format: ``[s,x,y ][e,x,y ]p1 p2 ...``. The ``e`` point is the arrow TIP and
+    belongs at the END (it is listed first). For ortho routes the control points
+    are collinear runs, so deduping + dropping collinear midpoints yields the
+    exact right-angle path.
+    """
+    start = end = None
     pts: list[tuple[float, float]] = []
-    for token in s.replace("e,", "").replace("s,", "").split():
-        if "," in token:
-            try:
+    for token in s.split():
+        try:
+            if token.startswith("e,"):
+                x, y = token[2:].split(",")[:2]
+                end = (float(x), float(y))
+            elif token.startswith("s,"):
+                x, y = token[2:].split(",")[:2]
+                start = (float(x), float(y))
+            elif "," in token:
                 x, y = token.split(",")[:2]
                 pts.append((float(x), float(y)))
-            except ValueError:
-                continue
-    return pts
+        except ValueError:
+            continue
+    if start:
+        pts.insert(0, start)
+    if end:
+        pts.append(end)
+    return simplify_polyline(pts)
+
+
+def simplify_polyline(pts: list[tuple[float, float]], eps: float = 0.5) -> list[tuple[float, float]]:
+    out: list[tuple[float, float]] = []
+    for p in pts:
+        if out and abs(p[0] - out[-1][0]) < eps and abs(p[1] - out[-1][1]) < eps:
+            continue
+        out.append(p)
+    i = 1
+    while i < len(out) - 1:
+        (ax, ay), (bx, by), (cx, cy) = out[i - 1], out[i], out[i + 1]
+        if (abs(ax - bx) < eps and abs(bx - cx) < eps) or (abs(ay - by) < eps and abs(by - cy) < eps):
+            out.pop(i)
+        else:
+            i += 1
+    return out
 
 
 def _safe(name: str) -> str:

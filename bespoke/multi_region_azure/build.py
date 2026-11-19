@@ -159,5 +159,8 @@ elbow_connector(slide, 7.83, 4.3, 11.83, 5.7) # Web -> Search
 elbow_connector(slide, 3.1, 6.0, 8.86, 6.0, dash=True) # SQL1 -> SQL2
 elbow_connector(slide, 4.4, 6.0, 10.19, 6.0, dash=True) # Cosmos1 -> Cosmos2
 
-prs.save("examples/multi_region_azure_bespoke.pptx")
-print("Saved examples/multi_region_azure_bespoke.pptx")
+import os; os.makedirs("out", exist_ok=True)
+from archgen.shared.geomcheck import fix_presentation
+fix_presentation(prs)  # hug text boxes, snap near-miss alignment
+prs.save("out/multi_region_azure_bespoke.pptx")
+print("Saved out/multi_region_azure_bespoke.pptx")

@@ -1,7 +1,7 @@
 # Contributing / maintenance guide
 
 How to set up, develop, extend, and release archgen. Architecture details:
-[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Project spec: [SPEC.md](SPEC.md).
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Project spec: [SPEC.md](docs/SPEC.md).
 
 ## Dev setup
 
@@ -75,7 +75,7 @@ Pure-Python path: `archgen/layout/simple_layout.py`. Graphviz path:
 
 - Keep the **agent-emits-spec / renderer-owns-aesthetics** split intact. No aesthetic
   decisions in the spec or the agent; no semantic decisions in the renderer.
-- Preserve the invariants in [SPEC.md §6](SPEC.md#6-invariants-what-must-always-hold) —
+- Preserve the invariants in [SPEC.md §6](docs/SPEC.md#6-invariants-what-must-always-hold) —
   especially: brand icons never recolored/distorted; output stays editable; containers
   never overlap.
 - Add or update a test when you change behavior. The golden render test is the

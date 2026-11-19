@@ -140,5 +140,8 @@ elbow_connector(slide, 8.6, 3.5, 9.75, 5.2)
 # Workers to Analytics
 straight_connector(slide, 10.9, 3.7, 11.9, 3.7)
 
+import os; os.makedirs("out", exist_ok=True)
+from archgen.shared.geomcheck import fix_presentation
+fix_presentation(prs)  # hug text boxes, snap near-miss alignment
 prs.save("out/vpc_architecture.pptx")
 print("saved out/vpc_architecture.pptx")

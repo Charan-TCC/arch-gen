@@ -1,0 +1,62 @@
+{
+  "preset": "pastel-soft",
+  "title": "Pastel Soft",
+  "best_for": "education, onboarding, internal comms, friendly updates",
+  "source": "preset",
+  "mode": "light",
+  "color": {
+    "background": "#FFFFFF",
+    "surface": "#F6F5FC",
+    "surface-alt": "#EEF6F4",
+    "border": "#CFCDE0",
+    "text-primary": "#24223A",
+    "text-secondary": "#585673",
+    "text-inverse": "#FFFFFF",
+    "accent": "#5B47C7",
+    "accent-secondary": "#0F766E",
+    "positive": "#166534",
+    "warning": "#854D0E",
+    "negative": "#991B1B",
+    "neutral": "#77758F"
+  },
+  "chart_series": [
+    "accent",
+    "accent-secondary",
+    "neutral",
+    "text-secondary"
+  ],
+  "font": {
+    "primary": "Verdana",
+    "heading": "Verdana",
+    "fallback": "Arial",
+    "mono": "Consolas"
+  },
+  "type_scale": {
+    "cover": 44,
+    "section": 32,
+    "title": 26,
+    "statement": 34,
+    "subtitle": 16,
+    "body": 13,
+    "caption": 11,
+    "footer": 9,
+    "hero": 72
+  },
+  "space": {
+    "xs": 6,
+    "sm": 10,
+    "md": 20,
+    "lg": 32,
+    "section": 52
+  },
+  "style": {
+    "corner_radius": 0.16,
+    "line_pt": 0.75,
+    "card": "filled",
+    "divider": "dot",
+    "cover": "centered-visual",
+    "decoration": "soft-blobs",
+    "density": "airy",
+    "icon_style": "color"
+  }
+}

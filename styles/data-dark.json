@@ -1,0 +1,62 @@
+{
+  "preset": "data-dark",
+  "title": "Data Dark",
+  "best_for": "dashboards, KPI reviews, analytics readouts",
+  "source": "preset",
+  "mode": "dark",
+  "color": {
+    "background": "#0F1419",
+    "surface": "#182029",
+    "surface-alt": "#212B36",
+    "border": "#3B4856",
+    "text-primary": "#E8EDF2",
+    "text-secondary": "#9DAAB8",
+    "text-inverse": "#0F1419",
+    "accent": "#38BDF8",
+    "accent-secondary": "#F59E0B",
+    "positive": "#34D399",
+    "warning": "#FBBF24",
+    "negative": "#FB7185",
+    "neutral": "#8695A6"
+  },
+  "chart_series": [
+    "accent",
+    "accent-secondary",
+    "positive",
+    "neutral"
+  ],
+  "font": {
+    "primary": "Segoe UI",
+    "heading": "Segoe UI Semibold",
+    "fallback": "Arial",
+    "mono": "Consolas"
+  },
+  "type_scale": {
+    "cover": 44,
+    "section": 32,
+    "title": 26,
+    "statement": 34,
+    "subtitle": 16,
+    "body": 14,
+    "caption": 11,
+    "footer": 9,
+    "hero": 72
+  },
+  "space": {
+    "xs": 4,
+    "sm": 6,
+    "md": 12,
+    "lg": 18,
+    "section": 28
+  },
+  "style": {
+    "corner_radius": 0.05,
+    "line_pt": 0.75,
+    "card": "filled",
+    "divider": "rule",
+    "cover": "split-right-visual",
+    "decoration": "grid-lines",
+    "density": "compact",
+    "icon_style": "mono-accent"
+  }
+}

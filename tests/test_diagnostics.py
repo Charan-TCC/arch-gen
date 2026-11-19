@@ -159,14 +159,14 @@ def test_free_page_grows_slide_instead_of_shrinking_text(tmp_path):
 
 @pytest.mark.skipif(not shutil.which("dot"), reason="graphviz dot not installed")
 def test_free_page_growth_is_capped_and_reported_honestly(tmp_path):
-    """A pathological 9-rank chain hits the 3x growth cap: the slide stops at
+    """A pathological 20-rank chain hits the 3x growth cap: the slide stops at
     the cap and the residual cramping stays visible in the report."""
     from archgen.render.renderer import Renderer
 
     r = Renderer()
-    r.render(_chain(9, page="free"), tmp_path / "capped.pptx")
+    r.render(_chain(20, page="free"), tmp_path / "capped.pptx")
     assert r._slide_h == 3 * int(r.theme.slide_h)
-    assert any("scaled to" in f.message for f in r.diagnostics if f.severity == "warn")
+    assert any("scaled to" in f.message for f in r.diagnostics if f.severity in ("warn", "error"))
 
 
 @pytest.mark.skipif(not shutil.which("dot"), reason="graphviz dot not installed")

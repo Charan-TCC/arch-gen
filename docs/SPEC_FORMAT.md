@@ -18,7 +18,7 @@ schema with `archgen schema`.
 | `groups` | `Group[]` | | `[]` | Containers (tiers/VPCs/resource groups). |
 | `edges` | `Edge[]` | | `[]` | Directed connections. |
 | `abbreviations` | map | | `{}` | `ABBR → expansion`; every abbreviation used in a label must appear here. |
-| `theme` | string | | `default` | Reserved; only `default` ships today. |
+| `theme` | string | | `default` | Style preset. `default` (theme.yaml) or a name from `styles/`: `corporate-clean`, `modern-tech`, `editorial`, `warm-minimal`, `bold-contrast`, `consulting-classic`, `data-dark`, `pastel-soft` — the same presets PPT Gen uses. Also `archgen render --theme <name>`. Provider icons keep official colours. |
 
 **provider** ∈ `azure` · `aws` · `gcp` · `tech` · `generic`.
 

@@ -18,7 +18,7 @@ from pptx.util import Emu, Inches, Pt
 from archgen.registry import emf
 from archgen.registry.resolver import IconResolver
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]  # repo root (bespoke/<name>/build.py)
 ICONS = ROOT / "assets" / "icons"
 R = IconResolver()
 FONT = "Segoe UI"
@@ -452,6 +452,9 @@ def build(out: str = "out/gcp_proposed_architectures.pptx") -> None:
     for fn in (slide_dt, slide_dso, slide_impact, slide_physical, slide_tank):
         fn(prs)
     Path(out).parent.mkdir(parents=True, exist_ok=True)
+    import os; os.makedirs("out", exist_ok=True)
+    from archgen.shared.geomcheck import fix_presentation
+    fix_presentation(prs)  # hug text boxes, snap near-miss alignment
     prs.save(out)
     print("saved", out)
 

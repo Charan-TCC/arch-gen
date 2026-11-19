@@ -235,7 +235,7 @@ def build_deck(out_path: str | Path = "out/edtih_architecture.pptx") -> None:
         [[("Backend", 8.5, True, False, INK_DARK)]],
         align=PP_ALIGN.CENTER,
     )
-    place_icon(slide, "tech.nodejs", BE_CARD["x"] + BE_CARD["w"] / 2, BE_CARD["y"] + 0.68, 0.44)
+    place_icon(slide, "tech.express", BE_CARD["x"] + BE_CARD["w"] / 2, BE_CARD["y"] + 0.68, 0.44)
     text_box(
         slide, BE_CARD["x"] + 0.05, BE_CARD["y"] + 1.05, BE_CARD["w"] - 0.10, 0.25,
         [[("Nodejs", 8.5, False, False, INK_DARK)]],
@@ -282,7 +282,7 @@ def build_deck(out_path: str | Path = "out/edtih_architecture.pptx") -> None:
     # SQL Server (Red wireframe icon)
     SQL_CARD = {"x": 9.90, "y": 2.48, "w": 2.25, "h": 1.00}
     rrect(slide, SQL_CARD["x"], SQL_CARD["y"], SQL_CARD["w"], SQL_CARD["h"], CARD_BG, CARD_LINE, line_pt=0.9, radius=0.06)
-    place_icon(slide, "tech.sqlserver", SQL_CARD["x"] + SQL_CARD["w"] / 2, SQL_CARD["y"] + 0.38, 0.44)
+    place_icon(slide, "azure.sql", SQL_CARD["x"] + SQL_CARD["w"] / 2, SQL_CARD["y"] + 0.38, 0.44)
     text_box(
         slide, SQL_CARD["x"] + 0.05, SQL_CARD["y"] + 0.68, SQL_CARD["w"] - 0.10, 0.25,
         [[("SQL Server", 8.5, False, False, INK_DARK)]],
@@ -388,6 +388,9 @@ def build_deck(out_path: str | Path = "out/edtih_architecture.pptx") -> None:
     )
 
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+    import os; os.makedirs("out", exist_ok=True)
+    from archgen.shared.geomcheck import fix_presentation
+    fix_presentation(prs)  # hug text boxes, snap near-miss alignment
     prs.save(str(out_path))
     print(f"Rendered clean minimal presentation to {out_path}")
 

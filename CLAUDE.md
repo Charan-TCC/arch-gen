@@ -2,7 +2,7 @@
 
 archgen turns a declarative spec into a **native, editable** PowerPoint architecture
 diagram. The agent writes only the spec; a deterministic Python renderer owns the
-aesthetics. Follow [DESIGN_GUIDELINES.md](DESIGN_GUIDELINES.md), [SPEC.md](SPEC.md),
+aesthetics. Follow [DESIGN_GUIDELINES.md](docs/DESIGN_GUIDELINES.md), [SPEC.md](docs/SPEC.md),
 and [docs/SPEC_FORMAT.md](docs/SPEC_FORMAT.md).
 
 ## 0. Before you iterate — read this, it will save you an hour
@@ -38,16 +38,25 @@ of understanding constraints first. Do these three things up front:
 - **`out/` is archgen's scratch output dir** — the default target for ad-hoc
   renders (`OUT ?= out.pptx` in the Makefile writes there when you pass a bare
   filename with a directory). It's gitignored and `make clean` removes it freely;
-  never treat anything in it as precious. **`outputs/` is a different, older
-  directory that predates this Makefile and is NOT managed by it** — it isn't
-  touched by `make clean`, isn't rendered into by any documented command, and
-  may hold decks with no reproducible source spec. Don't delete anything under
-  `outputs/` without checking whether its source still exists.
+  never treat anything in it as precious. Every spec render AND every bespoke
+  build writes there — nothing is ever saved to the repo root.
+- **Folder map:** `archgen/` package (`archgen/shared/` = modules byte-identical
+  with PPT Gen) · `examples/` specs · `bespoke/<name>/` one folder per bespoke
+  diagram (`build.py`, optional `spec.yaml`, `reference/` images) · `docs/`
+  (guides + `gallery/`) · `styles/` presets · `archive/` superseded files and
+  `archive/outputs-legacy/` (old renders with no reproducible source — gitignored,
+  don't delete without checking).
 
 ## 2. Layout engines & their constraints
 
 - `kind: flow` → **graphviz** (`dot`) when present: clustered ranks, crossing
-  minimization. Best general choice. Pure-Python `simple_layout.py` is the fallback
+  minimization. Best general choice. Edges use `splines=ortho` and the renderer
+  draws graphviz's own routes (they go around nodes) — don't reintroduce
+  renderer-invented elbows. Route ends snap to the visible icon+label group;
+  ≤1-bend routes are glued native connectors, longer ones are freeforms.
+  Edge labels sit on the route (or beside short arrows), never over titles.
+  A long dependency chain (5+ ranks) makes a tall, sparse layout — use
+  `layered: true` (one band per group) and show a mirrored region ONCE. Pure-Python `simple_layout.py` is the fallback
   ONLY when `dot` is absent — and it has sharp edges:
   - Cross-group edges must form a **DAG**. A group-level cycle (e.g. A→B and B→A across
     groups) makes longest-path layering diverge → collapsed/overlapping containers.
@@ -74,7 +83,7 @@ reference image the user wants matched closely?
 
 Signs you need the bespoke path: 3+ side-by-side zones **plus** a full-width band,
 header/annotation arrows, numbered callouts, or left-aligned icon+caption cards.
-archgen has no template for those — `custom_builds/build_azure_data_platform.py`
+archgen has no template for those — `bespoke/azure_data_platform/build.py`
 is the worked example.
 
 ## 4. Visual QA — text report first, PNG last (token budget is part of the job)
@@ -85,7 +94,7 @@ facts the tool already knows. The loop below is ordered by cost — exhaust each
 before escalating to the next:
 
 1. **Lint** (`make lint SPEC=...`) — spec-level problems.
-2. **Render with the layout report**:
+2. **Render with the layout + geometry report**:
    `archgen render <spec> -o <out> --auto-direction --strict`.
    `--auto-direction` lays out both TB and LR and keeps the better fit (a decision the
    tool makes deterministically — never burn an iteration discovering it yourself).
@@ -95,6 +104,11 @@ before escalating to the next:
    (`--strict` exits 3 while any remain). Do NOT rasterize or view a PNG during this
    stage. **Budget: 3 spec-fix iterations** — if errors persist after 3, the shape is
    wrong for this profile: change `kind`/`layered` or switch path per §3; don't grind.
+   The render also prints a **geometry report** (`archgen/shared/geomcheck.py`): near-miss
+   alignment, text boxes taller than their text, arrows crossing labels/cards or stacked on
+   each other. Bespoke builds: run `archgen qa <out.pptx>` (or `make qa OUT=...`) and fix
+   errors before looking at a PNG. Build with `compose.row/snap`, `text(h=None)` and
+   `compose.link(..., lane=)` so these don't happen in the first place.
 3. **One mandatory PNG view** — the report can't see everything (icon quality,
    connector collisions, overall balance). Rasterize (`make preview SPEC=...` or
    `qlmanage -t -s 1600 -o <dir> <file.pptx>`) and **actually view the PNG** (Read the
@@ -130,9 +144,25 @@ png = emf.to_picture(e.path, recolor_hex=recolor, prefer_vector=False)   # retur
 # add_picture(png, ...) in python-pptx; keep everything as native shapes/text/connectors.
 ```
 
-`custom_builds/build_azure_data_platform.py` is the scaffold: helpers `card`,
-`zone`, `connector`, `icon`, `text`. A new bespoke diagram = new content list +
-coordinates, same helpers. Regenerate its PNG via `make gallery`.
+**Use the shared kit, don't copy helpers.** `archgen/shared/compose.py` (identical to PPT Gen's
+`pptgen/compose.py`, contract in [docs/COMPOSE_API.md](docs/COMPOSE_API.md)) has `rrect`,
+`text`, `zone`, `band`, `connector` (incl. bidirectional), `callout`, `badge`, `icon_card`
+(icon + label as ONE group — §7) and `cover`. Glue: `archgen/kit.py`:
+
+```python
+from archgen.shared import compose
+from archgen.kit import RegistryIcons, style
+st, icons = style("corporate-clean"), RegistryIcons()   # any preset from styles/
+compose.icon_card(slide, st, icons, "azure.databricks", "Databricks", x, y, 1.6, 0.9)
+```
+
+A new bespoke diagram = content list + coordinates on top of this kit. The older
+`bespoke/*/build.py` still carry their own copied helpers — migrate them onto the kit when
+you touch them. Never edit only one copy of `compose.py`: copy it to the sibling repo
+(the parity test fails otherwise).
+
+**Styles:** `styles/*.json` are the same 8 presets as PPT Gen. Spec `theme: <preset>` or
+`archgen render --theme <preset>`. Provider icons keep official colours.
 
 ## 6. Gotcha already fixed — don't reintroduce
 
@@ -145,7 +175,7 @@ Run `make test` — the graphviz path is now exercised.
 ## 7. Rendering invariants — keep these true (renderer AND bespoke builds)
 
 These are hard rules for every node/card drawn, in `archgen/render/renderer.py` and in
-any `custom_builds/*.py` bespoke composition. Breaking one is a visual bug caught by §4.
+any `bespoke/*/build.py` bespoke composition. Breaking one is a visual bug caught by §4.
 
 - **Group icon + text into ONE shape.** Every node is an icon *and* its label bundled in
   a single PowerPoint group (`slide.shapes.add_group_shape()` → add icon + label into the
@@ -162,25 +192,3 @@ any `custom_builds/*.py` bespoke composition. Breaking one is a visual bug caugh
   - Keep labels short at the source (the linter caps at `MAX_LABEL_LEN`); hugging a box is
     no substitute for an over-long label — abbreviate instead (declare it in
     `abbreviations` so the legend covers it).
-
-<!-- baton -->
-## Project memory (Baton) — REQUIRED workflow
-This project uses Baton MCP tools for cross-agent memory. The current
-digest is injected at session start. You MUST keep it current:
-
-- After completing ANY user-requested change (even small ones), call
-  memory_checkpoint with the full updated digest (<=2000 tokens): current
-  task, architecture, file map, decisions, tried-and-failed, next steps.
-- Call memory_log immediately when you make a notable decision, hit a
-  dead end, or leave something open (decision|blocker|todo).
-- When the user says to hand off to another agent, call memory_handoff
-  FIRST, then stop.
-
-An out-of-date digest strands the next agent. Checkpointing is part of
-completing the task, not optional cleanup.
-
-NEVER read or write files under .agent-memory/ directly — always go
-through the memory tools (direct edits skip the event log and break the
-handoff trail). If a memory tool returns an error, report it to the user
-instead of working around it.
-<!-- /baton -->

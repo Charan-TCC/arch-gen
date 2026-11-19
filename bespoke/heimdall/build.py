@@ -4,7 +4,7 @@ Six labelled layer bands (swimlanes) from source systems down to the Heimdall
 web app, using archgen's real icon assets so branding stays authentic and the
 output stays native/editable. See CLAUDE.md sec5.
 
-    .venv/bin/python custom_builds/build_heimdall.py
+    .venv/bin/python bespoke/heimdall/build.py
 """
 import sys
 from pptx import Presentation
@@ -266,5 +266,8 @@ text(slide, 0.5, fy, 8.5, 0.25,
 out = sys.argv[1] if len(sys.argv) > 1 else "out/heimdall.pptx"
 import os
 os.makedirs(os.path.dirname(out), exist_ok=True)
+import os; os.makedirs("out", exist_ok=True)
+from archgen.shared.geomcheck import fix_presentation
+fix_presentation(prs)  # hug text boxes, snap near-miss alignment
 prs.save(out)
 print("saved", out)
